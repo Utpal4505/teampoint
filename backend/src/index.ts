@@ -1,1 +1,3 @@
-console.log("start me and i am helo")
+let a = "ss"
+
+console.log(a)
