@@ -1,3 +1,0 @@
-. "$(dirname -- "$0")/husky.sh"
-
-npx lint-staged
