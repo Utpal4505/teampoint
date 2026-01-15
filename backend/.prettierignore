@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+
+# Environment files
+.env
+.env.*
+
+# Logs
+logs
+*.log
+
+# Prisma
+prisma/migrations
+
+# Tooling & configs (optional but recommended)
+coverage
