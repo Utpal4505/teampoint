@@ -129,32 +129,44 @@ model User {
   fullName          String        @db.VarChar(100)
   email             String        @unique @db.VarChar(150)
   avatar_url        String?       @db.VarChar(255)
-  oauth_provider    OAuthProvider
-  oauth_provider_id String        @db.VarChar(255)
   status            UserStatus    @default(ACTIVE)
+  is_new            Boolean
   created_at        DateTime      @default(now())
   updated_at        DateTime      @updatedAt
   deleted_at        DateTime?
 
-  workspacesCreated Workspace[]         @relation("WorkspaceCreator")
-  inviterMember     Invite_Member[]     @relation("WorkspaceInviter")
-  workspaceMember   Workspace_Members[]
-  projectsCreated   Project[]
-  projectMember     Project_Members[]
-  tasksCreated      Tasks[]          @relation("TaskCreatedBy")
-  tasksAssigned     Tasks[]          @relation("TaskAssignedTo")
-  meetingsCreated   Meeting[]
-  meetingParticipants   MeetingParticipant[]
-  documentUploader      Document[]
-  discussions       Discussion[]
-  comments          Comment[]
-  goalsCreated      Goal[]  
-  milestonesCreated Milestone[]
-  activityLog       ActivityLog[]
-  refreshTokens     RefreshToken[]
-  workSpaceLeaveRequest  WorkspaceLeaveRequest[]
-  workSpaceLeaveRequestReviewer  WorkspaceLeaveRequest[]   @relation("LeaveReviewer")
+  authProviders                 AuthProvider[]
+  workspacesCreated             Workspace[]             @relation("WorkspaceCreator")
+  inviterMember                 Invite_Member[]         @relation("WorkspaceInviter")
+  workspaceMember               Workspace_Members[]
+  projectsCreated               Project[]
+  projectMember                 Project_Members[]
+  tasksCreated                  Tasks[]                 @relation("TaskCreatedBy")
+  tasksAssigned                 Tasks[]                 @relation("TaskAssignedTo")
+  meetingsCreated               Meeting[]
+  meetingParticipants           MeetingParticipant[]
+  documentUploader              Document[]
+  discussions                   Discussion[]
+  comments                      Comment[]
+  goalsCreated                  Goal[]
+  milestonesCreated             Milestone[]
+  activityLog                   ActivityLog[]
+  refreshTokens                 RefreshToken[]
+  workSpaceLeaveRequest         WorkspaceLeaveRequest[]
+  workSpaceLeaveRequestReviewer WorkspaceLeaveRequest[] @relation("LeaveReviewer")
+}
 
+model AuthProvider {
+  id               Int           @id @default(autoincrement())
+  provider         OAuthProvider
+  providerUserId   String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@unique([provider, providerUserId])
 }
 
 model Workspace {
@@ -169,11 +181,11 @@ model Workspace {
 
   creator User @relation("WorkspaceCreator", fields: [createdBy], references: [id])
 
-  inviteWorkspace  Invite_Member[]     @relation("WorkspaceInvites")
-  workspaceMembers Workspace_Members[]
-  projects         Project[]
-  activityLog       ActivityLog[]
-  workSpaceLeaveRequest  WorkspaceLeaveRequest[]
+  inviteWorkspace       Invite_Member[]         @relation("WorkspaceInvites")
+  workspaceMembers      Workspace_Members[]
+  projects              Project[]
+  activityLog           ActivityLog[]
+  workSpaceLeaveRequest WorkspaceLeaveRequest[]
 
   @@index([name, createdBy])
 }
@@ -237,8 +249,7 @@ model Project {
   discussions    Discussion[]
   goals          Goal[]
   milestones     Milestone[]
-  activityLog       ActivityLog[]
-
+  activityLog    ActivityLog[]
 
   @@index([workspaceId, status])
 }
@@ -260,62 +271,62 @@ model Project_Members {
 }
 
 model Tasks {
-  id  Int  @id  @default(autoincrement())
-  projectId  Int
+  id         Int @id @default(autoincrement())
+  projectId  Int?
   createdBy  Int
-  assignedTo  Int   // in this i have one doubt is it could be many bca one task can assigned to many users
+  assignedTo Int // in this i have one doubt is it could be many bca one task can assigned to many users
 
-  title       String    @db.VarChar(200)
+  title       String     @db.VarChar(200)
   description String?
   taskType    TaskType
   status      TaskStatus
   priority    Priority
   dueDate     DateTime?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   completedAt DateTime?
 
-  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator     User    @relation("TaskCreatedBy", fields: [createdBy], references: [id])
-  assignee    User?   @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  project  Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator  User    @relation("TaskCreatedBy", fields: [createdBy], references: [id])
+  assignee User?   @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
 
   @@index([projectId, assignedTo, taskType, status])
-} 
+}
 
 model Meeting {
-  id            Int        @id @default(autoincrement())
-  projectId     Int
-  createdBy     Int
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
 
-  title         String        @db.VarChar(255)
-  description   String?
-  status        MeetingStatus
+  title       String        @db.VarChar(255)
+  description String?
+  status      MeetingStatus
 
-  startTime     DateTime
-  endTime       DateTime
+  startTime DateTime
+  endTime   DateTime
 
-  meetingLink   String        @db.VarChar(500)
-  keyDecisions  String
-  actionItems   String?
+  meetingLink  String  @db.VarChar(500)
+  keyDecisions String
+  actionItems  String?
 
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  completedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
 
-  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator       User          @relation(fields: [createdBy], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
 
-  participants  MeetingParticipant[]
+  participants MeetingParticipant[]
 
   @@index([projectId, createdBy, status])
 }
 
 model MeetingParticipant {
-  id   Int   @id   @default(autoincrement())
-  meetingId   Int
-  userId      Int
-  role        MeetingRole
+  id        Int         @id @default(autoincrement())
+  meetingId Int
+  userId    Int
+  role      MeetingRole
   joinedAt  DateTime?
 
   meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
@@ -325,179 +336,179 @@ model MeetingParticipant {
 }
 
 model Document {
-  id          Int   @id @default(autoincrement())
-  projectId   Int
-  uploadedBy  Int
+  id         Int @id @default(autoincrement())
+  projectId  Int
+  uploadedBy Int
 
-  title       String   @db.VarChar(255)
+  title       String  @db.VarChar(255)
   description String?
   fileUrl     String
-  fileType    String   @db.VarChar(50)
+  fileType    String  @db.VarChar(50)
 
-  isArchived  Boolean  @default(false)
+  isArchived Boolean @default(false)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  uploader    User     @relation(fields: [uploadedBy], references: [id])
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader User    @relation(fields: [uploadedBy], references: [id])
 
-  links       DocumentLink[]
+  links DocumentLink[]
 
   @@index([projectId, uploadedBy])
 }
 
 model DocumentLink {
-  id         Int             @id @default(autoincrement())
+  id         Int @id @default(autoincrement())
   documentId Int
 
   entityType DocumentEntityType
   entityId   Int
 
-  createdAt  DateTime           @default(now())
+  createdAt DateTime @default(now())
 
-  document   Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   @@index([documentId, entityType, entityId])
 }
 
 model Discussion {
-  id          Int             @id @default(autoincrement())
-  projectId   Int
-  createdBy   Int
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
 
-  title       String             @db.VarChar(255)
+  title       String           @db.VarChar(255)
   description String?
   priority    Priority
   status      DiscussionStatus
 
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  resolvedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
 
-  project     Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator     User               @relation(fields: [createdBy], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
 
-  comments    Comment[]
+  comments Comment[]
 
   @@index([projectId, createdBy])
 }
 
 model Comment {
-  id            Int     @id @default(autoincrement())
-  discussionId  Int
-  commentBy     Int
+  id           Int @id @default(autoincrement())
+  discussionId Int
+  commentBy    Int
 
-  content       String
-  isDeleted     Boolean    @default(false)
+  content   String
+  isDeleted Boolean @default(false)
 
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  discussion    Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
-  author        User       @relation(fields: [commentBy], references: [id])
+  discussion Discussion @relation(fields: [discussionId], references: [id], onDelete: Cascade)
+  author     User       @relation(fields: [commentBy], references: [id])
 
   @@index([discussionId, commentBy])
 }
 
 model Goal {
-  id          Int     @id @default(autoincrement())
-  projectId   Int
-  createdBy   Int
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
 
   title       String     @db.VarChar(255)
   description String?
   targetDate  DateTime
   status      GoalStatus
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  achievedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  achievedAt DateTime?
 
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator     User       @relation(fields: [createdBy], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
 
   @@index([projectId])
 }
 
 model Milestone {
-  id          Int     @id @default(autoincrement())
-  projectId   Int
-  createdBy   Int
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
 
   title       String     @db.VarChar(255)
   description String?
   dueDate     DateTime
   status      GoalStatus
 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  achievedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  achievedAt DateTime?
 
-  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator     User       @relation(fields: [createdBy], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
 
   @@index([projectId])
 }
 
 model ActivityLog {
-  id          Int            @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  entityType  ActivityEntityType
-  entityId    Int
+  entityType ActivityEntityType
+  entityId   Int
 
-  action      ActivityAction
-  actorId     Int
-  content     String
+  action  ActivityAction
+  actorId Int
+  content String
 
   workspaceId Int
   projectId   Int?
 
-  createdAt   DateTime          @default(now())
+  createdAt DateTime @default(now())
 
-  actor       User              @relation(fields: [actorId], references: [id])
-  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  project     Project?          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  actor     User      @relation(fields: [actorId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@index([workspaceId, projectId, createdAt, actorId])
 }
 
 model RefreshToken {
-  id          Int        @id @default(autoincrement())
-  userId      Int
+  id     Int @id @default(autoincrement())
+  userId Int
 
-  provider    OAuthProvider
-  tokenHash   String
+  provider  OAuthProvider
+  tokenHash String
 
-  expiredAt   DateTime
-  createdAt   DateTime      @default(now())
-  revokedAt   DateTime?
+  expiredAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
 
-  replacedBy  Int?
+  replacedBy Int?
 
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  replaced    RefreshToken? @relation("TokenRotation", fields: [replacedBy], references: [id])
-  replaces    RefreshToken[] @relation("TokenRotation")
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replaced RefreshToken?  @relation("TokenRotation", fields: [replacedBy], references: [id])
+  replaces RefreshToken[] @relation("TokenRotation")
 
   @@index([userId, tokenHash])
 }
 
 model WorkspaceLeaveRequest {
-  id          Int             @id @default(autoincrement())
+  id          Int @id @default(autoincrement())
   workspaceId Int
   userId      Int
 
-  status      LeaveRequestStatus
-  reason      String?
+  status LeaveRequestStatus
+  reason String?
 
-  reviewedBy  Int
-  reviewedAt  DateTime?
+  reviewedBy Int
+  reviewedAt DateTime?
 
-  createdAt   DateTime           @default(now())
+  createdAt DateTime @default(now())
 
-  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  user        User               @relation(fields: [userId], references: [id])
-  reviewer    User               @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+  reviewer  User      @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
 
   @@index([workspaceId, userId, status])
 }
