@@ -6,10 +6,13 @@ import cookieParser from 'cookie-parser'
 import { errorHandler } from './middlewares/errorHandler.ts'
 import { requestIdMiddleware } from './middlewares/requestId.middleware.ts'
 import { requestLoggerMiddleware } from './middlewares/requestLoggerMiddleware.ts'
-import googleAuthRouter from './modules/auth/routes/google.routes.ts'
-import githubAuthRouter from './modules/auth/routes/github.routes.ts'
+import googleAuthRouter from './modules/auth/routes/google.route.ts'
+import githubAuthRouter from './modules/auth/routes/github.route.ts'
 import googlePassport from './modules/auth/providers/google.provider.ts'
 import githubPassport from './modules/auth/providers/github.provider.ts'
+import { hardAuth, restrictNewUserRoutes } from './middlewares/auth.middlewares.ts'
+import userRouter from './modules/user/user.route.ts'
+import workspaceRouter from './modules/workspace/workspace.routes.ts'
 
 const app: Application = express()
 
@@ -32,6 +35,10 @@ app.use(githubPassport.initialize())
 
 app.use('/api/v1/auth', googleAuthRouter)
 app.use('/api/v1/auth', githubAuthRouter)
+
+app.use('/api/v1', hardAuth, restrictNewUserRoutes)
+app.use('/api/v1/users', userRouter)
+app.use('/api/v1/workspaces', workspaceRouter)
 
 app.use(errorHandler)
 

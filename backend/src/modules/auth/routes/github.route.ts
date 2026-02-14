@@ -9,19 +9,22 @@ import {
 import { prisma } from '../../../config/db.config.ts'
 import bcrypt from 'bcrypt'
 import { env } from '../../../config/env.ts'
+import { assertUser } from '../../../utils/assertUser.ts'
 
 const router = Router()
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }))
+router.get('/github', passport.authenticate('github', { scope: ['user:email'] }))
 
 router.get(
-  '/google/callback',
-  passport.authenticate('google', {
+  '/github/callback',
+  passport.authenticate('github', {
     failureRedirect: '/login',
     session: false,
   }),
   asyncHandler(async (req, res) => {
-    const user = req?.user
+    assertUser(req.user)
+
+    const user = req.user
 
     if (!user) throw new ApiError(401, 'User not authenticated')
 
@@ -30,7 +33,7 @@ router.get(
     await prisma.refreshToken.deleteMany({
       where: {
         userId: userId,
-        provider: 'GOOGLE',
+        provider: 'GITHUB',
       },
     })
 
@@ -41,7 +44,7 @@ router.get(
     await prisma.refreshToken.create({
       data: {
         userId: userId,
-        provider: 'GOOGLE',
+        provider: 'GITHUB',
         tokenHash: refreshTokenHash,
         expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },

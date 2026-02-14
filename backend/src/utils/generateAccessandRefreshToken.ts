@@ -12,7 +12,7 @@ export const options: CookieOptions = {
 
 export const generateAccessandRefreshTokens = async (userId: number) => {
   try {
-    const accessToken = jwt.sign({ userId: userId }, env.ACCESS_TOKEN_SECRET, {
+    const accessToken = jwt.sign({ id: userId }, env.ACCESS_TOKEN_SECRET, {
       expiresIn: '30m',
     })
 

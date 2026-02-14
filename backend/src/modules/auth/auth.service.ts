@@ -27,7 +27,17 @@ export const authService = async (provider: OAuthProvider, profile: Profile) => 
     where: {
       email: email,
     },
+    select: {
+      id: true,
+      status: true,
+      email: true,
+      is_new: true,
+    },
   })
+
+  if (user?.status === 'INACTIVE') {
+    throw new ApiError(403, 'User account has been deleted')
+  }
 
   if (!user) {
     user = await prisma.user.create({
@@ -37,6 +47,13 @@ export const authService = async (provider: OAuthProvider, profile: Profile) => 
         is_new: true,
         avatar_url: avatarUrl,
         status: 'ACTIVE',
+      },
+      select: {
+        id: true,
+        status: true,
+        email: true,
+        avatar_url: true,
+        is_new: true,
       },
     })
   }
