@@ -1,4 +1,4 @@
-import type { RequestUser } from '../types/auth.type.ts'
+import type { RequestUser } from '../types/types.ts'
 import { ApiError } from './apiError.ts'
 
 export function assertUser(

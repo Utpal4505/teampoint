@@ -1,4 +1,4 @@
-import type { RequestUser } from './auth.type.ts'
+import type { RequestUser } from "./types.ts"
 
 declare global {
   namespace Express {

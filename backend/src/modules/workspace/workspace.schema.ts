@@ -20,3 +20,7 @@ export const createWorkspaceSchema = z.object({
       return sanitizeText(v.trim())
     }),
 })
+
+export const workspaceIdParamSchema = z.object({
+  workspaceId: z.number().int().positive().transform(Number),
+})

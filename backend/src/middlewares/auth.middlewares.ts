@@ -4,9 +4,8 @@ import { ApiError } from '../utils/apiError.ts'
 import jwt from 'jsonwebtoken'
 import { env } from '../config/env.ts'
 import { prisma } from '../config/db.config.ts'
-import type { jwtPayload } from '../types/jwt.type.ts'
-import type { RequestUser } from '../types/auth.type.ts'
 import { assertUser } from '../utils/assertUser.ts'
+import type { jwtPayload, RequestUser } from '../types/types.ts'
 
 const extractToken = (req: Request): string | null => {
   const cookieToken = req.cookies?.accessToken

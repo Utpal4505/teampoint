@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { createWorkspaceService } from './workspace.service.ts'
+import { createWorkspaceService, getWorkspaceByIdService } from './workspace.service.ts'
 
 export const createWorkspaceController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -17,4 +17,16 @@ export const createWorkspaceController = asyncHandler(async (req, res) => {
   return res
     .status(201)
     .json(new ApiResponse(201, 'Workspace created successfully', workspace))
+})
+
+export const getWorkspaceByIdController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const { workspaceId } = req.params
+
+  const workspace = await getWorkspaceByIdService(Number(workspaceId))
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace retrieved successfully', workspace))
 })

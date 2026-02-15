@@ -3,4 +3,9 @@ export interface RequestUser {
   email: string
   is_new: boolean
   avatar_url?: boolean
+  role?: 'OWNER' | 'ADMIN' | 'MEMBER'
+}
+
+export interface jwtPayload {
+    id: number
 }
