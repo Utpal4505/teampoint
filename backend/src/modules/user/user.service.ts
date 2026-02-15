@@ -1,7 +1,7 @@
 import { prisma } from '../../config/db.config.ts'
-import { Prisma } from '../../generated/prisma/client.ts'
 import type { GetUserDTO, UserDeletionDTO } from '../../types/user.types.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
 
 export const getCurrentUserService = async ({
   userId,
@@ -32,9 +32,9 @@ export const deleteUserService = async ({
 }: {
   userId: number
 }): Promise<UserDeletionDTO> => {
-  try {
-    const user = await prisma.$transaction(async prisma => {
-      const updatedUser = await prisma.user.update({
+  return prisma.$transaction(async prisma => {
+    const updatedUser = handlePrismaNotFound(
+      prisma.user.update({
         where: {
           id: userId,
           status: 'ACTIVE',
@@ -47,32 +47,18 @@ export const deleteUserService = async ({
           id: true,
           status: true,
         },
-      })
+      }),
+    )
 
-      await prisma.refreshToken.updateMany({
-        where: {
-          userId: userId,
-        },
-        data: {
-          revokedAt: new Date(),
-        },
-      })
-
-      return updatedUser
+    await prisma.refreshToken.updateMany({
+      where: {
+        userId: userId,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
     })
 
-    return user
-  } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2025') {
-        throw new ApiError(404, 'User not found')
-      }
-
-      if (error.code === 'P2002') {
-        throw new ApiError(409, 'Duplicate value conflict')
-      }
-    }
-
-    throw error
-  }
+    return updatedUser
+  })
 }

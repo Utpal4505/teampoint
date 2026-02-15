@@ -12,7 +12,7 @@ import googlePassport from './modules/auth/providers/google.provider.ts'
 import githubPassport from './modules/auth/providers/github.provider.ts'
 import { hardAuth, restrictNewUserRoutes } from './middlewares/auth.middlewares.ts'
 import userRouter from './modules/user/user.route.ts'
-import workspaceRouter from './modules/workspace/workspace.routes.ts'
+import workspaceRouter from './modules/workspace/workspace.route.ts'
 
 const app: Application = express()
 

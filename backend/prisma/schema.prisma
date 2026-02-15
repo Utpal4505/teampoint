@@ -99,7 +99,9 @@ enum GoalStatus {
 
 enum ActivityEntityType {
   WORKSPACE
+  WORKSPACE_MEMBER
   PROJECT
+  PROJECT_MEMBER
   TASK
   MEETING
   DISCUSSION
@@ -111,6 +113,7 @@ enum ActivityEntityType {
 enum ActivityAction {
   CREATED
   UPDATED
+  REMOVED
   DELETED
   COMPLETED
   COMMENTED
@@ -124,16 +127,24 @@ enum LeaveRequestStatus {
   CANCELLED
 }
 
+enum WorkspaceMemberStatus {
+  ACTIVE
+  INVITED
+  REMOVED
+  LEFT
+  BLOCKED
+}
+
 model User {
-  id                Int           @id @default(autoincrement())
-  fullName          String        @db.VarChar(100)
-  email             String        @unique @db.VarChar(150)
-  avatar_url        String?       @db.VarChar(255)
-  status            UserStatus    @default(ACTIVE)
-  is_new            Boolean
-  created_at        DateTime      @default(now())
-  updated_at        DateTime      @updatedAt
-  deleted_at        DateTime?
+  id         Int        @id @default(autoincrement())
+  fullName   String     @db.VarChar(100)
+  email      String     @unique @db.VarChar(150)
+  avatar_url String?    @db.VarChar(255)
+  status     UserStatus @default(ACTIVE)
+  is_new     Boolean
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  deleted_at DateTime?
 
   authProviders                 AuthProvider[]
   workspacesCreated             Workspace[]             @relation("WorkspaceCreator")
@@ -157,9 +168,9 @@ model User {
 }
 
 model AuthProvider {
-  id               Int           @id @default(autoincrement())
-  provider         OAuthProvider
-  providerUserId   String
+  id             Int           @id @default(autoincrement())
+  provider       OAuthProvider
+  providerUserId String
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -174,10 +185,11 @@ model Workspace {
   name        String          @db.VarChar(150)
   description String?
   createdBy   Int
-  status      WorkspaceStatus
+  status      WorkspaceStatus 
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
+  archivedAt  DateTime?
 
   creator User @relation("WorkspaceCreator", fields: [createdBy], references: [id])
 
@@ -216,9 +228,11 @@ model Workspace_Members {
   userId      Int
 
   role        WorkspaceRole
+  status      WorkspaceMemberStatus  @default(ACTIVE)
   permissions Json
   joinedAt    DateTime
   createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
@@ -271,7 +285,7 @@ model Project_Members {
 }
 
 model Tasks {
-  id         Int @id @default(autoincrement())
+  id         Int  @id @default(autoincrement())
   projectId  Int?
   createdBy  Int
   assignedTo Int // in this i have one doubt is it could be many bca one task can assigned to many users
@@ -288,8 +302,8 @@ model Tasks {
   completedAt DateTime?
 
   project  Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator  User    @relation("TaskCreatedBy", fields: [createdBy], references: [id])
-  assignee User?   @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  creator  User     @relation("TaskCreatedBy", fields: [createdBy], references: [id])
+  assignee User?    @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
 
   @@index([projectId, assignedTo, taskType, status])
 }
@@ -467,8 +481,8 @@ model ActivityLog {
   createdAt DateTime @default(now())
 
   actor     User      @relation(fields: [actorId], references: [id])
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  project   Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  project   Project?  @relation(fields: [projectId], references: [id])
 
   @@index([workspaceId, projectId, createdAt, actorId])
 }
