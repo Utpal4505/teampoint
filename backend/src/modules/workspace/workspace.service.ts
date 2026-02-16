@@ -1,11 +1,12 @@
 import { prisma } from '../../config/db.config.ts'
+import type { WorkspaceRole } from '../../generated/prisma/enums.ts'
 import type {
   ArchiveWorkspaceDTO,
   CreateWorkspaceInput,
   DeleteWorkspaceDTO,
   GetWorkspaceDTO,
   ListAllWorkspacesMemberDTO,
-  RemoveWorkspaceMemberDTO,
+  RemoveorUpdateWorkspaceMemberDTO,
   updateWorkspaceDTO,
   UpdateWorkspaceInput,
   WorkspaceDTO,
@@ -215,7 +216,7 @@ export const removeWorkspaceMemberService = async ({
   workspaceId: number
   targetUserId: number
   actorId: number
-}): Promise<RemoveWorkspaceMemberDTO> => {
+}): Promise<RemoveorUpdateWorkspaceMemberDTO> => {
   return prisma.$transaction(async tx => {
     const member = await tx.workspace_Members.findUnique({
       where: {
@@ -270,6 +271,77 @@ export const removeWorkspaceMemberService = async ({
       actorId,
       workspaceId,
       content: `User ${member.user.fullName} was removed from the workspace`,
+    })
+
+    return updatedMember
+  })
+}
+
+export const updateWorkspaceMemberRoleService = async ({
+  workspaceId,
+  actorId,
+  targetUserId,
+  role,
+}: {
+  workspaceId: number
+  targetUserId: number
+  role: WorkspaceRole
+  actorId: number
+}): Promise<RemoveorUpdateWorkspaceMemberDTO> => {
+  return prisma.$transaction(async tx => {
+    const member = await tx.workspace_Members.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: targetUserId,
+        },
+      },
+      select: {
+        status: true,
+        role: true,
+        updatedAt: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+      },
+    })
+
+    if (!member || member.status !== 'ACTIVE') {
+      throw new ApiError(404, 'Member not found')
+    }
+
+    if (member.role === 'OWNER') {
+      throw new ApiError(400, 'Owner role cannot be updated')
+    }
+
+    const updatedMember = await tx.workspace_Members.update({
+      where: {
+        workspaceId_userId: {
+          workspaceId,
+          userId: targetUserId,
+        },
+      },
+      data: {
+        role,
+      },
+      select: {
+        userId: true,
+        role: true,
+        status: true,
+        updatedAt: true,
+      },
+    })
+
+    await createActivityLog(tx, {
+      entityType: 'WORKSPACE_MEMBER',
+      entityId: targetUserId,
+      action: 'UPDATED',
+      actorId: actorId,
+      workspaceId,
+      content: `User ${member.user.fullName}'s role was updated to ${role}`,
     })
 
     return updatedMember

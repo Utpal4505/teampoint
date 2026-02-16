@@ -6,10 +6,14 @@ import {
   createWorkspaceController,
   deleteWorkspaceController,
   getWorkspaceByIdController,
+  listAllWorkspaceMembersController,
+  removeWorkspaceMemberController,
   updateWorkspaceController,
+  updateWorkspaceMemberRoleController,
 } from './workspace.controller.ts'
 import { hardAuth } from '../../middlewares/auth.middlewares.ts'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
+import { userIdParamSchema } from '../user/user.schema.ts'
 
 const router = Router()
 
@@ -49,6 +53,32 @@ router.delete(
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canDeleteWorkspace'),
   deleteWorkspaceController,
+)
+
+router.get(
+  '/:workspaceId/members',
+  hardAuth,
+  validateRequest(workspaceIdParamSchema, 'params'),
+  requireWorkspacePermission('canViewMembers'),
+  listAllWorkspaceMembersController,
+)
+
+router.patch(
+  '/:workspaceId/members/:targetUserId',
+  hardAuth,
+  validateRequest(workspaceIdParamSchema, 'params'),
+  validateRequest(userIdParamSchema, 'params'),
+  requireWorkspacePermission('canChangeRoles'),
+  updateWorkspaceMemberRoleController,
+)
+
+router.delete(
+  '/:workspaceId/members/:targetUserId',
+  hardAuth,
+  validateRequest(workspaceIdParamSchema, 'params'),
+  validateRequest(userIdParamSchema, 'params'),
+  requireWorkspacePermission('canRemoveMembers'),
+  removeWorkspaceMemberController,
 )
 
 export default router

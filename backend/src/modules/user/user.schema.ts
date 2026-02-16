@@ -20,3 +20,7 @@ export const userOnboardingSchema = z.object({
       return sanitizeText(v.trim())
     }),
 })
+
+export const userIdParamSchema = z.object({
+  userId: z.number().int().positive().transform(Number),
+})

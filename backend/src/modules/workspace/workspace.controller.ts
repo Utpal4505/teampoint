@@ -6,6 +6,9 @@ import {
   createWorkspaceService,
   deleteWorkspaceService,
   getWorkspaceByIdService,
+  listAllWorkspaceMembersService,
+  removeWorkspaceMemberService,
+  updateWorkspaceMemberRoleService,
   updateWorkspaceService,
 } from './workspace.service.ts'
 
@@ -80,4 +83,51 @@ export const deleteWorkspaceController = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, 'Workspace deleted successfully', deletedWorkspace))
+})
+
+export const listAllWorkspaceMembersController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+  const { workspaceId } = req.params
+
+  const members = await listAllWorkspaceMembersService({
+    workspaceId: Number(workspaceId),
+  })
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace members retrieved successfully', members))
+})
+
+export const removeWorkspaceMemberController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const { workspaceId } = req.params
+  const { targetUserId } = req.body
+
+  const result = await removeWorkspaceMemberService({
+    workspaceId: Number(workspaceId),
+    targetUserId,
+    actorId: req.user.id,
+  })
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace member removed successfully', result))
+})
+
+export const updateWorkspaceMemberRoleController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+  const { workspaceId } = req.params
+  const { targetUserId, role } = req.body
+
+  const result = await updateWorkspaceMemberRoleService({
+    workspaceId: Number(workspaceId),
+    targetUserId,
+    role,
+    actorId: req.user.id,
+  })
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace member role updated successfully', result))
 })

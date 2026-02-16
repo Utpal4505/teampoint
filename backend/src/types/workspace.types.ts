@@ -79,7 +79,7 @@ export type ListAllWorkspacesMemberDTO = {
   joinedAt: Date
 }[]
 
-export type RemoveWorkspaceMemberDTO = {
+export type RemoveorUpdateWorkspaceMemberDTO = {
   userId: number
   role: WorkspaceRole
   status: WorkspaceMemberStatus
