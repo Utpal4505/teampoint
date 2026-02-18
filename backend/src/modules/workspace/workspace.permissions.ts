@@ -3,10 +3,15 @@ export const ROLE_PERMISSIONS = {
     canEditWorkspace: true,
     canDeleteWorkspace: true,
     canArchiveWorkspace: true,
+
     canInviteMembers: true,
+    canRevokeInviteMembers: true,
+    canViewInvites: true,
+
     canRemoveMembers: true,
     canChangeRoles: true,
     canViewMembers: true,
+
     canCreateProjects: true,
     canEditProjects: true,
     canDeleteProjects: true,
@@ -16,10 +21,15 @@ export const ROLE_PERMISSIONS = {
     canEditWorkspace: true,
     canDeleteWorkspace: false,
     canArchiveWorkspace: true,
+
     canInviteMembers: true,
+    canRevokeInviteMembers: true,
+    canViewInvites: true,
+
     canRemoveMembers: true,
     canChangeRoles: false,
     canViewMembers: true,
+
     canCreateProjects: true,
     canEditProjects: true,
     canDeleteProjects: false,
@@ -29,10 +39,15 @@ export const ROLE_PERMISSIONS = {
     canEditWorkspace: false,
     canDeleteWorkspace: false,
     canArchiveWorkspace: false,
+
     canInviteMembers: false,
+    canRevokeInviteMembers: false,
+    canViewInvites: false,
+
     canRemoveMembers: false,
     canChangeRoles: false,
     canViewMembers: true,
+
     canCreateProjects: true,
     canEditProjects: true,
     canDeleteProjects: false,

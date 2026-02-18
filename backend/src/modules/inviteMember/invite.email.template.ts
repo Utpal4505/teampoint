@@ -1,11 +1,11 @@
 import type { InviteEmailTemplateInput } from '../../types/inviteMember.type.ts'
 
 export function generateInviteEmailTemplate({
-  inviterEmail,
   workspaceName,
   role,
   inviteLink,
   expiresAt,
+  invitedByName,
 }: InviteEmailTemplateInput) {
   return `
   <!DOCTYPE html>
@@ -46,7 +46,7 @@ export function generateInviteEmailTemplate({
 
           <tr>
             <td style="padding-top:16px; font-size:15px; color:#555; line-height:1.6;">
-              <strong>${inviterEmail}</strong> has invited you to join the workspace
+              <strong>${invitedByName}</strong> has invited you to join the workspace
               <strong>${workspaceName}</strong> on TeamPoint.
               <br><br>
 

@@ -24,27 +24,29 @@ const extractToken = (req: Request): string | null => {
 
 const allowedRoutesForNewUser = [
   '/users/onboarding',
-  '/workspace/invite/',
   '/users/me',
-  '/logout',
+  '/auth/logout',
+  '/workspaces/invites/accept',
 ]
 
 export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {
   assertUser(req.user)
 
-  const user = req.user
+  if (!req.user.is_new) return next()
 
-  if (user.is_new) {
-    const path = req.path
-    const allowed = allowedRoutesForNewUser.some(route => path.startsWith(route))
+  const path = req.path
 
-    if (!allowed) {
-      throw new ApiError(403, 'New users can only access onboarding routes')
-    }
+  const allowed = allowedRoutesForNewUser.some(route =>
+    path === route || path.startsWith(route + '/')
+  )
+
+  if (!allowed) {
+    throw new ApiError(403, 'New users can only access onboarding routes')
   }
 
   next()
 })
+
 
 export const hardAuth = asyncHandler(async (req, _res, next) => {
   const token = extractToken(req)

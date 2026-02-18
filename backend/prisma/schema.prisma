@@ -135,6 +135,12 @@ enum WorkspaceMemberStatus {
   BLOCKED
 }
 
+enum InviteEmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   id         Int        @id @default(autoincrement())
   fullName   String     @db.VarChar(100)
@@ -185,7 +191,7 @@ model Workspace {
   name        String          @db.VarChar(150)
   description String?
   createdBy   Int
-  status      WorkspaceStatus 
+  status      WorkspaceStatus
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
@@ -216,6 +222,10 @@ model Invite_Member {
   expiredAt  DateTime?
   acceptedAt DateTime?
 
+  emailStatus   InviteEmailStatus @default(PENDING)
+  emailAttempts  Int       @default(0)
+  lastEmailError  String?
+
   inviter   User      @relation("WorkspaceInviter", fields: [invitedBy], references: [id])
   workspace Workspace @relation("WorkspaceInvites", fields: [workspaceId], references: [id], onDelete: Cascade)
 
@@ -228,11 +238,11 @@ model Workspace_Members {
   userId      Int
 
   role        WorkspaceRole
-  status      WorkspaceMemberStatus  @default(ACTIVE)
+  status      WorkspaceMemberStatus @default(ACTIVE)
   permissions Json
   joinedAt    DateTime
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
