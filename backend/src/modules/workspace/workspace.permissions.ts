@@ -13,8 +13,14 @@ export const ROLE_PERMISSIONS = {
     canViewMembers: true,
 
     canCreateProjects: true,
-    canEditProjects: true,
-    canDeleteProjects: true,
+    canViewProject: true,
+    canEditProject: true,
+    canArchiveProject: true,
+    canDeleteProject: true,
+
+    canCreateLeaveRequest: false,
+    canViewAllLeaveRequests: true,
+    canReviewLeaveRequests: true,
   },
 
   ADMIN: {
@@ -31,8 +37,14 @@ export const ROLE_PERMISSIONS = {
     canViewMembers: true,
 
     canCreateProjects: true,
-    canEditProjects: true,
-    canDeleteProjects: false,
+    canViewProject: true,
+    canEditProject: true,
+    canArchiveProject: true,
+    canDeleteProject: false,
+
+    canCreateLeaveRequest: false,
+    canViewAllLeaveRequests: true,
+    canReviewLeaveRequests: true,
   },
 
   MEMBER: {
@@ -48,8 +60,14 @@ export const ROLE_PERMISSIONS = {
     canChangeRoles: false,
     canViewMembers: true,
 
-    canCreateProjects: true,
-    canEditProjects: true,
-    canDeleteProjects: false,
+    canCreateProjects: false,
+    canViewProject: true,
+    canEditProject: false,
+    canArchiveProject: false,
+    canDeleteProject: false,
+
+    canCreateLeaveRequest: true,
+    canViewAllLeaveRequests: false,
+    canReviewLeaveRequests: false,
   },
 } as const

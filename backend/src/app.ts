@@ -14,6 +14,7 @@ import { hardAuth, restrictNewUserRoutes } from './middlewares/auth.middlewares.
 import userRouter from './modules/user/user.route.ts'
 import workspaceRouter from './modules/workspace/workspace.route.ts'
 import workspaceInviteRouter from './modules/inviteMember/inviteMember.route.ts'
+import uploadRouter from './modules/upload/upload.routes.ts'
 import { env } from './config/env.ts'
 
 const app: Application = express()
@@ -42,6 +43,7 @@ app.use('/api/v1', hardAuth, restrictNewUserRoutes)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/workspaces', workspaceRouter)
 app.use('/api/v1/workspaces', workspaceInviteRouter)
+app.use('/api/v1/uploads', uploadRouter)
 
 app.use(errorHandler)
 

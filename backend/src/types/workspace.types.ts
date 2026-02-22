@@ -32,7 +32,7 @@ export type GetWorkspaceDTO = {
     user: {
       id: number
       fullName: string
-      avatar_url: string | null
+      avatarUrl: string | null
     }
   }[]
   createdAt: Date
@@ -72,7 +72,7 @@ export type ListAllWorkspacesMemberDTO = {
   user: {
     id: number
     fullName: string
-    avatar_url: string | null
+    avatarUrl: string | null
     status: UserStatus
   }
   role: WorkspaceRole

@@ -45,14 +45,14 @@ export const authService = async (provider: OAuthProvider, profile: Profile) => 
         email: email,
         fullName: profile.displayName,
         is_new: true,
-        avatar_url: avatarUrl,
+        avatarUrl: avatarUrl,
         status: 'ACTIVE',
       },
       select: {
         id: true,
         status: true,
         email: true,
-        avatar_url: true,
+        avatarUrl: true,
         is_new: true,
       },
     })

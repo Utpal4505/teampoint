@@ -24,3 +24,13 @@ export const userOnboardingSchema = z.object({
 export const userIdParamSchema = z.object({
   userId: z.number().int().positive().transform(Number),
 })
+
+export const updateUserSchema = z.object({
+  userId: z.number().int().positive().transform(Number),
+  fullName: z
+    .string()
+    .trim()
+    .min(2, 'FullName name must be at least 2 characters long')
+    .max(100, 'FullName name must be less than 100 characters long')
+    .transform(sanitizeText),
+})

@@ -1,6 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { listAllWorkspaceProjectService } from '../project/project.service.ts'
 import {
   archiveWorkspaceService,
   createWorkspaceService,
@@ -131,3 +132,16 @@ export const updateWorkspaceMemberRoleController = asyncHandler(async (req, res)
     .status(200)
     .json(new ApiResponse(200, 'Workspace member role updated successfully', result))
 })
+
+export const listAllWorkspaceProjectController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const { workspaceId } = req.params
+
+  const projects = await listAllWorkspaceProjectService(Number(workspaceId), req.user.id)
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Projects retrieved successfully', projects))
+})
+  

@@ -14,9 +14,10 @@ import {
 
 const router = Router()
 
+router.use(hardAuth)
+
 router.post(
   '/:workspaceId/invites',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canInviteMembers'),
   sendInviteController,
@@ -24,7 +25,6 @@ router.post(
 
 router.get(
   '/:workspaceId/invites/:inviteId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   validateRequest(inviteIdParamSchema, 'params'),
   requireWorkspacePermission('canViewInvites'),
@@ -33,7 +33,6 @@ router.get(
 
 router.get(
   '/:workspaceId/invites',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canViewInvites'),
   listAllInvitesController,
@@ -41,7 +40,6 @@ router.get(
 
 router.delete(
   '/:workspaceId/invites/:inviteId/revoke',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   validateRequest(inviteIdParamSchema, 'params'),
   requireWorkspacePermission('canRevokeInviteMembers'),
@@ -50,7 +48,6 @@ router.delete(
 
 router.post(
   '/invites/accept',
-  hardAuth,
   validateRequest(acceptInviteSchema, 'body'),
   acceptInviteController,
 )

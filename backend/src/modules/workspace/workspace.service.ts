@@ -75,7 +75,7 @@ export const getWorkspaceByIdService = async (
             select: {
               id: true,
               fullName: true,
-              avatar_url: true,
+              avatarUrl: true,
             },
           },
         },
@@ -107,27 +107,25 @@ export const updateWorkspaceService = async ({
   if (description !== undefined) updateData.description = description
   updateData.updatedAt = new Date()
 
-  if (Object.keys(updateData).length === 1 && updateData.updatedAt) {
+  if (!name && description === undefined) {
     throw new ApiError(400, 'No fields to update')
   }
-  return handlePrismaNotFound(
-    prisma.workspace.update({
-      where: {
-        id: workspaceId,
-        status: 'ACTIVE',
-      },
-      data: {
-        ...updateData,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        updatedAt: true,
-      },
-    }),
-    'Workspace not found',
-  )
+
+  const workspace = await prisma.workspace.findFirst({
+    where: {
+      id: workspaceId,
+      status: 'ACTIVE',
+    },
+  })
+
+  if (!workspace) {
+    throw new ApiError(404, 'Workspace not found')
+  }
+
+  return prisma.workspace.update({
+    where: { id: workspaceId },
+    data: updateData,
+  })
 }
 
 export const archiveWorkspaceService = async ({
@@ -160,13 +158,25 @@ export const deleteWorkspaceService = async ({
 }: {
   workspaceId: number
 }): Promise<DeleteWorkspaceDTO> => {
+
+  const workspace = await prisma.workspace.findFirst({
+    where: {
+      id: workspaceId,
+      status: {
+        in: ['ACTIVE', 'ARCHIVED'],
+      },
+    },
+  })
+
+  if (!workspace) {
+    throw new ApiError(404, 'Workspace not found or cannot be deleted')
+  }
+
+  
   return handlePrismaNotFound(
     prisma.workspace.update({
       where: {
         id: workspaceId,
-        status: {
-          in: ['ACTIVE', 'ARCHIVED'],
-        },
       },
       data: {
         status: 'DELETED',
@@ -198,7 +208,7 @@ export const listAllWorkspaceMembersService = async ({
         select: {
           id: true,
           fullName: true,
-          avatar_url: true,
+          avatarUrl: true,
           status: true,
         },
       },

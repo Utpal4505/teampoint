@@ -5,20 +5,23 @@ import {
   getCurrentUserController,
   loggedOutController,
   onboardingController,
+  updateUserController,
 } from './user.controller.ts'
 import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { userOnboardingSchema } from './user.schema.ts'
+import { updateUserSchema, userOnboardingSchema } from './user.schema.ts'
 
 const router = Router()
 
-router.get('/me', hardAuth, getCurrentUserController)
+router.use(hardAuth)
+
+router.get('/me', getCurrentUserController)
 router.post(
   '/onboarding',
-  hardAuth,
   validateRequest(userOnboardingSchema, 'body'),
   onboardingController,
 )
-router.delete('/me', hardAuth, deleteUserController)
-router.post('/logout', hardAuth, loggedOutController)
+router.patch('/me', validateRequest(updateUserSchema, 'body'), updateUserController)
+router.delete('/me', deleteUserController)
+router.post('/logout', loggedOutController)
 
 export default router

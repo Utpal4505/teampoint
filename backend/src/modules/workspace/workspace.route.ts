@@ -7,6 +7,7 @@ import {
   deleteWorkspaceController,
   getWorkspaceByIdController,
   listAllWorkspaceMembersController,
+  listAllWorkspaceProjectController,
   removeWorkspaceMemberController,
   updateWorkspaceController,
   updateWorkspaceMemberRoleController,
@@ -17,23 +18,22 @@ import { userIdParamSchema } from '../user/user.schema.ts'
 
 const router = Router()
 
+router.use(hardAuth)
+
 router.post(
   '/',
-  hardAuth,
   validateRequest(createWorkspaceSchema, 'body'),
   createWorkspaceController,
 )
 
 router.get(
   '/:workspaceId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   getWorkspaceByIdController,
 )
 
 router.patch(
   '/:workspaceId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canEditWorkspace'),
   updateWorkspaceController,
@@ -41,7 +41,6 @@ router.patch(
 
 router.post(
   '/:workspaceId/archive',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canArchiveWorkspace'),
   archiveWorkspaceController,
@@ -49,7 +48,6 @@ router.post(
 
 router.delete(
   '/:workspaceId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canDeleteWorkspace'),
   deleteWorkspaceController,
@@ -57,7 +55,6 @@ router.delete(
 
 router.get(
   '/:workspaceId/members',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canViewMembers'),
   listAllWorkspaceMembersController,
@@ -65,7 +62,6 @@ router.get(
 
 router.patch(
   '/:workspaceId/members/:targetUserId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   validateRequest(userIdParamSchema, 'params'),
   requireWorkspacePermission('canChangeRoles'),
@@ -74,11 +70,16 @@ router.patch(
 
 router.delete(
   '/:workspaceId/members/:targetUserId',
-  hardAuth,
   validateRequest(workspaceIdParamSchema, 'params'),
   validateRequest(userIdParamSchema, 'params'),
   requireWorkspacePermission('canRemoveMembers'),
   removeWorkspaceMemberController,
+)
+
+router.get(
+  '/:workspaceId/projects',
+  validateRequest(workspaceIdParamSchema, 'params'),
+  listAllWorkspaceProjectController,
 )
 
 export default router

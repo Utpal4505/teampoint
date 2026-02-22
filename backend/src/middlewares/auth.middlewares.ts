@@ -36,8 +36,8 @@ export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {
 
   const path = req.path
 
-  const allowed = allowedRoutesForNewUser.some(route =>
-    path === route || path.startsWith(route + '/')
+  const allowed = allowedRoutesForNewUser.some(
+    route => path === route || path.startsWith(route + '/'),
   )
 
   if (!allowed) {
@@ -46,7 +46,6 @@ export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {
 
   next()
 })
-
 
 export const hardAuth = asyncHandler(async (req, _res, next) => {
   const token = extractToken(req)

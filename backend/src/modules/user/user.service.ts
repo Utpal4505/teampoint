@@ -1,5 +1,10 @@
 import { prisma } from '../../config/db.config.ts'
-import type { GetUserDTO, UserDeletionDTO } from '../../types/user.types.ts'
+import type {
+  GetUserDTO,
+  UpdateUserDTO,
+  UpdateUserInput,
+  UserDeletionDTO,
+} from '../../types/user.types.ts'
 import { ApiError } from '../../utils/apiError.ts'
 import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
 
@@ -15,7 +20,7 @@ export const getCurrentUserService = async ({
     select: {
       id: true,
       fullName: true,
-      avatar_url: true,
+      avatarUrl: true,
       status: true,
     },
   })
@@ -61,4 +66,28 @@ export const deleteUserService = async ({
 
     return updatedUser
   })
+}
+
+export const updateUserService = async (
+  input: UpdateUserInput,
+): Promise<UpdateUserDTO> => {
+  const { fullName, userId } = input
+
+  return handlePrismaNotFound(
+    prisma.user.update({
+      where: {
+        id: userId,
+        status: 'ACTIVE',
+      },
+      data: {
+        fullName,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        updated_at: true,
+      },
+    }),
+    'User not found',
+  )
 }

@@ -6,6 +6,7 @@ const requiredEnv = (key: string): string => {
 
 export const env = {
   CORS_ORIGIN: requiredEnv('CORS_ORIGIN'),
+  STORAGE_PROVIDER: requiredEnv('STORAGE_PROVIDER'),
   GOOGLE_CLIENT_ID: requiredEnv('GOOGLE_LOGIN_CLIENT_ID'),
   GOOGLE_CLIENT_SECRET: requiredEnv('GOOGLE_LOGIN_CLIENT_SECRET'),
   GOOGLE_CALLBACK_URL: requiredEnv('GOOGLE_LOGIN_CALLBACK_URL'),
@@ -21,4 +22,11 @@ export const env = {
   EMAIL_PORT: requiredEnv('EMAIL_PORT'),
   BREVO_SMTP_USER: requiredEnv('BREVO_SMTP_USER'),
   BREVO_SMTP_PASS: requiredEnv('BREVO_SMTP_PASS'),
+  R2_ACCESS_KEY_ID: requiredEnv('R2_ACCESS_KEY_ID'),
+  R2_SECRET_ACCESS_KEY: requiredEnv('R2_SECRET_ACCESS_KEY'),
+  R2_ENDPOINT: requiredEnv('R2_ENDPOINT'),
+  R2_BUCKET_NAME: requiredEnv('R2_BUCKET_NAME'),
+  R2_AVATAR_BUCKET_NAME: requiredEnv('R2_AVATAR_BUCKET_NAME'),
+  R2_TOKEN_VALUE: requiredEnv('R2_TOKEN_VALUE'),
+  R2_AVATARS_PUBLIC_BASE_URL: requiredEnv('R2_AVATARS_PUBLIC_BASE_URL'),
 }

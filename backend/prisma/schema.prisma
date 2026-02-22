@@ -88,6 +88,7 @@ enum DocumentEntityType {
   TASK
   DISCUSSION
   MILESTONE
+  MEETING
 }
 
 enum GoalStatus {
@@ -141,15 +142,46 @@ enum InviteEmailStatus {
   FAILED
 }
 
+enum DocumentLinkStatus {
+  LINKED
+  UNLINKED
+}
+
+enum UploadCategory {
+  AVATAR
+  DOCUMENT
+}
+
+enum ContextType {
+  USER
+  PROJECT
+}
+
+enum StorageProvider {
+  R2
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADED
+  FAILED
+  ABORTED
+}
+
 model User {
-  id         Int        @id @default(autoincrement())
-  fullName   String     @db.VarChar(100)
-  email      String     @unique @db.VarChar(150)
-  avatar_url String?    @db.VarChar(255)
-  status     UserStatus @default(ACTIVE)
-  is_new     Boolean
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  id       Int    @id @default(autoincrement())
+  fullName String @db.VarChar(100)
+  email    String @unique @db.VarChar(150)
+
+  status UserStatus @default(ACTIVE)
+  is_new Boolean
+
+  avatarUploadId Int?    @unique
+  avatarUpload   Upload? @relation(fields: [avatarUploadId], references: [id])
+  avatarUrl      String? @db.VarChar(500)
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
   deleted_at DateTime?
 
   authProviders                 AuthProvider[]
@@ -171,6 +203,9 @@ model User {
   refreshTokens                 RefreshToken[]
   workSpaceLeaveRequest         WorkspaceLeaveRequest[]
   workSpaceLeaveRequestReviewer WorkspaceLeaveRequest[] @relation("LeaveReviewer")
+  discussionsCreated            Discussion[]            @relation("DiscussionCreatedBy")
+  discussionsReopened           Discussion[]            @relation("DiscussionReopenedBy")
+  discussionsReopenedReviewer   Discussion[]            @relation("DiscussionReopenedReviewedBy")
 }
 
 model AuthProvider {
@@ -191,7 +226,7 @@ model Workspace {
   name        String          @db.VarChar(150)
   description String?
   createdBy   Int
-  status      WorkspaceStatus
+  status      WorkspaceStatus @default(ACTIVE)
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   deletedAt   DateTime?
@@ -215,16 +250,16 @@ model Invite_Member {
   invitedBy   Int
   role        WorkspaceRole
   permissions Json
-  status      InviteStatus
+  status      InviteStatus  @default(PENDING)
   token       String        @unique
 
   createdAt  DateTime  @default(now())
   expiredAt  DateTime?
   acceptedAt DateTime?
 
-  emailStatus   InviteEmailStatus @default(PENDING)
-  emailAttempts  Int       @default(0)
-  lastEmailError  String?
+  emailStatus    InviteEmailStatus @default(PENDING)
+  emailAttempts  Int               @default(0)
+  lastEmailError String?
 
   inviter   User      @relation("WorkspaceInviter", fields: [invitedBy], references: [id])
   workspace Workspace @relation("WorkspaceInvites", fields: [workspaceId], references: [id], onDelete: Cascade)
@@ -256,7 +291,7 @@ model Project {
   workspaceId Int
   name        String        @db.VarChar(150)
   description String?
-  status      ProjectStatus
+  status      ProjectStatus @default(ACTIVE)
 
   createdBy Int
   creator   User      @relation(fields: [createdBy], references: [id])
@@ -279,18 +314,21 @@ model Project {
 }
 
 model Project_Members {
-  id          Int           @id @default(autoincrement())
+  id          Int                   @id @default(autoincrement())
   projectId   Int
   userId      Int
   role        WorkspaceRole
+  status      WorkspaceMemberStatus @default(ACTIVE)
   permissions Json
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  joinedAt  DateTime
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
 
+  @@unique([projectId, userId])
   @@index([projectId, userId])
 }
 
@@ -298,12 +336,12 @@ model Tasks {
   id         Int  @id @default(autoincrement())
   projectId  Int?
   createdBy  Int
-  assignedTo Int // in this i have one doubt is it could be many bca one task can assigned to many users
+  assignedTo Int
 
   title       String     @db.VarChar(200)
   description String?
   taskType    TaskType
-  status      TaskStatus
+  status      TaskStatus @default(TODO)
   priority    Priority
   dueDate     DateTime?
 
@@ -325,7 +363,7 @@ model Meeting {
 
   title       String        @db.VarChar(255)
   description String?
-  status      MeetingStatus
+  status      MeetingStatus @default(SCHEDULED)
 
   startTime DateTime
   endTime   DateTime
@@ -366,8 +404,9 @@ model Document {
 
   title       String  @db.VarChar(255)
   description String?
-  fileUrl     String
-  fileType    String  @db.VarChar(50)
+
+  uploadId Int    @unique
+  upload   Upload @relation(fields: [uploadId], references: [id])
 
   isArchived Boolean @default(false)
 
@@ -388,8 +427,10 @@ model DocumentLink {
 
   entityType DocumentEntityType
   entityId   Int
+  status     DocumentLinkStatus @default(LINKED)
 
-  createdAt DateTime @default(now())
+  createdAt  DateTime  @default(now())
+  unlinkedAt DateTime?
 
   document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
@@ -404,16 +445,28 @@ model Discussion {
   title       String           @db.VarChar(255)
   description String?
   priority    Priority
-  status      DiscussionStatus
+  status      DiscussionStatus @default(ACTIVE)
+
+  reopenRequested     Boolean            @default(false)
+  repoenRequestReason String?
+  reopenRequestedAt   DateTime?
+  reopenRequestedBy   Int?
+  reopenRequestStatus LeaveRequestStatus @default(PENDING)
+  reopenReviewedBy    Int?
+  reopenReviewedAt    DateTime?
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   resolvedAt DateTime?
 
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator User    @relation(fields: [createdBy], references: [id])
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator        User    @relation("DiscussionCreatedBy", fields: [createdBy], references: [id])
+  reopener       User?   @relation("DiscussionReopenedBy", fields: [reopenRequestedBy], references: [id])
+  reopenReviewer User?   @relation("DiscussionReopenedReviewedBy", fields: [reopenReviewedBy], references: [id])
 
   comments Comment[]
+  user     User?     @relation(fields: [userId], references: [id])
+  userId   Int?
 
   @@index([projectId, createdBy])
 }
@@ -443,11 +496,13 @@ model Goal {
   title       String     @db.VarChar(255)
   description String?
   targetDate  DateTime
-  status      GoalStatus
+  status      GoalStatus @default(NOT_STARTED)
+  isDeleted   Boolean    @default(false)
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   achievedAt DateTime?
+  deletedAt  DateTime?
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   creator User    @relation(fields: [createdBy], references: [id])
@@ -463,7 +518,7 @@ model Milestone {
   title       String     @db.VarChar(255)
   description String?
   dueDate     DateTime
-  status      GoalStatus
+  status      GoalStatus @default(NOT_STARTED)
 
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -522,7 +577,7 @@ model WorkspaceLeaveRequest {
   workspaceId Int
   userId      Int
 
-  status LeaveRequestStatus
+  status LeaveRequestStatus @default(PENDING)
   reason String?
 
   reviewedBy Int
@@ -535,4 +590,31 @@ model WorkspaceLeaveRequest {
   reviewer  User      @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
 
   @@index([workspaceId, userId, status])
+}
+
+model Upload {
+  id          Int             @id @default(autoincrement())
+  fileKey     String          @unique
+  fileName    String
+  category    UploadCategory
+  contextId   Int             @unique
+  contextType ContextType?
+  contentType String
+  size        Int
+  storage     StorageProvider @default(R2)
+  status      UploadStatus    @default(PENDING)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  expiresAt   DateTime?
+  checksum    String?
+  signedUrl   String?
+  retries     Int             @default(0)
+
+  document Document?
+  avatar   User?
+
+  @@index([category, contextId])
+  @@index([createdAt])
+  @@index([expiresAt])
+  @@index([status])
 }

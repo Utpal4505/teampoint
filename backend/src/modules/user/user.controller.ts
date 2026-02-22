@@ -5,7 +5,11 @@ import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
 import { options } from '../../utils/generateAccessandRefreshToken.ts'
 import { createWorkspaceService } from '../workspace/workspace.service.ts'
-import { deleteUserService, getCurrentUserService,  } from './user.service.ts'
+import {
+  deleteUserService,
+  getCurrentUserService,
+  updateUserService,
+} from './user.service.ts'
 
 export const getCurrentUserController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -77,4 +81,17 @@ export const loggedOutController = asyncHandler(async (req, res) => {
     .clearCookie('accessToken', options)
     .clearCookie('refreshToken', options)
     .json(new ApiResponse(200, 'User logged out successfully'))
+})
+
+export const updateUserController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const updatedUser = await updateUserService({
+    fullName: req.body.fullName,
+    userId: req.user.id,
+  })
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'User updated sucessfully', updatedUser))
 })
