@@ -16,7 +16,7 @@ import { v4 as uuid } from 'uuid'
 import bcrypt from 'bcrypt'
 import { env } from '../../config/env.ts'
 import { ROLE_PERMISSIONS } from '../workspace/workspace.permissions.ts'
-import { generateInviteEmailTemplate } from './invite.email.template.ts'
+import { generateInviteEmailTemplate } from './inviteMember.email.template.ts'
 import { sendEmail } from '../../utils/sendEmail.ts'
 import { withRetry } from '../../utils/retry.ts'
 

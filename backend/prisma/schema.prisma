@@ -345,6 +345,9 @@ model Tasks {
   priority    Priority
   dueDate     DateTime?
 
+  cancelledBy Int?
+  cancelledAt DateTime?
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   completedAt DateTime?

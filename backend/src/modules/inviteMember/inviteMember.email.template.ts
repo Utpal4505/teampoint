@@ -4,7 +4,7 @@ export function generateInviteEmailTemplate({
   workspaceName,
   role,
   inviteLink,
-  expiresAt,
+  expiredAt,
   invitedByName,
 }: InviteEmailTemplateInput) {
   return `
@@ -110,7 +110,7 @@ export function generateInviteEmailTemplate({
       font-size:13px;
       border:1px solid #fed7aa;
     ">
-      ⏳ This invitation expires on <strong>${expiresAt}</strong>
+      ⏳ This invitation expires on <strong>${expiredAt}</strong>
     </div>
   </td>
 </tr>
