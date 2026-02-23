@@ -59,6 +59,7 @@ export const updateTaskSchema = z.object({
     .optional()
     .transform(v => (v ? sanitizeText(v) : undefined)),
   priority: TaskPriorityEnum.optional(),
+  status: TaskStatusEnum.optional(),
   assignedTo: idParam,
   dueDate: z.preprocess(
     arg => (arg ? new Date(arg as string) : undefined),
@@ -73,4 +74,15 @@ export const changeTaskStatusSchema = z.object({
       message: 'Invalid status transition',
     },
   ),
+})
+
+export const taskIdParamSchema = z.object({
+  taskId: z.number().int().positive().transform(Number),
+})
+
+export const listTasksQuerySchema = z.object({
+  projectId: z.coerce.number().int().positive().optional(),
+  assignedTo: z.coerce.number().int().positive().optional(),
+  status: TaskStatusEnum.optional(),
+  taskType: TaskTypeEnum.optional(),
 })

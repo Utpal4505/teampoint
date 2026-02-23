@@ -17,6 +17,7 @@ import workspaceInviteRouter from './modules/inviteMember/inviteMember.route.ts'
 import uploadRouter from './modules/upload/upload.routes.ts'
 import ProjectRouter from './modules/project/project.route.ts'
 import ProjectMemberRouter from './modules/projectMember/projectMember.route.ts'
+import TaskRouter from './modules/task/task.route.ts'
 import { env } from './config/env.ts'
 
 const app: Application = express()
@@ -48,6 +49,7 @@ app.use('/api/v1/workspaces', workspaceInviteRouter)
 app.use('/api/v1/uploads', uploadRouter)
 app.use('/api/v1/projects', ProjectRouter)
 app.use('/api/v1/projects', ProjectMemberRouter)
+app.use('/api/v1/tasks', TaskRouter)
 
 app.use(errorHandler)
 

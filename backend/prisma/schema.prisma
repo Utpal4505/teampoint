@@ -119,6 +119,7 @@ enum ActivityAction {
   COMPLETED
   COMMENTED
   ASSIGNED
+  CANCELLED
 }
 
 enum LeaveRequestStatus {
@@ -354,9 +355,13 @@ model Tasks {
 
   project  Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
   creator  User     @relation("TaskCreatedBy", fields: [createdBy], references: [id])
-  assignee User?    @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  assignee User     @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
 
-  @@index([projectId, assignedTo, taskType, status])
+  @@index([projectId])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([taskType])
+  @@index([status])
 }
 
 model Meeting {
