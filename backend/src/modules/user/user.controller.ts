@@ -4,8 +4,10 @@ import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
 import { options } from '../../utils/generateAccessandRefreshToken.ts'
+import { AvatarCompleteSchema } from '../upload/upload.schema.ts'
 import { createWorkspaceService } from '../workspace/workspace.service.ts'
 import {
+  avatarCompleteService,
   deleteUserService,
   getCurrentUserService,
   updateUserService,
@@ -94,4 +96,16 @@ export const updateUserController = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, 'User updated sucessfully', updatedUser))
+})
+
+export const avatarCompleteController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const input = AvatarCompleteSchema.parse(req.body)
+
+  const uploadId = input.uploadId
+
+  const avatar = await avatarCompleteService(uploadId, req.user.id)
+
+  return res.status(200).json(new ApiResponse(200, 'Avatar updated successfully', avatar))
 })

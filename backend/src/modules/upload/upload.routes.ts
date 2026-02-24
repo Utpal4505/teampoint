@@ -9,12 +9,12 @@ const router = Router()
 router.use(hardAuth)
 
 router.post(
-  'request',
+  '/request',
   validateRequest(UploadRequestSchema, 'body'),
   uploadRequestController,
 )
 router.post(
-  'complete',
+  '/complete',
   validateRequest(UploadCompleteSchema, 'body'),
   uploadCompleteController,
 )

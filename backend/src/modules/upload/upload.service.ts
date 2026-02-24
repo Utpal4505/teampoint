@@ -1,99 +1,91 @@
 import { prisma } from '../../config/db.config.ts'
-import { env } from '../../config/env.ts'
+import type { Prisma } from '../../generated/prisma/client.ts'
 import type {
-  UploadCompleteRequest,
   UploadCompleteRequestDTO,
   UploadRequest,
   UploadResponse,
 } from '../../types/upload.types.ts'
+import { ApiError } from '../../utils/apiError.ts'
+import { assertProjectMember } from '../../utils/assertProjectMember.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import storage from './storage/index.ts'
 
 export const uploadRequestService = async (
   input: UploadRequest,
+  userId: number,
 ): Promise<UploadResponse> => {
   const { category, contentType, contextId, fileName, fileSize } = input
 
-  let uploadData: UploadResponse
-
   if (category === 'AVATAR') {
-    uploadData = await storage.generateAvatarUploadUrl(input)
-  } else {
-    uploadData = await storage.generateSignedUploadUrl(input)
+    if (contextId !== userId) {
+      throw new ApiError(403, 'You can only upload your own avatar')
+    }
   }
 
-  await prisma.upload.create({
+  if (category === 'DOCUMENT') {
+    await assertProjectMember(contextId, userId)
+  }
+
+  const uploadData = await storage.generateUploadUrl(input)
+
+  const upload = await prisma.upload.create({
     data: {
-      category: category,
-      contentType: contentType,
-      contextId: contextId,
-      fileKey: uploadData.fileKey,
-      size: fileSize,
+      category,
+      contextId,
       fileName,
+      size: fileSize,
+      contentType,
+      fileKey: uploadData.fileKey,
       status: 'PENDING',
+      uploadedBy: userId,
       expiresAt: new Date(Date.now() + uploadData.expiresIn * 1000),
     },
   })
 
-  return uploadData
+  return {
+    uploadId: upload.id,
+    presignedUrl: uploadData.presignedUrl,
+    expiresIn: uploadData.expiresIn,
+    fileKey: uploadData.fileKey,
+  }
 }
 
 export const uploadCompleteService = async (
-  input: UploadCompleteRequest,
+  uploadId: number,
+  userId: number,
+  tx?: Prisma.TransactionClient,
 ): Promise<UploadCompleteRequestDTO> => {
-  const { category, contextId, fileKey } = input
+  const db = tx ?? prisma
 
-  const uploadRecord = await prisma.upload.findFirst({
-    where: {
-      fileKey,
-      contextId,
-      category,
-    },
+  const upload = await db.upload.findUnique({
+    where: { id: uploadId },
   })
 
-  ensureExists(uploadRecord, 'Upload')
+  ensureExists(upload, 'Upload')
 
-  await prisma.upload.update({
-    where: {
-      id: uploadRecord.id,
-    },
-    data: {
-      status: 'UPLOADED',
-    },
-  })
-
-  switch (category) {
-    case 'AVATAR':
-      {
-        const publicUrl = `${env.R2_AVATARS_PUBLIC_BASE_URL}/${fileKey}`
-
-        await prisma.user.update({
-          where: {
-            id: contextId,
-          },
-          data: {
-            avatarUploadId: uploadRecord.id,
-            avatarUrl: publicUrl,
-          },
-        })
-      }
-      break
-
-    case 'DOCUMENT':
-      await prisma.document.update({
-        where: {
-          id: contextId,
-        },
-        data: {
-          uploadId: uploadRecord.id,
-        },
-      })
-      break
-    default:
-      break
+  if (upload.uploadedBy !== userId) {
+    throw new ApiError(403, 'Unauthorized')
   }
 
+  if (upload.status !== 'PENDING') {
+    throw new ApiError(400, 'Invalid upload state')
+  }
+
+  if (upload.expiresAt && upload.expiresAt < new Date()) {
+    throw new ApiError(400, 'Upload expired')
+  }
+
+  await storage.verifyFileExists(upload.fileKey)
+
+  const updated = await db.upload.update({
+    where: { id: upload.id },
+    data: { status: 'UPLOADED' },
+  })
+
   return {
-    fileKey,
+    uploadId: updated.id,
+    fileKey: updated.fileKey,
+    category: updated.category,
+    contextId: updated.contextId,
   }
 }

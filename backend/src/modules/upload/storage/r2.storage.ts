@@ -1,8 +1,13 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3'
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+} from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import crypto from 'crypto'
 import { env } from '../../../config/env.ts'
-import type { UploadRequest, UploadResponse } from '../../../types/upload.types.ts'
+import type { StorageUploadResult, UploadRequest } from '../../../types/upload.types.ts'
 
 const r2 = new S3Client({
   region: 'auto',
@@ -14,7 +19,15 @@ const r2 = new S3Client({
 })
 
 export class R2Storage {
-  private bucketName = env.R2_BUCKET_NAME
+  private defaultBucket = env.R2_BUCKET_NAME
+  private avatarBucket = env.R2_AVATAR_BUCKET_NAME
+
+  private resolveBucket(fileKey: string): string {
+    if (fileKey.startsWith('AVATAR/')) {
+      return this.avatarBucket
+    }
+    return this.defaultBucket
+  }
 
   private generateFileKey(category: string, contextId: number, fileName: string) {
     const timestamp = Date.now()
@@ -22,69 +35,64 @@ export class R2Storage {
     return `${category}/${contextId}/${timestamp}-${randomHash}-${fileName}`
   }
 
-  async generateSignedUploadUrl(input: UploadRequest): Promise<UploadResponse> {
+  async generateSignedUploadUrl(input: UploadRequest): Promise<StorageUploadResult> {
     const { category, contentType, contextId, fileName } = input
 
     const fileKey = this.generateFileKey(category, contextId, fileName)
 
     const expiresIn = 1800
 
+    const bucket = category === 'AVATAR' ? this.avatarBucket : this.defaultBucket
+
     const command = new PutObjectCommand({
-      Bucket: this.bucketName,
+      Bucket: bucket,
       Key: fileKey,
       ContentType: contentType,
     })
 
-    const signedUrl = await getSignedUrl(r2, command, { expiresIn })
+    const presignedUrl = await getSignedUrl(r2, command, { expiresIn })
 
     return {
       fileKey,
-      signedUrl,
+      presignedUrl,
       expiresIn,
+      publicUrl:
+        category === 'AVATAR'
+          ? `${env.R2_AVATARS_PUBLIC_BASE_URL}/${fileKey}`
+          : undefined,
     }
   }
 
   async generateSignedDownloadUrl(
     fileKey: string,
     expiresIn = 1800,
-  ): Promise<UploadResponse> {
+  ): Promise<StorageUploadResult> {
+    const bucket = this.resolveBucket(fileKey)
+
     const command = new GetObjectCommand({
-      Bucket: this.bucketName,
+      Bucket: bucket,
       Key: fileKey,
     })
 
-    const signedUrl = await getSignedUrl(r2, command, { expiresIn })
+    const presignedUrl = await getSignedUrl(r2, command, { expiresIn })
 
-    return { fileKey, signedUrl, expiresIn }
+    return { fileKey, presignedUrl, expiresIn }
   }
 
-  async generateAvatarUploadUrl(input: UploadRequest): Promise<{
-    fileKey: string
-    signedUrl: string
-    publicUrl: string
-    expiresIn: number
-  }> {
-    const { category, contentType, contextId, fileName } = input
-
-    const fileKey = this.generateFileKey(category, contextId, fileName)
-
-    const expiresIn = 1800
-
-    const command = new PutObjectCommand({
-      Bucket: env.R2_AVATAR_BUCKET_NAME,
-      Key: fileKey,
-      ContentType: contentType,
-    })
-
-    const signedUrl = await getSignedUrl(r2, command, { expiresIn })
-
-    const publicUrl = `${env.R2_AVATARS_PUBLIC_BASE_URL}/${fileKey}`
-
-    return {
-      fileKey,
-      signedUrl,
-      publicUrl,
-      expiresIn,
+  async verifyFileExists(fileKey: string): Promise<boolean> {
+    try {
+      const bucket = this.resolveBucket(fileKey)
+      const command = new HeadObjectCommand({
+        Bucket: bucket,
+        Key: fileKey,
+      })
+      await r2.send(command)
+      return true
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'NotFound') {
+        return false
+      }
+      throw err
     }
   }
 }

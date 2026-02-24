@@ -1,53 +1,16 @@
-import { prisma } from '../../config/db.config.ts'
 import { ApiError } from '../../utils/apiError.ts'
 import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { UploadCompleteSchema, UploadRequestSchema } from './upload.schema.ts'
+import { UploadRequestSchema } from './upload.schema.ts'
 import { uploadCompleteService, uploadRequestService } from './upload.service.ts'
 
 export const uploadRequestController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
-  const user = req.user
-
   const input = UploadRequestSchema.parse(req.body)
 
-  let finalInput = input
-
-  switch (input.category) {
-    case 'AVATAR':
-      {
-        if (user.id !== input.contextId) {
-          throw new ApiError(403, 'You can only upload your own avatar')
-        }
-
-        finalInput = {
-          ...input,
-          contextId: user.id,
-        }
-      }
-      break
-
-    case 'DOCUMENT':
-      {
-        const membership = await prisma.project_Members.findFirst({
-          where: {
-            projectId: input.contextId,
-            userId: user.id,
-            status: 'ACTIVE',
-          },
-        })
-        if (!membership) {
-          throw new ApiError(403, 'You are not a member of this project')
-        }
-      }
-      break
-    default:
-      throw new ApiError(400, 'Invalid category')
-  }
-
-  const response = await uploadRequestService(finalInput)
+  const response = await uploadRequestService(input, req.user.id)
 
   return res
     .status(201)
@@ -56,37 +19,16 @@ export const uploadRequestController = asyncHandler(async (req, res) => {
 
 export const uploadCompleteController = asyncHandler(async (req, res) => {
   assertUser(req.user)
-  const input = UploadCompleteSchema.parse(req.body)
 
-  switch (input.category) {
-    case 'AVATAR':
-      {
-        if (req.user.id !== input.contextId) {
-          throw new ApiError(403, 'You can only complete your own avatar upload')
-        }
-      }
-      break
+    const uploadId = Number(req.params.uploadId)
 
-    case 'DOCUMENT':
-      {
-        const membership = await prisma.project_Members.findFirst({
-          where: {
-            projectId: input.contextId,
-            userId: req.user.id,
-            status: 'ACTIVE',
-          },
-        })
 
-        if (!membership) {
-          throw new ApiError(403, 'You are not a member of this project')
-        }
-      }
-      break
-    default:
-      throw new ApiError(400, 'Invalid category')
+  if (!Number.isInteger(uploadId) || uploadId <= 0) {
+    throw new ApiError(400, 'Invalid upload id')
   }
 
-  const response = await uploadCompleteService(input)
+
+  const response = await uploadCompleteService(uploadId, req.user.id)
 
   return res
     .status(200)

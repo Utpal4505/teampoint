@@ -9,8 +9,9 @@ export interface UploadRequest {
 }
 
 export interface UploadResponse {
+  uploadId?: number | null
   fileKey: string
-  signedUrl: string
+  presignedUrl: string
   expiresIn: number
 }
 
@@ -22,17 +23,22 @@ export interface UploadCompleteRequest {
 
 export type UploadCompleteRequestDTO = {
   fileKey: string
+  uploadId: number
+  category: UploadCategory
+  contextId: number
 }
 
 export interface IStorage {
-  generateSignedUploadUrl(input: UploadRequest): Promise<UploadResponse>
-  generateSignedDownloadUrl(fileKey: string, expiresIn?: number): Promise<UploadResponse>
-  generateAvatarUploadUrl(input: UploadRequest): Promise<{
-    fileKey: string
-    signedUrl: string
-    publicUrl: string
-    expiresIn: number
-  }>
+  generateUploadUrl(input: UploadRequest): Promise<StorageUploadResult>
+  generateDownloadUrl(fileKey: string, expiresIn?: number): Promise<StorageUploadResult>
+  verifyFileExists(fileKey: string): Promise<void>
+}
+
+export interface StorageUploadResult {
+  fileKey: string
+  presignedUrl: string
+  publicUrl?: string | undefined
+  expiresIn: number
 }
 
 export enum AvatarContentType {

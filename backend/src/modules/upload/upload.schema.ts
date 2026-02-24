@@ -21,8 +21,8 @@ export const UploadRequestSchema = z.object({
     .transform(Number),
 })
 
-export const UploadCompleteSchema = z.object({
-  category: z.enum(UploadCategory),
-  contextId: z.number().int().positive().transform(Number),
-  fileKey: z.string().min(5).max(500),
+export const AvatarCompleteSchema = z.object({
+  uploadId: z.number().int().positive({
+    message: 'uploadId must be a positive integer',
+  }),
 })

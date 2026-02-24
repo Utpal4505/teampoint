@@ -1,3 +1,4 @@
+import { env } from 'node:process'
 import { prisma } from '../../config/db.config.ts'
 import type {
   GetUserDTO,
@@ -7,6 +8,8 @@ import type {
 } from '../../types/user.types.ts'
 import { ApiError } from '../../utils/apiError.ts'
 import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
+import { uploadCompleteService } from '../upload/upload.service.ts'
+import { ensureExists } from '../../utils/ensureExists.ts'
 
 export const getCurrentUserService = async ({
   userId,
@@ -90,4 +93,42 @@ export const updateUserService = async (
     }),
     'User not found',
   )
+}
+
+export const avatarCompleteService = async (
+  uploadId: number,
+  userId: number,
+): Promise<{
+  id: number
+  avatarUrl: string | null
+}> => {
+  return prisma.$transaction(async tx => {
+    const upload = await tx.upload.findUnique({
+      where: { id: uploadId },
+    })
+
+    ensureExists(upload, 'Upload')
+
+    if (upload.category !== 'AVATAR') {
+      throw new ApiError(400, 'Invalid upload category')
+    }
+
+    const completedUpload  = await uploadCompleteService(upload.id, userId, tx)
+
+    const publicUrl = `${env.R2_AVATARS_PUBLIC_BASE_URL}/${completedUpload .fileKey}`
+
+    const updatedUser = await tx.user.update({
+      where: { id: userId },
+      data: {
+        avatarUploadId: completedUpload.uploadId,
+        avatarUrl: publicUrl,
+      },
+      select: {
+        id: true,
+        avatarUrl: true,
+      },
+    })
+
+    return updatedUser
+  })
 }
