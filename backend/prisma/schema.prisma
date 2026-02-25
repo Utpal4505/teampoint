@@ -503,7 +503,7 @@ model Goal {
 
   title       String     @db.VarChar(255)
   description String?
-  targetDate  DateTime
+  targetDate  DateTime?
   status      GoalStatus @default(NOT_STARTED)
   isDeleted   Boolean    @default(false)
 

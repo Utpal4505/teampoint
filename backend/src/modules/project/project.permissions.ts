@@ -25,6 +25,12 @@ export const PROJECT_ROLE_PERMISSIONS = {
 
     canComment: true,
     canDeleteAnyComment: true,
+
+    canViewGoals: true,
+    canCreateGoals: true,
+    canUpdateAnyGoal: true,
+    canCompleteGoal: true,
+    canDeleteGoals: true,
   },
 
   ADMIN: {
@@ -53,6 +59,12 @@ export const PROJECT_ROLE_PERMISSIONS = {
 
     canComment: true,
     canDeleteAnyComment: true,
+
+    canViewGoals: true,
+    canCreateGoals: true,
+    canUpdateAnyGoal: true,
+    canCompleteGoal: true,
+    canDeleteGoals: false,
   },
 
   MEMBER: {
@@ -81,5 +93,11 @@ export const PROJECT_ROLE_PERMISSIONS = {
 
     canComment: true,
     canDeleteAnyComment: false,
+
+    canViewGoals: true,
+    canCreateGoals: false,
+    canUpdateAnyGoal: false,
+    canCompleteGoal: false,
+    canDeleteGoals: false,
   },
 } as const
