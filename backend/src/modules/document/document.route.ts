@@ -15,6 +15,7 @@ import {
 } from './document.controller.ts'
 import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
 import { projectIdParamSchema } from '../project/project.schema.ts'
+import { listDocumentLinksController } from '../documentLinks/documentLinks.controller.ts'
 
 const router = Router({ mergeParams: true })
 
@@ -51,6 +52,12 @@ router.delete(
   validateRequest(documentIdParamSchema, 'params'),
   requireProjectPermission('canDeleteAnyDocs'),
   deleteDocumentController,
+)
+
+router.get(
+  '/:documentId/document-links',
+  validateRequest(documentIdParamSchema, 'params'),
+  listDocumentLinksController,
 )
 
 export default router

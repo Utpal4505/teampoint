@@ -1,12 +1,18 @@
 import { prisma } from '../config/db.config.ts'
+import type { Prisma } from '../generated/prisma/client.ts'
 import type { WorkspaceRole } from '../generated/prisma/enums.ts'
 import { ApiError } from './apiError.ts'
 
-export const assertProjectMember = async (projectId: number, userId: number) : Promise<{
-    id: number
-    role: WorkspaceRole
+export const assertProjectMember = async (
+  projectId: number,
+  userId: number,
+  tx?: Prisma.TransactionClient,
+): Promise<{
+  id: number
+  role: WorkspaceRole
 }> => {
-  const member = await prisma.project_Members.findFirst({
+  const db = tx ?? prisma
+  const member = await db.project_Members.findFirst({
     where: {
       projectId,
       userId,
@@ -23,10 +29,9 @@ export const assertProjectMember = async (projectId: number, userId: number) : P
     throw new ApiError(403, 'Not a project member')
   }
 
-    if (member.status !== 'ACTIVE') {
+  if (member.status !== 'ACTIVE') {
     throw new ApiError(403, 'Inactive project member')
   }
-
 
   return member
 }

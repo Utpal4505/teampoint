@@ -19,7 +19,7 @@ export const createDocumentService = async (
   userId: number,
 ): Promise<CreateDocumentDTO> => {
   return prisma.$transaction(async tx => {
-    await assertProjectMember(input.projectId, userId)
+    await assertProjectMember(input.projectId, userId, tx)
 
     const upload = await tx.upload.findUnique({
       where: { id: input.uploadId },
