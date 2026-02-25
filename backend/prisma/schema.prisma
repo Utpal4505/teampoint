@@ -413,8 +413,8 @@ model Document {
   title       String  @db.VarChar(255)
   description String?
 
-  uploadId Int?    @unique
-  upload   Upload? @relation(fields: [uploadId], references: [id])
+  uploadId Int    @unique
+  upload   Upload @relation(fields: [uploadId], references: [id])
 
   isArchived Boolean  @default(false)
 

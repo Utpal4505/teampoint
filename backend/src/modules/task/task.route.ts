@@ -17,10 +17,13 @@ import {
   updateTaskSchema,
 } from './task.schema.ts'
 import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
+import { projectIdParamSchema } from '../project/project.schema.ts'
 
-const router = Router()
+const router = Router({ mergeParams: true })
 
 router.use(hardAuth)
+
+router.use(validateRequest(projectIdParamSchema, 'params'))
 
 router.post(
   '/',

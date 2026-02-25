@@ -91,7 +91,7 @@ export const createTaskService = async (
       },
     })
 
-    const workspaceId = await getWorkspaceIdFromProject(projectId, userId)
+    const workspaceId = await getWorkspaceIdFromProject(projectId, userId, tx)
 
     const activityProjectId = task.taskType === 'PROJECT' ? projectId : null
 
@@ -330,7 +330,7 @@ export const updateTaskService = async (
 
     const activityProjectId = task.taskType === 'PROJECT' ? task.projectId : null
 
-    const workspaceId = await getWorkspaceIdFromProject(activityProjectId, userId)
+    const workspaceId = await getWorkspaceIdFromProject(activityProjectId, userId, tx)
 
     await tx.activityLog.create({
       data: {
@@ -418,7 +418,7 @@ export const changeTaskStatusService = async (
       },
     })
 
-    const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId)
+    const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx)
 
     const activityContent =
       task.taskType === 'PROJECT'
@@ -498,7 +498,7 @@ export const cancelTaskService = async (
       },
     })
 
-    const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId)
+    const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx)
     const activityProjectId = task.taskType === 'PROJECT' ? task.projectId : null
 
     await tx.activityLog.create({
@@ -522,4 +522,4 @@ export const cancelTaskService = async (
 
     return cancelledTask as CancelTaskDTO
   })
-}
+} 
