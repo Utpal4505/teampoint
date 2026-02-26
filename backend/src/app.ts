@@ -21,6 +21,7 @@ import TaskRouter from './modules/task/task.route.ts'
 import DocumentRouter from './modules/document/document.route.ts'
 import DocumentLinkRouter from './modules/documentLinks/documentLinks.route.ts'
 import GoalRouter from './modules/goal/goal.route.ts'
+import MilestoneRouter from './modules/milestone/milestone.route.ts'
 import { env } from './config/env.ts'
 
 const app: Application = express()
@@ -56,6 +57,7 @@ app.use('/api/v1/projects/:projectId/tasks', TaskRouter)
 app.use('/api/v1/projects/:projectId/documents', DocumentRouter)
 app.use('/api/v1/projects/:projectId/document-links', DocumentLinkRouter)
 app.use('/api/v1/projects/:projectId/goals', GoalRouter)
+app.use('/api/v1/projects/:projectId/milestones', MilestoneRouter)
 
 app.use(errorHandler)
 

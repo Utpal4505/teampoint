@@ -31,6 +31,12 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canUpdateAnyGoal: true,
     canCompleteGoal: true,
     canDeleteGoals: true,
+
+    canViewMilestones: true,
+    canCreateMilestones: true,
+    canUpdateAnyMilestone: true,
+    canCompleteMilestone: true,
+    canDeleteMilestones: true,
   },
 
   ADMIN: {
@@ -65,6 +71,12 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canUpdateAnyGoal: true,
     canCompleteGoal: true,
     canDeleteGoals: false,
+
+    canViewMilestones: true,
+    canCreateMilestones: true,
+    canUpdateAnyMilestone: true,
+    canCompleteMilestone: true,
+    canDeleteMilestones: false,
   },
 
   MEMBER: {
@@ -99,5 +111,11 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canUpdateAnyGoal: false,
     canCompleteGoal: false,
     canDeleteGoals: false,
+
+    canViewMilestones: true,
+    canCreateMilestones: false,
+    canUpdateAnyMilestone: false,
+    canCompleteMilestone: false,
+    canDeleteMilestones: false,
   },
 } as const

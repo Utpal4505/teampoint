@@ -525,7 +525,7 @@ model Milestone {
 
   title       String     @db.VarChar(255)
   description String?
-  dueDate     DateTime
+  dueDate     DateTime?
   status      GoalStatus @default(NOT_STARTED)
 
   createdAt  DateTime  @default(now())
