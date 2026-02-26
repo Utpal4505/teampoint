@@ -416,7 +416,7 @@ model Document {
   uploadId Int    @unique
   upload   Upload @relation(fields: [uploadId], references: [id])
 
-  isArchived Boolean  @default(false)
+  isArchived Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -588,14 +588,15 @@ model WorkspaceLeaveRequest {
   status LeaveRequestStatus @default(PENDING)
   reason String?
 
-  reviewedBy Int
+  reviewedBy Int?
   reviewedAt DateTime?
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id])
-  reviewer  User      @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
+  reviewer  User?     @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
 
   @@index([workspaceId, userId, status])
 }

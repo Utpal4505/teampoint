@@ -21,6 +21,7 @@ export const ROLE_PERMISSIONS = {
     canCreateLeaveRequest: false,
     canViewAllLeaveRequests: true,
     canReviewLeaveRequests: true,
+    canUpdateLeaveRequests: true,
   },
 
   ADMIN: {
@@ -45,6 +46,7 @@ export const ROLE_PERMISSIONS = {
     canCreateLeaveRequest: false,
     canViewAllLeaveRequests: true,
     canReviewLeaveRequests: true,
+    canUpdateLeaveRequests: true,
   },
 
   MEMBER: {
@@ -69,5 +71,6 @@ export const ROLE_PERMISSIONS = {
     canCreateLeaveRequest: true,
     canViewAllLeaveRequests: false,
     canReviewLeaveRequests: false,
+    canUpdateLeaveRequests: true,
   },
 } as const
