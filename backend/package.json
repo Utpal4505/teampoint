@@ -19,7 +19,11 @@
   },
   "lint-staged": {
     "*.ts": [
-      "npm run lint:fix"
+      "npm run lint:fix",
+      "npm run format:fix"
+    ],
+    "*.json": [
+      "npm run format:fix"
     ]
   },
   "keywords": [

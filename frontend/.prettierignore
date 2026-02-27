@@ -2,14 +2,21 @@
 node_modules
 
 # Build output
+.next
+out
 dist
-build
-.tsc-out
 
 # Environment files
 .env
 .env.*
 !.env.*.example
+
+# IDE and Tooling
+.vscode
+.idea
+*.swp
+*.swo
+*~
 
 # Logs
 logs
@@ -18,26 +25,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Prisma
-prisma/migrations
-
-# IDE and Tooling
-.vscode
-.idea
-*.swp
-*.swo
-*~
-.eslintcache
-
 # OS
 .DS_Store
 Thumbs.db
 
 # Test coverage
 coverage
-
-# Generated files
-generated/
 
 # Package manager files
 package-lock.json
