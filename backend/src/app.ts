@@ -23,6 +23,7 @@ import DocumentLinkRouter from './modules/documentLinks/documentLinks.route.ts'
 import GoalRouter from './modules/goal/goal.route.ts'
 import MilestoneRouter from './modules/milestone/milestone.route.ts'
 import WorkspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.ts'
+import IntegrationRouter from './modules/integration/integration.routes.ts'
 import { env } from './config/env.ts'
 
 const app: Application = express()
@@ -46,6 +47,8 @@ app.use(githubPassport.initialize())
 
 app.use('/api/v1/auth', googleAuthRouter)
 app.use('/api/v1/auth', githubAuthRouter)
+
+app.use('/api/v1/integrations', IntegrationRouter)
 
 app.use('/api/v1', hardAuth, restrictNewUserRoutes)
 app.use('/api/v1/users', userRouter)

@@ -169,6 +169,18 @@ enum UploadStatus {
   ABORTED
 }
 
+enum IntegrationProvider {
+  GOOGLE
+  GITHUB
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   fullName String @db.VarChar(100)
@@ -207,6 +219,7 @@ model User {
   discussionsCreated            Discussion[]            @relation("DiscussionCreatedBy")
   discussionsReopened           Discussion[]            @relation("DiscussionReopenedBy")
   discussionsReopenedReviewer   Discussion[]            @relation("DiscussionReopenedReviewedBy")
+  integrations                  Integration[]
 }
 
 model AuthProvider {
@@ -220,6 +233,50 @@ model AuthProvider {
   created_at DateTime @default(now())
 
   @@unique([provider, providerUserId])
+}
+
+model Integration {
+  id String @id @default(cuid())
+
+  userId         Int
+  provider       IntegrationProvider
+  providerUserId String
+
+  status IntegrationStatus @default(DISCONNECTED)
+
+  scopes   String[]
+  metadata Json?
+
+  connectedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token IntegrationToken?
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+}
+
+model IntegrationToken {
+  id String @id @default(cuid())
+
+  integrationId String @unique
+
+  accessToken  String
+  refreshToken String?
+  idToken      String?
+
+  expiresAt DateTime
+
+  tokenType String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
 }
 
 model Workspace {
