@@ -3,6 +3,8 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './config/swagger.ts'
 import { errorHandler } from './middlewares/errorHandler.ts'
 import { requestIdMiddleware } from './middlewares/requestId.middleware.ts'
 import { requestLoggerMiddleware } from './middlewares/requestLoggerMiddleware.ts'
@@ -24,6 +26,8 @@ import GoalRouter from './modules/goal/goal.route.ts'
 import MilestoneRouter from './modules/milestone/milestone.route.ts'
 import WorkspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.ts'
 import IntegrationRouter from './modules/integration/integration.routes.ts'
+import MeetingRouter from './modules/meeting/meeting.route.ts'
+
 import { env } from './config/env.ts'
 
 const app: Application = express()
@@ -63,6 +67,9 @@ app.use('/api/v1/projects/:projectId/document-links', DocumentLinkRouter)
 app.use('/api/v1/projects/:projectId/goals', GoalRouter)
 app.use('/api/v1/projects/:projectId/milestones', MilestoneRouter)
 app.use('/api/v1/workspaces/:workspaceId/leave-requests', WorkspaceLeaveRouter)
+app.use('/api/v1/projects/:projectId/meetings', MeetingRouter)
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.use(errorHandler)
 

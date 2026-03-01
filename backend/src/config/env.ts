@@ -6,6 +6,7 @@ const requiredEnv = (key: string): string => {
 
 export const env = {
   CORS_ORIGIN: requiredEnv('CORS_ORIGIN'),
+  PORT: requiredEnv('PORT'),
   STORAGE_PROVIDER: requiredEnv('STORAGE_PROVIDER'),
   GOOGLE_CLIENT_ID: requiredEnv('GOOGLE_LOGIN_CLIENT_ID'),
   GOOGLE_CLIENT_SECRET: requiredEnv('GOOGLE_LOGIN_CLIENT_SECRET'),

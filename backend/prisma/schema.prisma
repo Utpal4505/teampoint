@@ -181,6 +181,11 @@ enum IntegrationStatus {
   ERROR
 }
 
+enum ActionItemStatus {
+  PENDING
+  CONVERTED
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   fullName String @db.VarChar(100)
@@ -220,6 +225,7 @@ model User {
   discussionsReopened           Discussion[]            @relation("DiscussionReopenedBy")
   discussionsReopenedReviewer   Discussion[]            @relation("DiscussionReopenedReviewedBy")
   integrations                  Integration[]
+  meetingActionItems            MeetingActionItem[]     @relation("MeetingActionAssignedUser")
 }
 
 model AuthProvider {
@@ -410,15 +416,17 @@ model Tasks {
   updatedAt   DateTime  @updatedAt
   completedAt DateTime?
 
-  project  Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  creator  User     @relation("TaskCreatedBy", fields: [createdBy], references: [id])
-  assignee User     @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  project           Project?           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator           User               @relation("TaskCreatedBy", fields: [createdBy], references: [id])
+  assignee          User               @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  meetingActionItem MeetingActionItem?
 
   @@index([projectId])
   @@index([assignedTo])
   @@index([createdBy])
   @@index([taskType])
   @@index([status])
+  @@index([dueDate])
 }
 
 model Meeting {
@@ -433,20 +441,24 @@ model Meeting {
   startTime DateTime
   endTime   DateTime
 
-  meetingLink  String  @db.VarChar(500)
-  keyDecisions String
-  actionItems  String?
+  meetingLink   String  @db.VarChar(500)
+  googleEventId String? @db.VarChar(255)
+  keyDecisions  String?
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   completedAt DateTime?
+  cancelledAt DateTime?
 
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   creator User    @relation(fields: [createdBy], references: [id])
 
   participants MeetingParticipant[]
+  actionItems  MeetingActionItem[]
 
-  @@index([projectId, createdBy, status])
+  @@index([projectId])
+  @@index([status])
+  @@index([createdBy])
 }
 
 model MeetingParticipant {
@@ -459,7 +471,28 @@ model MeetingParticipant {
   meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
 
-  @@index([meetingId, userId])
+  @@unique([meetingId, userId])
+}
+
+model MeetingActionItem {
+  id        Int @id @default(autoincrement())
+  meetingId Int
+
+  title        String
+  assignedToId Int
+  dueDate      DateTime?
+
+  status ActionItemStatus @default(PENDING)
+
+  convertedTaskId Int?     @unique
+  createdAt       DateTime @default(now())
+
+  meeting       Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  assignedTo    User    @relation("MeetingActionAssignedUser", fields: [assignedToId], references: [id])
+  convertedTask Tasks?  @relation(fields: [convertedTaskId], references: [id])
+
+  @@index([meetingId])
+  @@index([assignedToId])
 }
 
 model Document {
