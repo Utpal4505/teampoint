@@ -1,4 +1,4 @@
-import rateLimit from 'express-rate-limit'
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 import { env } from '../config/env.ts'
 import type { RequestHandler } from 'express'
 
@@ -56,7 +56,7 @@ export const apiLimiter = createLimiter({
       return String(req.user.id)
     }
 
-    return req.ip ?? '0.0.0.0'
+    return ipKeyGenerator(req.ip ?? '0.0.0.0')
   },
 })
 

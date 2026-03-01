@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "esnext",
+    "moduleResolution": "nodenext",
+    "types": ["node", "jest"],
+    "esModuleInterop": true,
+    "strict": true,
+    "strictNullChecks": true,
+    "exactOptionalPropertyTypes": true,
+    "verbatimModuleSyntax": false,
+    "moduleDetection": "force",
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["./**/*.ts", "../src/**/*.ts"]
+}
