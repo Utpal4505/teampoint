@@ -3,14 +3,21 @@ import { ApiError } from './apiError.ts'
 import { env } from '../config/env.ts'
 import { type CookieOptions } from 'express'
 
-export const options: CookieOptions = {
+export const accessTokenCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'lax',
+  maxAge: 30 * 60 * 1000,
+}
+
+export const refreshTokenCookieOptions: CookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax',
   maxAge: 7 * 24 * 60 * 60 * 1000,
 }
 
-export const generateAccessandRefreshTokens = async (userId: number) => {
+export const generateAccessAndRefreshTokens = async (userId: number) => {
   try {
     const accessToken = jwt.sign({ id: userId }, env.ACCESS_TOKEN_SECRET, {
       expiresIn: '30m',

@@ -17,6 +17,7 @@ import {
 } from './middlewares/rateLimiters.ts'
 import googleAuthRouter from './modules/auth/routes/google.route.ts'
 import githubAuthRouter from './modules/auth/routes/github.route.ts'
+import refreshAuthRouter from './modules/auth/routes/refresh.route.ts'
 import googlePassport from './modules/auth/providers/google.provider.ts'
 import githubPassport from './modules/auth/providers/github.provider.ts'
 import { hardAuth, restrictNewUserRoutes } from './middlewares/auth.middlewares.ts'
@@ -60,6 +61,7 @@ app.use(githubPassport.initialize())
 
 app.use('/api/v1/auth', authLimiter, googleAuthRouter)
 app.use('/api/v1/auth', authLimiter, githubAuthRouter)
+app.use('/api/v1/auth', authLimiter, refreshAuthRouter)
 
 app.use('/api/v1/integrations', integrationLimiter, IntegrationRouter)
 

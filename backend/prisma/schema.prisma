@@ -661,7 +661,7 @@ model RefreshToken {
   createdAt DateTime  @default(now())
   revokedAt DateTime?
 
-  replacedBy Int?
+  replacedBy Int?  @unique
 
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   replaced RefreshToken?  @relation("TokenRotation", fields: [replacedBy], references: [id])

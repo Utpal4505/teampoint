@@ -3,7 +3,11 @@ import { ApiError } from '../../utils/apiError.ts'
 import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { options } from '../../utils/generateAccessandRefreshToken.ts'
+import {
+  accessTokenCookieOptions,
+  refreshTokenCookieOptions,
+} from '../../utils/generateAccessandRefreshToken.ts'
+import { revokeTokens } from '../../utils/refreshTokenHandler.ts'
 import { AvatarCompleteSchema } from '../upload/upload.schema.ts'
 import { createWorkspaceService } from '../workspace/workspace.service.ts'
 import {
@@ -57,32 +61,26 @@ export const onboardingController = asyncHandler(async (req, res) => {
 export const deleteUserController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
+  await revokeTokens(req.user.id)
   const deletedUser = await deleteUserService({ userId: req.user.id })
 
   return res
     .status(200)
-    .clearCookie('accessToken', options)
-    .clearCookie('refreshToken', options)
+    .clearCookie('accessToken', accessTokenCookieOptions)
+    .clearCookie('refreshToken', refreshTokenCookieOptions)
     .json(new ApiResponse(200, 'User account deactivated', deletedUser))
 })
 
 export const loggedOutController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
-  await prisma.refreshToken.updateMany({
-    where: {
-      userId: req.user.id,
-    },
-    data: {
-      revokedAt: new Date(),
-    },
-  })
+  await revokeTokens(req.user.id)
 
   return res
     .status(200)
-    .clearCookie('accessToken', options)
-    .clearCookie('refreshToken', options)
-    .json(new ApiResponse(200, 'User logged out successfully'))
+    .clearCookie('accessToken', accessTokenCookieOptions)
+    .clearCookie('refreshToken', refreshTokenCookieOptions)
+    .json(new ApiResponse(200, 'Logged out successfully'))
 })
 
 export const updateUserController = asyncHandler(async (req, res) => {

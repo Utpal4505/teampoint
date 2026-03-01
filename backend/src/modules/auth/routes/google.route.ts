@@ -3,7 +3,7 @@ import passport from 'passport'
 import { asyncHandler } from '../../../utils/asyncHandler.ts'
 import { ApiError } from '../../../utils/apiError.ts'
 import {
-  generateAccessandRefreshTokens,
+  generateAccessAndRefreshTokens,
   options,
 } from '../../../utils/generateAccessandRefreshToken.ts'
 import { prisma } from '../../../config/db.config.ts'
@@ -37,7 +37,7 @@ router.get(
       },
     })
 
-    const { accessToken, refreshToken } = await generateAccessandRefreshTokens(userId)
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(userId)
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10)
 
