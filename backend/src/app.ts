@@ -8,6 +8,13 @@ import { swaggerSpec } from './config/swagger.ts'
 import { errorHandler } from './middlewares/errorHandler.ts'
 import { requestIdMiddleware } from './middlewares/requestId.middleware.ts'
 import { requestLoggerMiddleware } from './middlewares/requestLoggerMiddleware.ts'
+import {
+  globalLimiter,
+  authLimiter,
+  uploadLimiter,
+  apiLimiter,
+  integrationLimiter,
+} from './middlewares/rateLimiters.ts'
 import googleAuthRouter from './modules/auth/routes/google.route.ts'
 import githubAuthRouter from './modules/auth/routes/github.route.ts'
 import googlePassport from './modules/auth/providers/google.provider.ts'
@@ -35,6 +42,8 @@ const app: Application = express()
 app.use(requestIdMiddleware)
 app.use(requestLoggerMiddleware)
 
+app.use(globalLimiter)
+
 app.use(
   cors({
     origin: env.CORS_ORIGIN || 'http://localhost:3000',
@@ -49,16 +58,16 @@ app.use(cookieParser())
 app.use(googlePassport.initialize())
 app.use(githubPassport.initialize())
 
-app.use('/api/v1/auth', googleAuthRouter)
-app.use('/api/v1/auth', githubAuthRouter)
+app.use('/api/v1/auth', authLimiter, googleAuthRouter)
+app.use('/api/v1/auth', authLimiter, githubAuthRouter)
 
-app.use('/api/v1/integrations', IntegrationRouter)
+app.use('/api/v1/integrations', integrationLimiter, IntegrationRouter)
 
-app.use('/api/v1', hardAuth, restrictNewUserRoutes)
+app.use('/api/v1', hardAuth, restrictNewUserRoutes, apiLimiter)
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/workspaces', workspaceRouter)
 app.use('/api/v1/workspaces', workspaceInviteRouter)
-app.use('/api/v1/uploads', uploadRouter)
+app.use('/api/v1/uploads', uploadLimiter, uploadRouter)
 app.use('/api/v1/projects', ProjectRouter)
 app.use('/api/v1/projects', ProjectMemberRouter)
 app.use('/api/v1/projects/:projectId/tasks', TaskRouter)
