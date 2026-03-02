@@ -1,10 +1,9 @@
 import { z } from 'zod'
-import { UploadCategory } from '../../generated/prisma/enums.ts'
 import { sanitizeText } from '../../utils/sanitize.ts'
 import { AvatarContentType, DocumentContentType } from '../../types/upload.types.ts'
 
 export const UploadRequestSchema = z.object({
-  category: z.enum(UploadCategory),
+  category: z.enum(['AVATAR', 'DOCUMENT'] as const),
   contextId: z.number().int().positive().transform(Number),
   fileName: z
     .string()

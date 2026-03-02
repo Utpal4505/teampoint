@@ -14,6 +14,8 @@ const optionalEnv = (key: string, defaultValue: string | number): string | numbe
 }
 
 export const env = {
+  NODE_ENV: requiredEnv('NODE_ENV'),
+  DEV_AUTH_SECRET: requiredEnv('DEV_AUTH_SECRET'),
   CORS_ORIGIN: requiredEnv('CORS_ORIGIN'),
   PORT: requiredEnv('PORT'),
   STORAGE_PROVIDER: requiredEnv('STORAGE_PROVIDER'),
@@ -41,12 +43,11 @@ export const env = {
   R2_AVATARS_PUBLIC_BASE_URL: requiredEnv('R2_AVATARS_PUBLIC_BASE_URL'),
   GOOGLE_INTEGRATION_CALLBACK_URL: requiredEnv('GOOGLE_INTEGRATION_CALLBACK_URL'),
 
-
   ENABLE_RATE_LIMIT: optionalEnv('ENABLE_RATE_LIMIT', 'true') === 'true',
   GLOBAL_RATE_LIMIT: optionalEnv('GLOBAL_RATE_LIMIT', 100) as number,
   AUTH_RATE_LIMIT: optionalEnv('AUTH_RATE_LIMIT', 5) as number,
   UPLOAD_RATE_LIMIT: optionalEnv('UPLOAD_RATE_LIMIT', 30) as number,
   API_RATE_LIMIT: optionalEnv('API_RATE_LIMIT', 60) as number,
   INTEGRATION_RATE_LIMIT: optionalEnv('INTEGRATION_RATE_LIMIT', 20) as number,
-  REFRESH_TOKEN_RATE_LIMIT: optionalEnv('REFRESH_TOKEN_RATE_LIMIT', 10) as number
+  REFRESH_TOKEN_RATE_LIMIT: optionalEnv('REFRESH_TOKEN_RATE_LIMIT', 10) as number,
 }

@@ -697,7 +697,7 @@ model Upload {
   fileName String
 
   category    UploadCategory
-  contextId   Int            @unique
+  contextId   Int           
   contextType ContextType?
   contentType String
 

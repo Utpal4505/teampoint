@@ -4,7 +4,7 @@ import { asyncHandler } from '../../../utils/asyncHandler.ts'
 import { ApiError } from '../../../utils/apiError.ts'
 import {
   generateAccessAndRefreshTokens,
-  options,
+  accessTokenCookieOptions, refreshTokenCookieOptions,
 } from '../../../utils/generateAccessandRefreshToken.ts'
 import { prisma } from '../../../config/db.config.ts'
 import bcrypt from 'bcrypt'
@@ -55,8 +55,8 @@ router.get(
       : `${env.CLIENT_URL}/dashboard`
 
     return res
-      .cookie('accessToken', accessToken, options)
-      .cookie('refreshToken', refreshToken, options)
+      .cookie('accessToken', accessToken, accessTokenCookieOptions)
+      .cookie('refreshToken', refreshToken, refreshTokenCookieOptions)
       .redirect(redirectUrl)
   }),
 )

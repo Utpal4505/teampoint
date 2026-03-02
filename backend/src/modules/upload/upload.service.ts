@@ -26,7 +26,7 @@ export const uploadRequestService = async (
     await assertProjectMember(contextId, userId)
   }
 
-  const uploadData = await storage.generateUploadUrl(input)
+  const uploadData = await storage.generateSignedUploadUrl(input)
 
   const upload = await prisma.upload.create({
     data: {

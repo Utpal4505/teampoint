@@ -16,6 +16,7 @@ const r2 = new S3Client({
     accessKeyId: env.R2_ACCESS_KEY_ID,
     secretAccessKey: env.R2_SECRET_ACCESS_KEY,
   },
+  forcePathStyle: true,
 })
 
 export class R2Storage {
@@ -36,7 +37,7 @@ export class R2Storage {
   }
 
   async generateSignedUploadUrl(input: UploadRequest): Promise<StorageUploadResult> {
-    const { category, contentType, contextId, fileName } = input
+    const { category, contextId, fileName } = input
 
     const fileKey = this.generateFileKey(category, contextId, fileName)
 
@@ -47,7 +48,6 @@ export class R2Storage {
     const command = new PutObjectCommand({
       Bucket: bucket,
       Key: fileKey,
-      ContentType: contentType,
     })
 
     const presignedUrl = await getSignedUrl(r2, command, { expiresIn })

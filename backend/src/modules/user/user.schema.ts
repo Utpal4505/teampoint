@@ -26,7 +26,6 @@ export const userIdParamSchema = z.object({
 })
 
 export const updateUserSchema = z.object({
-  userId: z.number().int().positive().transform(Number),
   fullName: z
     .string()
     .trim()
