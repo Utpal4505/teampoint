@@ -25,6 +25,8 @@ export const getCurrentUserService = async ({
       fullName: true,
       avatarUrl: true,
       status: true,
+      is_new: true,
+      created_at: true,
     },
   })
 

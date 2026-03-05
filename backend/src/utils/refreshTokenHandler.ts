@@ -12,8 +12,6 @@ interface TokenPayload {
   exp?: number
 }
 
-const REFRESH_TOKEN_TTL_MS = env.REFRESH_TOKEN_EXPIRY
-
 export const verifyRefreshToken = (token: string): TokenPayload => {
   try {
     return jwt.verify(token, env.REFRESH_TOKEN_SECRET) as TokenPayload
@@ -48,14 +46,11 @@ const revokeTokenFamily = async (userId: number) => {
   await revokeTokens(userId)
 }
 
-export const handleRefreshToken = async (
-  oldRefreshToken: string,
-  provider: OAuthProvider,
-) => {
+export const handleRefreshToken = async (oldRefreshToken: string) => {
   const { id: userId } = verifyRefreshToken(oldRefreshToken)
 
   const storedToken = await prisma.refreshToken.findFirst({
-    where: { userId, provider, revokedAt: null },
+    where: { userId, revokedAt: null },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -70,6 +65,8 @@ export const handleRefreshToken = async (
 
   if (new Date() > storedToken.expiredAt) throw new ApiError(401, 'Refresh token expired')
 
+  const provider = storedToken.provider as OAuthProvider
+
   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(userId)
   const newTokenHash = await bcrypt.hash(refreshToken, 10)
 
@@ -79,7 +76,7 @@ export const handleRefreshToken = async (
         userId,
         provider,
         tokenHash: newTokenHash,
-        expiredAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
+        expiredAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     }),
     prisma.refreshToken.update({

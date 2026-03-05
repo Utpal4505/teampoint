@@ -5,6 +5,8 @@ export type GetUserDTO = {
   fullName: string
   avatarUrl: string | null
   status: UserStatus
+  is_new: boolean
+  created_at: Date
 }
 
 export type UserDeletionDTO = {
