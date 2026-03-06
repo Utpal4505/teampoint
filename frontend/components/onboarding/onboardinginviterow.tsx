@@ -3,25 +3,24 @@
 import { useState, useRef, useEffect } from 'react'
 import { Plus, X, AlertCircle, ChevronDown, Check, UserPlus } from 'lucide-react'
 
-export type MemberRole = 'Admin' | 'Member'
-
+type MemberRole = "ADMIN" | "MEMBER"
 export interface InvitedMember {
   email: string
   role: MemberRole
 }
 
 const ROLES: { value: MemberRole; description: string }[] = [
-  { value: 'Admin', description: 'Full access, can manage workspace' },
-  { value: 'Member', description: 'Can view and edit projects' },
+  { value: 'ADMIN', description: 'Full access, can manage workspace' },
+  { value: 'MEMBER', description: 'Can view and edit projects' },
 ]
 
 const ROLE_STYLES: Record<MemberRole, { badge: string; dot: string }> = {
-  Admin: {
+  ADMIN: {
     badge:
       'text-[oklch(0.7_0.14_262)]  bg-[oklch(0.6_0.16_262/0.12)] border-[oklch(0.6_0.16_262/0.25)]',
     dot: 'bg-[oklch(0.6_0.16_262)]',
   },
-  Member: {
+  MEMBER: {
     badge:
       'text-[oklch(0.72_0_0)]       bg-[oklch(0.25_0.01_250)]      border-[oklch(0.32_0.01_250)]',
     dot: 'bg-[oklch(0.55_0_0)]',
@@ -142,7 +141,7 @@ interface OnboardingInviteRowProps {
 
 export function OnboardingInviteRow({ members, onChange }: OnboardingInviteRowProps) {
   const [email, setEmail] = useState('')
-  const [role, setRole] = useState<MemberRole>('Member')
+  const [role, setRole] = useState<MemberRole>('MEMBER')
   const [error, setError] = useState('')
   const [focused, setFocused] = useState(false)
 

@@ -1,8 +1,8 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AuthBackground } from "@/components/auth";
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { AuthBackground } from '@/components/auth'
 import {
   OnboardingActions,
   OnboardingCard,
@@ -10,38 +10,64 @@ import {
   OnboardingInput,
   OnboardingStepIndicator,
   OnboardingTextarea,
-} from "@/components/onboarding";
+} from '@/components/onboarding'
+import { onboardUser } from '@/features/users/api'
+import { handleApiError } from '@/lib/handle-api-error'
 
-const STEPS = [
-  { label: "Workspace" },
-  { label: "Invite" },
-  { label: "Done" },
-];
+const STEPS = [{ label: 'Workspace' }, { label: 'Invite' }, { label: 'Done' }]
 
-interface FormState { name: string; description: string; }
-interface FormErrors { name?: string; }
+interface FormState {
+  name: string
+  description: string
+}
+interface FormErrors {
+  name?: string
+  description?: string
+}
 
 export default function OnboardingStep1() {
-  const router = useRouter();
-  const [form, setForm] = useState<FormState>({ name: "", description: "" });
-  const [errors, setErrors] = useState<FormErrors>({});
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [form, setForm] = useState<FormState>({ name: '', description: '' })
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [loading, setLoading] = useState(false)
 
   function validate() {
-    const e: FormErrors = {};
-    if (!form.name.trim()) e.name = "Workspace name cannot be empty";
-    else if (form.name.trim().length < 2) e.name = "Must be at least 2 characters";
-    setErrors(e);
-    return !e.name;
+    const e: FormErrors = {}
+
+    if (!form.name.trim()) {
+      e.name = 'Workspace name cannot be empty'
+    } else if (form.name.trim().length < 2) {
+      e.name = 'Must be at least 2 characters'
+    }
+
+    if (!form.description.trim()) {
+      e.description = 'Description cannot be empty'
+    } else if (form.description.trim().length < 10) {
+      e.description = 'Description must be at least 10 characters long'
+    }
+
+    setErrors(e)
+    return !e.name && !e.description
   }
 
   async function handleNext() {
-    if (!validate()) return;
-    setLoading(true);
-    // await createWorkspace({ name: form.name, description: form.description })
-    await new Promise((r) => setTimeout(r, 1800));
-    setLoading(false);
-    router.push("/onboarding/step-2");
+    if (!validate()) return
+
+    setLoading(true)
+
+    try {
+      const res = await onboardUser({
+        workspaceName: form.name,
+        description: form.description,
+      })
+
+      console.log(res)
+      router.push(`/onboarding/step-2?workspaceId=${res.workspaceId}`)
+    } catch (error) {
+      handleApiError(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -64,17 +90,21 @@ export default function OnboardingStep1() {
                 placeholder="e.g. Acme Corp, Dev Squad…"
                 value={form.name}
                 error={errors.name}
-                onChange={(e) => {
-                  setForm((f) => ({ ...f, name: e.target.value }));
-                  if (errors.name) setErrors({});
+                onChange={e => {
+                  setForm(f => ({ ...f, name: e.target.value }))
+                  if (errors.name) setErrors({})
                 }}
               />
               <OnboardingTextarea
                 label="Description"
                 placeholder="Describe your workspace, e.g. Marketing Team, Dev Squad…"
                 value={form.description}
+                error={errors.description}
                 hint="Helps teammates understand the purpose of this workspace."
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                onChange={e => {
+                  setForm(f => ({ ...f, description: e.target.value }))
+                  if (errors.description) setErrors({})
+                }}
                 rows={3}
               />
             </div>
@@ -90,5 +120,5 @@ export default function OnboardingStep1() {
         </OnboardingCard>
       </div>
     </main>
-  );
+  )
 }

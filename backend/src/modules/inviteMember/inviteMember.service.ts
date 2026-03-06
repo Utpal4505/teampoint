@@ -23,7 +23,9 @@ import { withRetry } from '../../utils/retry.ts'
 const buildInviteLink = (token: string, tokenId: number) =>
   `${env.CLIENT_URL}/invite/${tokenId}/${token}/accept`
 
-export const sendInviteService = async (input: SendInviteInput): Promise<SendInviteDTO> => {
+export const sendInviteService = async (
+  input: SendInviteInput,
+): Promise<SendInviteDTO> => {
   const { workspaceId, email, role, invitedBy } = input
 
   const workspace = await prisma.workspace.findUnique({
@@ -33,6 +35,10 @@ export const sendInviteService = async (input: SendInviteInput): Promise<SendInv
 
   if (!workspace || workspace.status === 'DELETED') {
     throw new ApiError(404, 'Workspace not found')
+  }
+
+  if (role === 'OWNER') {
+    throw new ApiError(400, 'You cannot invite someone as an OWNER')
   }
 
   const existingUser = await prisma.user.findUnique({

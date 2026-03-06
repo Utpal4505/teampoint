@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { AuthBackground } from '@/components/auth'
 import {
@@ -12,30 +12,52 @@ import {
   OnboardingStepIndicator,
   type InvitedMember,
 } from '@/components/onboarding'
+import { useSendWorkspaceInvite } from '@/features/workspace/hooks'
+import { handleApiError } from '@/lib/handle-api-error'
 
 const STEPS = [{ label: 'Workspace' }, { label: 'Invite' }, { label: 'Done' }]
 
 export default function OnboardingStep2() {
+  const { mutateAsync: sendInvite } = useSendWorkspaceInvite()
   const router = useRouter()
   const [members, setMembers] = useState<InvitedMember[]>([])
   const [loading, setLoading] = useState(false)
 
+  const searchParams = useSearchParams()
+  const workspaceId = Number(searchParams.get('workspaceId'))
+
   async function handleSendInvites() {
+    if (!workspaceId) {
+      toast.error('Workspace not found')
+      return
+    }
+
     setLoading(true)
-    // await inviteMembers(members)
-    await new Promise(r => setTimeout(r, 1800))
-    setLoading(false)
 
-    toast.success(`${members.length} invite${members.length > 1 ? 's' : ''} sent!`, {
-      description:
-        members.length === 1
-          ? `We've emailed ${members[0].email}. They'll get a link to join.`
-          : `We've emailed your ${members.length} teammates. They'll get a link to join.`,
-      duration: 3500,
-      position: 'top-right',
-    })
+    try {
+      await Promise.all(
+        members.map(member =>
+          sendInvite({
+            workspaceId,
+            email: member.email,
+            role: member.role,
+          }),
+        ),
+      )
 
-    router.push('/onboarding/step-3')
+      toast.success(`${members.length} invite${members.length > 1 ? 's' : ''} sent!`, {
+        description:
+          members.length === 1
+            ? `We've emailed ${members[0].email}. They'll get a link to join.`
+            : `We've emailed your ${members.length} teammates.`,
+      })
+
+      router.push('/onboarding/step-3')
+    } catch (error) {
+      handleApiError(error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleSkip() {

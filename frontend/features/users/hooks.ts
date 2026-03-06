@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { getCurrentUser } from './api'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { getCurrentUser, onboardUser } from './api'
 
 export const useCurrentUser = () => {
   return useQuery({
@@ -8,5 +8,11 @@ export const useCurrentUser = () => {
     retry: false,
     enabled: false,
     staleTime: 1000 * 60 * 5,
+  })
+}
+
+export const useOnboardUser = () => {
+  return useMutation({
+    mutationFn: onboardUser,
   })
 }

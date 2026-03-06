@@ -34,6 +34,7 @@ export const env = {
   EMAIL_PORT: requiredEnv('EMAIL_PORT'),
   BREVO_SMTP_USER: requiredEnv('BREVO_SMTP_USER'),
   BREVO_SMTP_PASS: requiredEnv('BREVO_SMTP_PASS'),
+  EMAIL_FROM: requiredEnv('EMAIL_FROM'),
   R2_ACCESS_KEY_ID: requiredEnv('R2_ACCESS_KEY_ID'),
   R2_SECRET_ACCESS_KEY: requiredEnv('R2_SECRET_ACCESS_KEY'),
   R2_ENDPOINT: requiredEnv('R2_ENDPOINT'),

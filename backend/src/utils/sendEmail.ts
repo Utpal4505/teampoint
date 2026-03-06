@@ -20,7 +20,7 @@ export const sendEmail = async (input: SendEmailInput) => {
   const { to, subject, html } = input
 
   const mailOptions = {
-    from: `"Teampoint" <${env.BREVO_SMTP_USER}>`,
+    from: `"Teampoint" <${env.EMAIL_FROM}>`,
     to,
     subject,
     html,

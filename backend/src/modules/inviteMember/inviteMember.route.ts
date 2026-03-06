@@ -18,7 +18,6 @@ router.use(hardAuth)
 
 router.post(
   '/:workspaceId/invites',
-  validateRequest(workspaceIdParamSchema, 'params'),
   requireWorkspacePermission('canInviteMembers'),
   sendInviteController,
 )

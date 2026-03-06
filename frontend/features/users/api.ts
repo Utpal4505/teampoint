@@ -12,3 +12,17 @@ export const getCurrentUser = async (): Promise<User> => {
   } as CustomAxiosRequestConfig)
   return data
 }
+
+export const onboardUser = async ({
+  workspaceName,
+  description,
+}: {
+  workspaceName: string
+  description: string
+}): Promise<{ workspaceId: number }> => {
+  const { data } = await api.post('/users/onboarding', {
+    workspaceName,
+    description,
+  })
+  return data.data
+}
