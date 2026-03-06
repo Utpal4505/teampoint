@@ -51,7 +51,7 @@ router.get(
     })
 
     const redirectUrl = user.is_new
-      ? `${env.CLIENT_URL}/onboarding`
+      ? `${env.CLIENT_URL}/onboarding/step-1`
       : `${env.CLIENT_URL}/dashboard`
 
     return res

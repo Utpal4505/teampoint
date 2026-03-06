@@ -1,4 +1,9 @@
-import axios from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
+
+interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  authFlag?: boolean
+  _retry?: boolean
+}
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -10,15 +15,14 @@ let refreshPromise: Promise<unknown> | null = null
 api.interceptors.response.use(
   res => res,
   async error => {
-    const originalRequest = error.config
+    const originalRequest = error.config as CustomAxiosRequestConfig
 
     const isAuthRoute =
       originalRequest.url?.includes('/auth/login') ||
       originalRequest.url?.includes('/auth/refresh')
 
-    if (isAuthRoute) {
-      return Promise.reject(error)
-    }
+    if (isAuthRoute) return Promise.reject(error)
+    if (!originalRequest.authFlag) return Promise.reject(error)
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true

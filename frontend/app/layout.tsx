@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Poppins, Inter, Fira_Code } from 'next/font/google'
 import './globals.css'
-import { ThemeProvider } from '@/components/theme-provider'
 import Providers from './providers'
 
 const poppins = Poppins({

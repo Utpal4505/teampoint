@@ -4,7 +4,8 @@ import { asyncHandler } from '../../../utils/asyncHandler.ts'
 import { ApiError } from '../../../utils/apiError.ts'
 import {
   generateAccessAndRefreshTokens,
-  accessTokenCookieOptions, refreshTokenCookieOptions,
+  accessTokenCookieOptions,
+  refreshTokenCookieOptions,
 } from '../../../utils/generateAccessandRefreshToken.ts'
 import { prisma } from '../../../config/db.config.ts'
 import bcrypt from 'bcrypt'
@@ -51,7 +52,7 @@ router.get(
     })
 
     const redirectUrl = user.is_new
-      ? `${env.CLIENT_URL}/onboarding`
+      ? `${env.CLIENT_URL}/onboarding/step-1`
       : `${env.CLIENT_URL}/dashboard`
 
     return res

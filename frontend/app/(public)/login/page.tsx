@@ -8,9 +8,10 @@ import {
   AuthLogo,
 } from '@/components/auth'
 import { loginWithGithub, loginWithGoogle } from '@/features/auth/api'
-import { useEffect } from 'react';
+import api from '@/lib/api'
+import { useUserStore } from '@/store/user.store'
 import { useRouter } from 'next/navigation'
-import { useCurrentUser } from '@/features/users/hooks';
+import { useEffect, useState } from 'react'
 
 function GithubIcon({ size = 18, className }: { size?: number; className?: string }) {
   return (
@@ -57,15 +58,41 @@ function GoogleIcon({ size = 18, className }: { size?: number; className?: strin
 
 export default function LoginPage() {
   const router = useRouter()
-  const { data: user, isLoading } = useCurrentUser()
+  const [checkingAuth, setCheckingAuth] = useState(true)
+  const setUser = useUserStore(state => state.setUser)
 
   useEffect(() => {
-    if (user) {
-      router.replace('/dashboard')
-    }
-  }, [user, router])
+    const checkAuth = async () => {
+      try {
+        await api.post('/auth/refresh', {}, { withCredentials: true })
 
-  if (isLoading) return null
+        const res = await api.get('/users/me', {
+          withCredentials: true,
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+          },
+        })
+
+        const user = res.data.data
+
+        setUser(user)
+
+        if (user.is_new) {
+          router.replace('/onboarding/step-1')
+        } else {
+          router.replace('/dashboard')
+        }
+      } catch (err) {
+        console.log('Something went wrong while checking authentication:', err)
+        setCheckingAuth(false)
+      }
+    }
+
+    checkAuth()
+  }, [router, setUser])
+
+  if (checkingAuth) return null
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-background p-8">

@@ -9,7 +9,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "format:check": "prettier --check",
-    "format:fix": "prettier --write",
+    "format:fix": "prettier . --fix",
     "prepare": "husky"
   },
   "lint-staged": {

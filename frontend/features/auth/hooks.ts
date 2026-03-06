@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { logout } from './api'
-import { useRouter } from 'next/navigation'
 import { useCurrentUser } from '../users/hooks'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import api from '@/lib/api'
 
 export const useLogout = () => {
   return useMutation({
@@ -11,21 +11,24 @@ export const useLogout = () => {
 }
 
 export const useAuthGuard = () => {
-  const { data: user, isLoading, error } = useCurrentUser()
-  const router = useRouter()
+  const [initialized, setInitialized] = useState(false)
+  const { data: user, refetch } = useCurrentUser()
 
   useEffect(() => {
-    if (isLoading) return
+    const initAuth = async () => {
+      try {
+        await api.post('/auth/refresh', {}, { withCredentials: true })
 
-    if (error) {
-      router.replace('/login')
-      return
+        await refetch()
+      } catch {
+        window.location.href = '/login'
+      } finally {
+        setInitialized(true)
+      }
     }
 
-    if (user?.is_new) {
-      router.replace('/onboarding')
-    }
-  }, [user, isLoading, error, router])
+    initAuth()
+  }, [refetch])
 
-  return { user, isLoading }
+  return { user, initialized }
 }
