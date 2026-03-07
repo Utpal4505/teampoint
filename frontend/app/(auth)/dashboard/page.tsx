@@ -1,3 +1,65 @@
+import { Separator } from '@/components/ui/separator'
+import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
+import { Bell } from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { MyTasksCard } from '@/components/dashboard/mytaskscard'
+import { TodaysMeetingsCard } from '@/components/dashboard/todaysmeetingscard'
+import { TeamActivityCard } from '@/components/dashboard/teamactivitycard'
+
+const getGreetingData = () => {
+  const hour = new Date().getHours()
+  if (hour < 12) return { text: 'Good morning' }
+  if (hour < 17) return { text: 'Good afternoon' }
+  if (hour < 21) return { text: 'Good evening' }
+  return { text: 'Good night' }
+}
+
 export default function DashboardPage() {
-  return <h1>Dashboard</h1>
+  const user = {
+    name: 'Utpal',
+    avatarUrl: 'https://github.com/nutlope.png',
+  }
+
+  const { text } = getGreetingData()
+
+  return (
+    <SidebarInset>
+      <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b border-border bg-background/80 backdrop-blur-sm transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+        <div className="flex flex-1 items-center gap-3 px-6">
+          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
+          <Separator orientation="vertical" className="h-4 bg-border" />
+          <h1 className="flex-1 font-display text-lg font-bold tracking-tight text-foreground">
+            Dashboard
+          </h1>
+          <button className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+            <Bell size={18} />
+            <span className="absolute right-[7px] top-[7px] h-[5px] w-[5px] rounded-full bg-primary ring-[1.5px] ring-background" />
+          </button>
+        </div>
+      </header>
+
+      <div className="flex flex-1 flex-col overflow-y-auto bg-background p-6">
+        <div className="mb-8 flex items-center gap-3">
+          <Avatar className="h-10 w-10 border border-border">
+            <AvatarImage src={user.avatarUrl} alt={user.name} />
+            <AvatarFallback className="bg-muted text-xs font-medium">
+              {user.name.slice(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+
+          <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
+            {text}, {user.name}
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
+          <MyTasksCard />
+          <div className="flex flex-col gap-4">
+            <TodaysMeetingsCard />
+            <TeamActivityCard />
+          </div>
+        </div>
+      </div>
+    </SidebarInset>
+  )
 }
