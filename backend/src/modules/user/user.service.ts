@@ -24,6 +24,7 @@ export const getCurrentUserService = async ({
       id: true,
       fullName: true,
       avatarUrl: true,
+      email: true,
       status: true,
       is_new: true,
       created_at: true,
@@ -115,9 +116,9 @@ export const avatarCompleteService = async (
       throw new ApiError(400, 'Invalid upload category')
     }
 
-    const completedUpload  = await uploadCompleteService(upload.id, userId, tx)
+    const completedUpload = await uploadCompleteService(upload.id, userId, tx)
 
-    const publicUrl = `${env.R2_AVATARS_PUBLIC_BASE_URL}/${completedUpload .fileKey}`
+    const publicUrl = `${env.R2_AVATARS_PUBLIC_BASE_URL}/${completedUpload.fileKey}`
 
     const updatedUser = await tx.user.update({
       where: { id: userId },

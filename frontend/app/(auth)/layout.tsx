@@ -1,17 +1,23 @@
 'use client'
 
-import { ReactNode } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthGuard } from '@/features/auth/hooks'
 import { Spinner } from '@/components/ui/spinner'
 
-interface AuthLayoutProps {
-  children: ReactNode
-}
-
-export default function AuthLayout({ children }: AuthLayoutProps) {
+export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
   const { user, initialized } = useAuthGuard()
+
+  useEffect(() => {
+    if (initialized) {
+      if (!user) {
+        router.replace('/login')
+      } else if (user.is_new) {
+        router.replace('/onboarding')
+      }
+    }
+  }, [user, initialized, router])
 
   if (!initialized) {
     return (
@@ -21,13 +27,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
     )
   }
 
-  if (!user) {
-    router.replace('/login')
-    return null
-  }
-
-  if (user.is_new) {
-    router.replace('/onboarding')
+  if (!user || user.is_new) {
     return null
   }
 

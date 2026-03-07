@@ -11,29 +11,32 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+
 import { ChevronsUpDownIcon, PlusIcon } from "lucide-react"
 
-export function TeamSwitcher({
-  teams,
+type Workspace = {
+  id: number
+  name: string
+}
+
+export function WorkspaceSwitcher({
+  workspaces,
 }: {
-  teams: {
-    name: string
-    logo: React.ReactNode
-    plan: string
-  }[]
+  workspaces: Workspace[]
 }) {
   const { isMobile } = useSidebar()
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const [activeWorkspace, setActiveWorkspace] = React.useState<Workspace>(
+    workspaces[0]
+  )
 
-  if (!activeTeam) {
-    return null
-  }
+  if (!activeWorkspace) return null
 
   return (
     <SidebarMenu>
@@ -44,16 +47,20 @@ export function TeamSwitcher({
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                {activeTeam.logo}
+              {/* Workspace Initial */}
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground font-semibold">
+                {activeWorkspace.name.charAt(0)}
               </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{activeTeam.name}</span>
-                <span className="truncate text-xs">{activeTeam.plan}</span>
+
+              {/* Workspace Name */}
+              <div className="flex-1 text-left text-sm font-medium truncate">
+                {activeWorkspace.name}
               </div>
-              <ChevronsUpDownIcon className="ml-auto" />
+
+              <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             align="start"
@@ -61,27 +68,37 @@ export function TeamSwitcher({
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">
-              Teams
+              Workspaces
             </DropdownMenuLabel>
-            {teams.map((team, index) => (
+
+            {workspaces.map((workspace, index) => (
               <DropdownMenuItem
-                key={team.name}
-                onClick={() => setActiveTeam(team)}
+                key={workspace.id}
+                onClick={() => setActiveWorkspace(workspace)}
                 className="gap-2 p-2"
               >
-                <div className="flex size-6 items-center justify-center rounded-md border">
-                  {team.logo}
+                <div className="flex size-6 items-center justify-center rounded-md border font-medium">
+                  {workspace.name.charAt(0)}
                 </div>
-                {team.name}
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+
+                {workspace.name}
+
+                <DropdownMenuShortcut>
+                  ⌘{index + 1}
+                </DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem className="gap-2 p-2">
-              <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
+              <div className="flex size-6 items-center justify-center rounded-md border">
                 <PlusIcon className="size-4" />
               </div>
-              <div className="font-medium text-muted-foreground">Add team</div>
+
+              <div className="font-medium text-muted-foreground">
+                Add workspace
+              </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

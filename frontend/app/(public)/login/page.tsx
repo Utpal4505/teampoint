@@ -9,7 +9,6 @@ import {
 } from '@/components/auth'
 import { loginWithGithub, loginWithGoogle } from '@/features/auth/api'
 import api from '@/lib/api'
-import { useUserStore } from '@/store/user.store'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -59,7 +58,6 @@ function GoogleIcon({ size = 18, className }: { size?: number; className?: strin
 export default function LoginPage() {
   const router = useRouter()
   const [checkingAuth, setCheckingAuth] = useState(true)
-  const setUser = useUserStore(state => state.setUser)
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -76,8 +74,6 @@ export default function LoginPage() {
 
         const user = res.data.data
 
-        setUser(user)
-
         if (user.is_new) {
           router.replace('/onboarding/step-1')
         } else {
@@ -90,7 +86,7 @@ export default function LoginPage() {
     }
 
     checkAuth()
-  }, [router, setUser])
+  }, [router])
 
   if (checkingAuth) return null
 

@@ -1,3 +1,5 @@
+'use client'
+
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Bell } from 'lucide-react'
@@ -5,6 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MyTasksCard } from '@/components/dashboard/mytaskscard'
 import { TodaysMeetingsCard } from '@/components/dashboard/todaysmeetingscard'
 import { TeamActivityCard } from '@/components/dashboard/teamactivitycard'
+import { useCurrentUser } from '@/features/users/hooks'
+import { Spinner } from '@/components/ui/spinner'
+import { useUserStore } from '@/store/user.store'
+import { useEffect } from 'react'
 
 const getGreetingData = () => {
   const hour = new Date().getHours()
@@ -15,12 +21,34 @@ const getGreetingData = () => {
 }
 
 export default function DashboardPage() {
-  const user = {
-    name: 'Utpal',
-    avatarUrl: 'https://github.com/nutlope.png',
-  }
+  const { data: user, isLoading } = useCurrentUser()
+
+  useEffect(() => {
+    if (user) {
+      useUserStore.getState().setUser(user)
+    }
+  }, [user])
 
   const { text } = getGreetingData()
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
+
+  if (!user) return null
+
+  const initials = user.fullName
+    ? user.fullName
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .slice(0, 2)
+        .toUpperCase()
+    : '??'
 
   return (
     <SidebarInset>
@@ -41,14 +69,14 @@ export default function DashboardPage() {
       <div className="flex flex-1 flex-col overflow-y-auto bg-background p-6">
         <div className="mb-8 flex items-center gap-3">
           <Avatar className="h-10 w-10 border border-border">
-            <AvatarImage src={user.avatarUrl} alt={user.name} />
+            <AvatarImage src={user.avatarUrl || undefined} alt={user.fullName} />
             <AvatarFallback className="bg-muted text-xs font-medium">
-              {user.name.slice(0, 2).toUpperCase()}
+              {initials}
             </AvatarFallback>
           </Avatar>
 
           <h2 className="font-display text-xl font-bold tracking-tight text-foreground">
-            {text}, {user.name}
+            {text}, {user.fullName}
           </h2>
         </div>
 

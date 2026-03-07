@@ -10,7 +10,8 @@ export const getCurrentUser = async (): Promise<User> => {
   const { data } = await api.get('/users/me', {
     authFlag: true,
   } as CustomAxiosRequestConfig)
-  return data
+
+  return data.data
 }
 
 export const onboardUser = async ({

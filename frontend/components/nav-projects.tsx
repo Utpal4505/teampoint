@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   DropdownMenu,
@@ -6,7 +6,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from '@/components/ui/dropdown-menu'
+
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -15,8 +16,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { MoreHorizontalIcon, FolderIcon, ArrowRightIcon, Trash2Icon } from "lucide-react"
+} from '@/components/ui/sidebar'
+
+import {
+  MoreHorizontalIcon,
+  SettingsIcon,
+  Trash2Icon,
+  PlusIcon,
+  FolderKanban,
+} from 'lucide-react'
 
 export function NavProjects({
   projects,
@@ -24,60 +32,86 @@ export function NavProjects({
   projects: {
     name: string
     url: string
-    icon: React.ReactNode
   }[]
 }) {
   const { isMobile } = useSidebar()
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-2">
+        <SidebarGroupLabel>Projects</SidebarGroupLabel>
+
+        <button
+          className="
+      flex items-center justify-center
+      h-6 w-6
+      rounded-md
+      text-muted-foreground
+      hover:text-foreground
+      hover:bg-sidebar-accent
+      transition-colors
+    "
+        >
+          <PlusIcon size={14} />
+        </button>
+      </div>
+
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
+        {projects.map(project => (
+          <SidebarMenuItem key={project.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
-                {item.icon}
-                <span>{item.name}</span>
+              <a href={project.url}>
+                <FolderKanban />
+                <span>{project.name}</span>
               </a>
             </SidebarMenuButton>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuAction
-                  showOnHover
-                  className="aria-expanded:bg-muted"
-                >
-                  <MoreHorizontalIcon
-                  />
-                  <span className="sr-only">More</span>
+                <SidebarMenuAction showOnHover>
+                  <MoreHorizontalIcon />
                 </SidebarMenuAction>
               </DropdownMenuTrigger>
+
               <DropdownMenuContent
                 className="w-48 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
+                side={isMobile ? 'bottom' : 'right'}
+                align={isMobile ? 'end' : 'start'}
               >
                 <DropdownMenuItem>
-                  <FolderIcon className="text-muted-foreground" />
-                  <span>View Project</span>
+                  <FolderKanban />
+                  <span>Open Project</span>
                 </DropdownMenuItem>
+
                 <DropdownMenuItem>
-                  <ArrowRightIcon className="text-muted-foreground" />
-                  <span>Share Project</span>
+                  <SettingsIcon />
+                  <span>Project Settings</span>
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2Icon className="text-muted-foreground" />
-                  <span>Delete Project</span>
+
+                <DropdownMenuItem
+                  className="
+                              group flex items-center 
+                              cursor-pointer rounded-md outline-none
+                              transition-all duration-200
+                              hover:bg-destructive/10 hover:text-destructive
+                              focus:bg-destructive/10 focus:text-destructive
+                            "
+                >
+                  <Trash2Icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-3" />
+                  <span className="text-sm font-medium">Delete Project</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
         ))}
+
+        {/* View All */}
         <SidebarMenuItem>
-          <SidebarMenuButton className="text-sidebar-foreground/70">
-            <MoreHorizontalIcon className="text-sidebar-foreground/70" />
-            <span>More</span>
+          <SidebarMenuButton className="text-muted-foreground">
+            View All
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>

@@ -4,6 +4,7 @@ export type GetUserDTO = {
   id: number
   fullName: string
   avatarUrl: string | null
+  email: string
   status: UserStatus
   is_new: boolean
   created_at: Date
