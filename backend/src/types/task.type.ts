@@ -24,7 +24,7 @@ export type ListTaskDTO = {
     id: number
     name: string
   } | null
-  dueDate?: Date
+  dueDate: Date | null
 }[]
 
 export type GetTaskDTO = {

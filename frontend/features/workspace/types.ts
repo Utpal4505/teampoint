@@ -1,8 +1,11 @@
+export type WorkspaceRole = 'ADMIN' | 'MEMBER'
+export type WorkspaceStatus = 'ACTIVE' | 'ARCHIVED' | 'DELETED'
+
 export type SendInviteDTO = {
   invitedBy: number
   workspaceId: number
   email: string
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  role: WorkspaceRole
   status: 'PENDING' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED' | 'REVOKED'
   inviteLink: string
   expiredAt: Date | null
@@ -12,8 +15,8 @@ export type ListUserWorkspacesDTO = {
   id: number
   name: string
   description: string | null
-  status: 'ACTIVE' | 'ARCHIVED' | 'DELETED'
-  role: 'OWNER' | 'ADMIN' | 'MEMBER'
+  status: WorkspaceStatus
+  role: WorkspaceRole
   joinedAt: Date
   createdAt: Date
 }[]
@@ -22,10 +25,10 @@ export type GetWorkspaceDTO = {
   id: number
   name: string
   description: string | null
-  status: 'ACTIVE' | 'ARCHIVED' | 'DELETED'
+  status: WorkspaceStatus
   createdBy: number
   workspaceMembers: {
-    role: 'OWNER' | 'ADMIN' | 'MEMBER'
+    role: WorkspaceRole
     joinedAt: Date
     user: {
       id: number
@@ -33,5 +36,13 @@ export type GetWorkspaceDTO = {
       avatarUrl: string | null
     }
   }[]
+  createdAt: Date
+}
+
+export type WorkspaceDTO = {
+  id: number
+  name: string
+  description: string | null
+  status: WorkspaceStatus
   createdAt: Date
 }

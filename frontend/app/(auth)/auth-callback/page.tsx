@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Spinner } from "@/components/ui/spinner"
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Spinner } from '@/components/ui/spinner'
 
-import { useWorkspaceStore } from "@/store/workspace.store"
-import { useCurrentUser } from "@/features/users/hooks"
-import { useListUserWorkspaces } from "@/features/workspace/hooks"
+import { useWorkspaceStore } from '@/store/workspace.store'
+import { useCurrentUser } from '@/features/users/hooks'
+import { useListUserWorkspaces } from '@/features/workspace/hooks'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -14,20 +14,18 @@ export default function AuthCallbackPage() {
   const { data: user, isLoading: userLoading } = useCurrentUser()
   const { data: workspaces, isLoading: workspaceLoading } = useListUserWorkspaces()
 
-  const setCurrentWorkspace = useWorkspaceStore(
-    (state) => state.setCurrentWorkspace
-  )
+  const setCurrentWorkspace = useWorkspaceStore(state => state.setCurrentWorkspace)
 
   useEffect(() => {
     if (userLoading || workspaceLoading) return
 
     if (!user) {
-      router.replace("/login")
+      router.replace('/login')
       return
     }
 
     if (!workspaces || workspaces.length === 0) {
-      router.replace("/workspace/create")
+      router.replace('/workspace/create')
       return
     }
 

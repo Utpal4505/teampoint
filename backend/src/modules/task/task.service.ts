@@ -522,4 +522,91 @@ export const cancelTaskService = async (
 
     return cancelledTask as CancelTaskDTO
   })
-} 
+}
+
+export const listWorkspaceAssignedTasksService = async (
+  workspaceId: number,
+  userId: number,
+): Promise<ListTaskDTO> => {
+  const tasks = await prisma.tasks.findMany({
+    where: {
+      taskType: 'PROJECT',
+      assignedTo: userId,
+      status: { not: 'CANCELLED' },
+      project: {
+        workspaceId,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      priority: true,
+      dueDate: true,
+      projectId: true,
+      createdBy: true,
+      assignedTo: true,
+      project: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          fullName: true,
+        },
+      },
+    },
+    orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
+  })
+
+  const accessibleTasks = await prisma.$transaction(async tx => {
+    const result = []
+
+    for (const task of tasks) {
+      try {
+        await assertTaskPermission(
+          tx,
+          {
+            taskType: 'PROJECT',
+            projectId: task.projectId,
+            createdBy: task.createdBy,
+            assignedTo: task.assignedTo,
+          },
+          userId,
+          'VIEW',
+        )
+
+        result.push(task)
+      } catch {
+        continue
+      }
+    }
+
+    return result
+  })
+
+  const formattedTasks: ListTaskDTO = accessibleTasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    status: task.status,
+    priority: task.priority,
+    dueDate: task.dueDate,
+    project: task.project
+      ? {
+          id: task.project.id,
+          name: task.project.name,
+        }
+      : null,
+    assignedTo: task.assignee
+      ? {
+          id: task.assignee.id,
+          name: task.assignee.fullName,
+        }
+      : null,
+  }))
+
+  return formattedTasks
+}

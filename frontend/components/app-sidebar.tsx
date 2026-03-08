@@ -1,11 +1,8 @@
 'use client'
 
 import * as React from 'react'
-
 import { NavMain } from '@/components/nav-main'
-import { NavProjects } from '@/components/nav-projects'
 import { NavUser } from '@/components/nav-user'
-import { WorkspaceSwitcher } from '@/components/team-switcher'
 import {
   Sidebar,
   SidebarContent,
@@ -13,82 +10,65 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import {
-  FrameIcon,
-  PieChartIcon,
-  MapIcon,
-  CheckSquareIcon,
-  LayoutDashboardIcon,
-} from 'lucide-react'
+import { CheckSquareIcon, LayoutDashboardIcon } from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
+import { WorkspaceSwitcher } from './workspace-switcher'
+import { NavProjects } from './nav-projects'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore(state => state.user)
-
   const { data: workspaces } = useListUserWorkspaces()
-
   const params = useParams()
   const activeWorkspaceId = params.workspaceId as string
 
   const workspacesData =
     workspaces?.map(ws => ({
       name: ws.name,
-      workspaceId: ws.id,
-    })) || []
+      workspaceId: String(ws.id), // normalise to string throughout
+    })) ?? []
 
-  const data = {
-    user: {
-      name: user?.fullName || 'John Doe',
-      email: user?.email || 'john@example.com',
-      avatar:
-        user?.avatarUrl ||
-        'https://galaxypfp.com/wp-content/uploads/2025/10/anime-boy-pfp-aestheticv.webp',
+  const navMain = [
+    {
+      title: 'Dashboard',
+      url: `/workspace/${activeWorkspaceId}/dashboard`,
+      icon: <LayoutDashboardIcon />,
     },
+    {
+      title: 'My Tasks',
+      url: `/workspace/${activeWorkspaceId}/tasks`,
+      icon: <CheckSquareIcon />,
+    },
+  ]
 
-    navMain: [
-      {
-        title: 'Dashboard',
-        url: '/workspace/1/dashboard',
-        icon: <LayoutDashboardIcon />,
-      },
-      {
-        title: 'My Tasks',
-        url: '/workspace/1/tasks',
-        icon: <CheckSquareIcon />,
-      },
-    ],
-    projects: [
-      {
-        name: 'Design Engineering',
-        url: '#',
-        icon: <FrameIcon />,
-      },
-      {
-        name: 'Sales & Marketing',
-        url: '#',
-        icon: <PieChartIcon />,
-      },
-      {
-        name: 'Travel',
-        url: '#',
-        icon: <MapIcon />,
-      },
-    ],
-  }
+  // TODO: replace with useListProjects(activeWorkspaceId)
+  const projects = [
+    { name: 'Design Engineering', url: '#' },
+    { name: 'Sales & Marketing', url: '#' },
+    { name: 'Travel', url: '#' },
+  ]
 
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <WorkspaceSwitcher workspaces={workspacesData} />
+        <WorkspaceSwitcher
+          workspaces={workspacesData}
+          activeWorkspaceId={activeWorkspaceId}
+        />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} workspaceId={activeWorkspaceId} />
+        <NavMain items={navMain} />
+        <NavProjects projects={projects} workspaceId={activeWorkspaceId} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser
+          user={{
+            name: user?.fullName ?? 'John Doe',
+            email: user?.email ?? 'john@example.com',
+            avatar: user?.avatarUrl ?? '',
+          }}
+        />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

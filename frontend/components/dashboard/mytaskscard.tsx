@@ -12,6 +12,7 @@ import {
   ArrowDown,
   ChevronDown,
   Check,
+  Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
 import {
@@ -21,17 +22,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { TaskCreateModal, TaskCreatePayload } from '../tasks/taskcreatemodal'
+import { useParams } from 'next/navigation'
+import { useUpdateTaskStatus, useWorkspaceAssignedTasks } from '@/features/tasks/hooks'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
-
-interface Task {
-  id: string
-  title: string
-  priority: Priority
-  status: TaskStatus
-  completed: boolean
-}
 
 const PRIORITY_CONFIG: Record<
   Priority,
@@ -50,77 +47,59 @@ const STATUS_CONFIG: Record<TaskStatus, { label: string; color: string }> = {
   CANCELLED: { label: 'Cancelled', color: 'text-red-400 bg-red-400/10' },
 }
 
-const MOCK_TASKS: Task[] = [
-  {
-    id: '1',
-    title: 'Fix login bug',
-    priority: 'URGENT',
-    status: 'IN_PROGRESS',
-    completed: false,
-  },
-  {
-    id: '2',
-    title: 'Prepare pitch deck',
-    priority: 'HIGH',
-    status: 'TODO',
-    completed: false,
-  },
-  {
-    id: '3',
-    title: 'Review pull request',
-    priority: 'MEDIUM',
-    status: 'TODO',
-    completed: false,
-  },
-  {
-    id: '4',
-    title: 'Update landing copy',
-    priority: 'MEDIUM',
-    status: 'TODO',
-    completed: false,
-  },
-  {
-    id: '5',
-    title: 'Setup CI pipeline',
-    priority: 'HIGH',
-    status: 'TODO',
-    completed: false,
-  },
-  {
-    id: '6',
-    title: 'Write release notes',
-    priority: 'LOW',
-    status: 'TODO',
-    completed: false,
-  },
-]
-
 export function MyTasksCard() {
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS)
+  const params = useParams()
+  const queryClient = useQueryClient()
+  const workspaceId = Number(params.workspaceId)
+
+  const { data: tasks = [], isLoading } = useWorkspaceAssignedTasks(workspaceId)
+  const { mutate: updateStatus } = useUpdateTaskStatus(workspaceId)
+
   const [modalOpen, setModalOpen] = useState(false)
 
-  const updateTask = (id: string, updates: Partial<Task>) => {
-    setTasks(prev => prev.map(t => (t.id === id ? { ...t, ...updates } : t)))
-  }
+  async function handleUpdateTask(taskId: number, newStatus: string) {
+    const task = tasks.find(t => t.id === taskId)
+    const projectId = task?.project?.id
 
-  async function handleCreateTask(payload: TaskCreatePayload) {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: payload.title,
-      priority: payload.priority,
-      status: 'TODO',
-      completed: false,
+    if (!projectId) {
+      toast.error('Project association not found')
+      return
     }
-    setTasks(p => [newTask, ...p].slice(0, 6)) //
-    setModalOpen(false)
+
+    updateStatus({
+      projectId,
+      taskId,
+      status: newStatus,
+    })
   }
 
-  const done = tasks.filter(t => t.completed).length
+  //TODO: will do it in next PR
+  async function handleCreateTask(payload: TaskCreatePayload) {
+    try {
+      setModalOpen(false)
+      toast.success('Task created!')
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    } catch (error) {
+      toast.error('Could not create task')
+    }
+  }
+
+  const done = tasks.filter(t => t.status === 'DONE').length
   const total = tasks.length
+  const progress = total > 0 ? (done / total) * 100 : 0
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[300px] items-center justify-center rounded-xl border border-border bg-card">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <>
       <div className="flex flex-col rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        {/* --- Header --- */}
         <div className="flex items-center justify-between p-5 pb-4">
           <div className="space-y-1">
             <h2 className="font-display text-sm font-bold text-foreground">My Tasks</h2>
@@ -128,7 +107,7 @@ export function MyTasksCard() {
               <div className="h-1 w-24 rounded-full bg-muted overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all duration-500"
-                  style={{ width: `${(done / total) * 100}%` }}
+                  style={{ width: `${progress}%` }}
                 />
               </div>
               <span className="text-[10px] text-muted-foreground font-medium">
@@ -144,86 +123,88 @@ export function MyTasksCard() {
           </button>
         </div>
 
+        {/* --- Tasks List --- */}
         <div className="flex flex-col px-2 pb-2">
-          {tasks.slice(0, 6).map(task => {
-            const P_Icon = PRIORITY_CONFIG[task.priority].icon
-            const p = PRIORITY_CONFIG[task.priority]
-            const s = STATUS_CONFIG[task.status]
+          {tasks.length === 0 ? (
+            <div className="py-10 text-center text-xs text-muted-foreground">
+              No tasks assigned to you.
+            </div>
+          ) : (
+            tasks.slice(0, 6).map(task => {
+              const priorityKey = (task.priority as Priority) || 'LOW'
+              const statusKey = (task.status as TaskStatus) || 'TODO'
 
-            return (
-              <div
-                key={task.id}
-                className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent/40 transition-colors"
-              >
-                <button
-                  onClick={() =>
-                    updateTask(task.id, {
-                      completed: !task.completed,
-                      status: !task.completed ? 'DONE' : 'TODO',
-                    })
-                  }
-                  className="shrink-0 transition-transform active:scale-90"
+              const p = PRIORITY_CONFIG[priorityKey]
+              const s = STATUS_CONFIG[statusKey]
+              const P_Icon = p.icon
+              const isDone = task.status === 'DONE'
+
+              return (
+                <div
+                  key={task.id}
+                  className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent/40 transition-colors"
                 >
-                  {task.completed ? (
-                    <CheckCircle2 size={18} className="text-primary fill-primary/10" />
-                  ) : (
-                    <Circle
-                      size={18}
-                      className="text-muted-foreground/30 group-hover:text-muted-foreground/60"
-                    />
-                  )}
-                </button>
-
-                <span
-                  className={`flex-1 truncate text-sm font-medium transition-all ${task.completed ? 'text-muted-foreground/60 line-through' : 'text-foreground/90'}`}
-                >
-                  {task.title}
-                </span>
-
-                <div className="flex items-center gap-2 shrink-0">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      className={`flex w-28 items-center justify-between rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent transition-all hover:border-border/50 ${s.color}`}
-                    >
-                      {s.label}
-                      <ChevronDown size={10} className="opacity-50" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-36">
-                      {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map(key => (
-                        <DropdownMenuItem
-                          key={key}
-                          onClick={() =>
-                            updateTask(task.id, {
-                              status: key,
-                              completed: key === 'DONE',
-                            })
-                          }
-                          className="flex items-center justify-between text-[11px] font-medium"
-                        >
-                          {STATUS_CONFIG[key].label}
-                          {task.status === key && (
-                            <Check size={12} className="text-primary" />
-                          )}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-
-                  <div
-                    className={`flex w-20 items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${p.color}`}
+                  <button
+                    onClick={() => handleUpdateTask(task.id, isDone ? 'TODO' : 'DONE')}
+                    className="shrink-0 transition-transform active:scale-90"
                   >
-                    <P_Icon size={10} />
-                    {p.label}
+                    {isDone ? (
+                      <CheckCircle2 size={18} className="text-primary fill-primary/10" />
+                    ) : (
+                      <Circle
+                        size={18}
+                        className="text-muted-foreground/30 group-hover:text-muted-foreground/60"
+                      />
+                    )}
+                  </button>
+
+                  <span
+                    className={`flex-1 truncate text-sm font-medium transition-all ${isDone ? 'text-muted-foreground/60 line-through' : 'text-foreground/90'}`}
+                  >
+                    {task.title}
+                  </span>
+
+                  <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        className={`flex w-28 items-center justify-between rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent transition-all hover:border-border/50 ${s.color}`}
+                      >
+                        {s.label}
+                        <ChevronDown size={10} className="opacity-50" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36">
+                        {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map(key => (
+                          <DropdownMenuItem
+                            key={key}
+                            onClick={() => handleUpdateTask(task.id, key)}
+                            className="flex items-center justify-between text-[11px] font-medium"
+                          >
+                            {STATUS_CONFIG[key].label}
+                            {task.status === key && (
+                              <Check size={12} className="text-primary" />
+                            )}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <div
+                      className={`flex w-20 items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${p.color}`}
+                    >
+                      <P_Icon size={10} />
+                      {p.label}
+                    </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
 
+        {/* --- Footer --- */}
         <div className="border-t border-border/40 bg-muted/5 p-3">
           <Link
-            href="/tasks"
+            href={`/workspace/${workspaceId}/tasks`}
             className="flex items-center gap-2 px-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
           >
             View all tasks <ArrowRight size={12} />

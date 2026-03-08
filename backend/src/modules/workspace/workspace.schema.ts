@@ -22,5 +22,5 @@ export const createWorkspaceSchema = z.object({
 })
 
 export const workspaceIdParamSchema = z.object({
-  workspaceId: z.number().int().positive().transform(Number),
+  workspaceId: z.coerce.number().int().positive().transform(Number),
 })

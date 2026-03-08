@@ -77,7 +77,7 @@ export const changeTaskStatusSchema = z.object({
 })
 
 export const taskIdParamSchema = z.object({
-  taskId: z.number().int().positive().transform(Number),
+  taskId: z.coerce.number().int().positive().transform(Number),
 })
 
 export const listTasksQuerySchema = z.object({

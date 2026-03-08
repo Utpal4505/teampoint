@@ -16,6 +16,7 @@ import {
 import { hardAuth } from '../../middlewares/auth.middlewares.ts'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
 import { userIdParamSchema } from '../user/user.schema.ts'
+import { listWorkspaceAssignedTasksController } from '../task/task.controller.ts'
 
 const router = Router()
 
@@ -85,4 +86,9 @@ router.get(
   listAllWorkspaceProjectController,
 )
 
+router.get(
+  '/:workspaceId/my-tasks',
+  validateRequest(workspaceIdParamSchema, 'params'),
+  listWorkspaceAssignedTasksController,
+)
 export default router

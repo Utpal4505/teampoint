@@ -8,9 +8,11 @@ import {
   createTaskService,
   getTaskByIdService,
   listTasksService,
+  listWorkspaceAssignedTasksService,
   updateTaskService,
 } from './task.service.ts'
 import { listTasksQuerySchema, taskIdParamSchema } from './task.schema.ts'
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
 
 export const createTaskController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -86,4 +88,16 @@ export const cancelTaskController = asyncHandler(async (req, res) => {
   const task = await cancelTaskService(taskId, req.user.id)
 
   return res.status(200).json(new ApiResponse(200, 'Task cancelled successfully', task))
+})
+
+export const listWorkspaceAssignedTasksController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const { workspaceId } = workspaceIdParamSchema.parse(req.params)
+
+  const tasks = await listWorkspaceAssignedTasksService(workspaceId, req.user.id)
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace tasks retrieved successfully', tasks))
 })
