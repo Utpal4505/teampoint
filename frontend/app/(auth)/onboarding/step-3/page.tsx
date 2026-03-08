@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowRight, Building2, Users } from 'lucide-react'
 import { AuthBackground } from '@/components/auth'
 import { OnboardingCard, OnboardingStepIndicator } from '@/components/onboarding'
+import { useFetchWorkspaceById } from '@/features/workspace/hooks'
+import { Spinner } from '@/components/ui/spinner'
 
 const STEPS = [{ label: 'Workspace' }, { label: 'Invite' }, { label: 'Done' }]
 
@@ -70,17 +72,40 @@ function AnimatedCheck() {
 
 export default function OnboardingStep3() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const workspaceIdParam = searchParams.get('workspaceId')
+  const workspaceId = workspaceIdParam ? Number(workspaceIdParam) : undefined
+
+  const { data: workspace, isLoading } = useFetchWorkspaceById(workspaceId)
+
   const [visible, setVisible] = useState(false)
 
-  // Stagger mount animation
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 50)
     return () => clearTimeout(t)
   }, [])
 
-  // Replace these with actual data from your store/context
-  const workspaceName = 'Acme Corp'
-  const memberCount = 3
+  function goToDashboard() {
+    if (!workspaceId) return
+    router.push(`/workspace/${workspaceId}/dashboard`)
+  }
+
+  useEffect(() => {
+    if (!workspace && !isLoading) {
+      router.replace('/onboarding/step-1')
+    }
+  }, [workspace, isLoading, router])
+
+  if (isLoading)
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    )
+
+  const workspaceName = workspace?.name ?? ''
+  const memberCount = workspace?.workspaceMembers.length ?? 0
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-[oklch(0.16_0.005_260)] p-8">
@@ -143,7 +168,7 @@ export default function OnboardingStep3() {
 
             {/* CTA */}
             <button
-              onClick={() => router.push('/dashboard')}
+              onClick={goToDashboard}
               className="flex w-full items-center justify-center gap-2 rounded-xl
                 bg-[oklch(0.6_0.16_262)] px-6 py-4
                 font-[family-name:var(--body-family)] text-sm font-medium

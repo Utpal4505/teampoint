@@ -13,6 +13,7 @@ import {
 } from '@/components/onboarding'
 import { onboardUser } from '@/features/users/api'
 import { handleApiError } from '@/lib/handle-api-error'
+import { useQueryClient } from '@tanstack/react-query'
 
 const STEPS = [{ label: 'Workspace' }, { label: 'Invite' }, { label: 'Done' }]
 
@@ -27,6 +28,7 @@ interface FormErrors {
 
 export default function OnboardingStep1() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [form, setForm] = useState<FormState>({ name: '', description: '' })
   const [errors, setErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
@@ -61,8 +63,13 @@ export default function OnboardingStep1() {
         description: form.description,
       })
 
-      console.log(res)
-      router.push(`/onboarding/step-2?workspaceId=${res.workspaceId}`)
+      queryClient.setQueryData(['workspace', 'detail', res.id], res)
+
+      queryClient.invalidateQueries({
+        queryKey: ['user-workspaces'],
+      })
+
+      router.push(`/onboarding/step-2?workspaceId=${res.id}`)
     } catch (error) {
       handleApiError(error)
     } finally {

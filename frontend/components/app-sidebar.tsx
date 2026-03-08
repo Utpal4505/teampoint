@@ -21,30 +21,31 @@ import {
   LayoutDashboardIcon,
 } from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
+import { useListUserWorkspaces } from '@/features/workspace/hooks'
+import { useParams } from 'next/navigation'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore(state => state.user)
+
+  const { data: workspaces } = useListUserWorkspaces()
+
+  const params = useParams()
+  const activeWorkspaceId = params.workspaceId as string
+
+  const workspacesData =
+    workspaces?.map(ws => ({
+      name: ws.name,
+      workspaceId: ws.id,
+    })) || []
 
   const data = {
     user: {
       name: user?.fullName || 'John Doe',
       email: user?.email || 'john@example.com',
-      avatar: user?.avatarUrl || 'https://galaxypfp.com/wp-content/uploads/2025/10/anime-boy-pfp-aestheticv.webp',
+      avatar:
+        user?.avatarUrl ||
+        'https://galaxypfp.com/wp-content/uploads/2025/10/anime-boy-pfp-aestheticv.webp',
     },
-    teams: [
-      {
-        name: 'Acme Inc',
-        id: 1,
-      },
-      {
-        name: 'Acme Corp.',
-        id: 2,
-      },
-      {
-        name: 'Evil Corp.',
-        id: 3,
-      },
-    ],
 
     navMain: [
       {
@@ -80,11 +81,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <WorkspaceSwitcher workspaces={data.teams} />
+        <WorkspaceSwitcher workspaces={workspacesData} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.projects} workspaceId={activeWorkspaceId} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

@@ -6,6 +6,7 @@ import type {
   DeleteWorkspaceDTO,
   GetWorkspaceDTO,
   ListAllWorkspacesMemberDTO,
+  ListUserWorkspacesDTO,
   RemoveorUpdateWorkspaceMemberDTO,
   updateWorkspaceDTO,
   UpdateWorkspaceInput,
@@ -356,4 +357,53 @@ export const updateWorkspaceMemberRoleService = async ({
 
     return updatedMember
   })
+}
+
+export const listUserWorkspacesService = async ({
+  userId,
+}: {
+  userId: number
+}): Promise<ListUserWorkspacesDTO> => {
+  if (!userId) {
+    throw new ApiError(400, 'User ID is required')
+  }
+
+  const memberships = await prisma.workspace_Members.findMany({
+    where: {
+      userId,
+      status: 'ACTIVE',
+      workspace: {
+        status: {
+          in: ['ACTIVE', 'ARCHIVED'],
+        },
+      },
+    },
+    select: {
+      role: true,
+      joinedAt: true,
+      workspace: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          status: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  if (!memberships || memberships.length === 0) {
+    return []
+  }
+
+  return memberships.map(member => ({
+    id: member.workspace.id,
+    name: member.workspace.name,
+    description: member.workspace.description,
+    status: member.workspace.status,
+    role: member.role,
+    joinedAt: member.joinedAt,
+    createdAt: member.workspace.createdAt,
+  }))
 }

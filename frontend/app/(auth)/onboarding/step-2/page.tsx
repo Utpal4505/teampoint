@@ -52,7 +52,7 @@ export default function OnboardingStep2() {
             : `We've emailed your ${members.length} teammates.`,
       })
 
-      router.push('/onboarding/step-3')
+      router.push(`/onboarding/step-3?workspaceId=${workspaceId}`)
     } catch (error) {
       handleApiError(error)
     } finally {

@@ -1,6 +1,7 @@
 import api from '@/lib/api'
 import { User } from './types'
 import { AxiosRequestConfig } from 'axios'
+import { GetWorkspaceDTO } from '../workspace/types'
 
 interface CustomAxiosRequestConfig extends AxiosRequestConfig {
   authFlag?: boolean
@@ -20,7 +21,7 @@ export const onboardUser = async ({
 }: {
   workspaceName: string
   description: string
-}): Promise<{ workspaceId: number }> => {
+}): Promise<GetWorkspaceDTO> => {
   const { data } = await api.post('/users/onboarding', {
     workspaceName,
     description,

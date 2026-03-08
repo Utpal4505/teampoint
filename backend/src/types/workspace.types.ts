@@ -85,3 +85,13 @@ export type RemoveorUpdateWorkspaceMemberDTO = {
   status: WorkspaceMemberStatus
   updatedAt: Date
 }
+
+export type ListUserWorkspacesDTO = {
+  id: number
+  name: string
+  description: string | null
+  status: WorkspaceStatus
+  role: WorkspaceRole
+  joinedAt: Date
+  createdAt: Date
+}[]

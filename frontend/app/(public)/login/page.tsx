@@ -68,7 +68,7 @@ export default function LoginPage() {
           withCredentials: true,
           headers: {
             'Cache-Control': 'no-cache',
-            Pragma: 'no-cache',
+            'Pragma': 'no-cache',
           },
         })
 
@@ -76,9 +76,23 @@ export default function LoginPage() {
 
         if (user.is_new) {
           router.replace('/onboarding/step-1')
-        } else {
-          router.replace('/dashboard')
+          return
         }
+
+        const wsRes = await api.get('/workspaces/user-workspaces', {
+          withCredentials: true,
+        })
+
+        const workspaces = wsRes.data.data
+
+        if (!workspaces || workspaces.length === 0) {
+          router.replace('/onboarding/create-workspace')
+          return
+        }
+
+        const firstWorkspaceId = workspaces[0].id
+
+        router.replace(`/workspace/${firstWorkspaceId}/dashboard`)
       } catch (err) {
         console.log('Something went wrong while checking authentication:', err)
         setCheckingAuth(false)

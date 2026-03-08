@@ -8,6 +8,7 @@ import {
   getWorkspaceByIdController,
   listAllWorkspaceMembersController,
   listAllWorkspaceProjectController,
+  listUserWorkspacesController,
   removeWorkspaceMemberController,
   updateWorkspaceController,
   updateWorkspaceMemberRoleController,
@@ -19,6 +20,8 @@ import { userIdParamSchema } from '../user/user.schema.ts'
 const router = Router()
 
 router.use(hardAuth)
+
+router.get('/user-workspaces', listUserWorkspacesController)
 
 router.post(
   '/',

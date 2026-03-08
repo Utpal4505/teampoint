@@ -8,6 +8,7 @@ import {
   deleteWorkspaceService,
   getWorkspaceByIdService,
   listAllWorkspaceMembersService,
+  listUserWorkspacesService,
   removeWorkspaceMemberService,
   updateWorkspaceMemberRoleService,
   updateWorkspaceService,
@@ -144,4 +145,21 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
     .status(200)
     .json(new ApiResponse(200, 'Projects retrieved successfully', projects))
 })
-  
+
+export const listUserWorkspacesController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const workspaces = await listUserWorkspacesService({
+    userId: req.user.id,
+  })
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        'User workspaces retrieved successfully',
+        workspaces,
+      ),
+    )
+})

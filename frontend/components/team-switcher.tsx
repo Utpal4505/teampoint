@@ -22,7 +22,7 @@ import {
 import { ChevronsUpDownIcon, PlusIcon } from "lucide-react"
 
 type Workspace = {
-  id: number
+  workspaceId: number
   name: string
 }
 
@@ -73,7 +73,7 @@ export function WorkspaceSwitcher({
 
             {workspaces.map((workspace, index) => (
               <DropdownMenuItem
-                key={workspace.id}
+                key={workspace.workspaceId}
                 onClick={() => setActiveWorkspace(workspace)}
                 className="gap-2 p-2"
               >
