@@ -4,7 +4,7 @@ import type {
   changeTaskStatusSchema,
   createTaskSchema,
   updateTaskSchema,
-} from '../modules/task/task.schema.ts'
+} from '../modules/tasks/task.schema.ts'
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>
 
