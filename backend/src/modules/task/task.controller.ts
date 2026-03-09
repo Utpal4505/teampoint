@@ -69,7 +69,7 @@ export const updateTaskController = asyncHandler(async (req, res) => {
 
 export const changeTaskStatusController = asyncHandler(async (req, res) => {
   assertUser(req.user)
-
+  
   const { taskId } = taskIdParamSchema.parse(req.params)
   const input = req.body
 

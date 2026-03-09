@@ -130,74 +130,80 @@ export function MyTasksCard() {
               No tasks assigned to you.
             </div>
           ) : (
-            tasks.slice(0, 6).map(task => {
-              const priorityKey = (task.priority as Priority) || 'LOW'
-              const statusKey = (task.status as TaskStatus) || 'TODO'
+            tasks
+              .filter(t => t.status !== 'DONE' && t.status !== 'CANCELLED')
+              .slice(0, 6)
+              .map(task => {
+                const priorityKey = (task.priority as Priority) || 'LOW'
+                const statusKey = (task.status as TaskStatus) || 'TODO'
 
-              const p = PRIORITY_CONFIG[priorityKey]
-              const s = STATUS_CONFIG[statusKey]
-              const P_Icon = p.icon
-              const isDone = task.status === 'DONE'
+                const p = PRIORITY_CONFIG[priorityKey]
+                const s = STATUS_CONFIG[statusKey]
+                const P_Icon = p.icon
+                const isDone = task.status === 'DONE'
 
-              return (
-                <div
-                  key={task.id}
-                  className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent/40 transition-colors"
-                >
-                  <button
-                    onClick={() => handleUpdateTask(task.id, isDone ? 'TODO' : 'DONE')}
-                    className="shrink-0 transition-transform active:scale-90"
+                return (
+                  <div
+                    key={task.id}
+                    className="group flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-accent/40 transition-colors"
                   >
-                    {isDone ? (
-                      <CheckCircle2 size={18} className="text-primary fill-primary/10" />
-                    ) : (
-                      <Circle
-                        size={18}
-                        className="text-muted-foreground/30 group-hover:text-muted-foreground/60"
-                      />
-                    )}
-                  </button>
-
-                  <span
-                    className={`flex-1 truncate text-sm font-medium transition-all ${isDone ? 'text-muted-foreground/60 line-through' : 'text-foreground/90'}`}
-                  >
-                    {task.title}
-                  </span>
-
-                  <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger
-                        className={`flex w-28 items-center justify-between rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent transition-all hover:border-border/50 ${s.color}`}
-                      >
-                        {s.label}
-                        <ChevronDown size={10} className="opacity-50" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36">
-                        {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map(key => (
-                          <DropdownMenuItem
-                            key={key}
-                            onClick={() => handleUpdateTask(task.id, key)}
-                            className="flex items-center justify-between text-[11px] font-medium"
-                          >
-                            {STATUS_CONFIG[key].label}
-                            {task.status === key && (
-                              <Check size={12} className="text-primary" />
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    <div
-                      className={`flex w-20 items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${p.color}`}
+                    <button
+                      onClick={() => handleUpdateTask(task.id, isDone ? 'TODO' : 'DONE')}
+                      className="shrink-0 transition-transform active:scale-90"
                     >
-                      <P_Icon size={10} />
-                      {p.label}
+                      {isDone ? (
+                        <CheckCircle2
+                          size={18}
+                          className="text-primary fill-primary/10"
+                        />
+                      ) : (
+                        <Circle
+                          size={18}
+                          className="text-muted-foreground/30 group-hover:text-muted-foreground/60"
+                        />
+                      )}
+                    </button>
+
+                    <span
+                      className={`flex-1 truncate text-sm font-medium transition-all ${isDone ? 'text-muted-foreground/60 line-through' : 'text-foreground/90'}`}
+                    >
+                      {task.title}
+                    </span>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          className={`flex w-28 items-center justify-between rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider outline-none border border-transparent transition-all hover:border-border/50 ${s.color}`}
+                        >
+                          {s.label}
+                          <ChevronDown size={10} className="opacity-50" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36">
+                          {(Object.keys(STATUS_CONFIG) as TaskStatus[]).map(key => (
+                            <DropdownMenuItem
+                              key={key}
+                              onClick={() => handleUpdateTask(task.id, key)}
+                              className="flex items-center justify-between text-[11px] font-medium"
+                            >
+                              {STATUS_CONFIG[key].label}
+                              {task.status === key && (
+                                <Check size={12} className="text-primary" />
+                              )}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <div
+                        className={`flex w-20 items-center gap-1 rounded-md px-2 py-1 text-[10px] font-bold uppercase tracking-wider ${p.color}`}
+                      >
+                        <P_Icon size={10} />
+                        {p.label}
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })
+                )
+              })
           )}
         </div>
 

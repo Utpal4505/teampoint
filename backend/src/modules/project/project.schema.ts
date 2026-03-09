@@ -24,7 +24,7 @@ export const createProjectSchema = z.object({
 })
 
 export const projectIdParamSchema = z.object({
-  projectId: z.number().int().positive().transform(Number),
+  projectId: z.coerce .number().int().positive().transform(Number),
 })
 
 export const updateProjectSchema = z

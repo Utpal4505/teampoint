@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { AssignedTask } from './types'
 import { getWorkspaceAssignedTasks, updateTaskStatus } from './api'
-import { toast } from 'sonner'
+import { handleApiError } from '@/lib/handle-api-error'
 
 export const useWorkspaceAssignedTasks = (workspaceId: number) => {
   return useQuery<AssignedTask[]>({
@@ -44,14 +44,14 @@ export const useUpdateTaskStatus = (workspaceId: number) => {
 
       return { previousTasks }
     },
-    onError: (err, variables, context) => {
+    onError: (err, _variables, context) => {
       if (context?.previousTasks) {
         queryClient.setQueryData(
           ['workspace', workspaceId, 'myTasks'],
           context.previousTasks,
         )
       }
-      toast.error('Failed to update task status')
+      handleApiError(err)
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
