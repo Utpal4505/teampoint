@@ -49,3 +49,9 @@ export const updateProjectSchema = z
     status: z.enum(ProjectStatus),
   })
   .partial()
+
+export const listAllWorkspaceProjectQuerySchema = z.object({
+  status: z.enum(ProjectStatus).optional(),
+  search: z.string().trim().optional(),
+  createdBy: z.coerce.number().positive().optional(),
+})

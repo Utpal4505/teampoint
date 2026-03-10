@@ -3,11 +3,8 @@
 import { useState } from 'react'
 import { Search, Plus, Trash2, Users, AlertCircle, UserX } from 'lucide-react'
 import { RoleDropdown } from './roledropdown'
-import {
-  initials,
-  MOCK_WORKSPACE_MEMBERS,
-} from '@/features/projects/create-project/constants'
-import { ProjectRole } from '@/features/projects/create-project/schemas'
+import { ProjectRole } from '@/features/projects/schemas'
+import { initials, MOCK_WORKSPACE_MEMBERS } from '@/features/projects/constants'
 
 export type AddedMember = (typeof MOCK_WORKSPACE_MEMBERS)[number] & {
   role: Exclude<ProjectRole, 'OWNER'>

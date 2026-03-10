@@ -29,6 +29,7 @@ export interface Task {
   assignee: string
   type: TaskType
   description: string
+  avatarUrl?: string
 }
 
 export interface Filters {

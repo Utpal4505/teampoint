@@ -11,7 +11,6 @@ import ListView from './listview'
 import TaskDrawer from './taskdrawer'
 import { TaskCreateModal, TaskCreatePayload } from './taskcreatemodal'
 import { SidebarInset, SidebarTrigger } from '../ui/sidebar'
-import { Separator } from '@/components/ui/separator'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
@@ -33,6 +32,10 @@ export default function TasksPage() {
   function handleAddTask(status: Status) {
     setModalStatus(status)
     setModalOpen(true)
+  }
+
+  function handleDropTask(taskId: Task['id'], newStatus: Status) {
+    setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: newStatus } : t)))
   }
 
   async function handleCreateTask(payload: TaskCreatePayload) {
@@ -118,6 +121,7 @@ export default function TasksPage() {
                 tasks={filteredTasks.filter(t => t.status === status)}
                 onTaskClick={setSelectedTask}
                 onAddTask={handleAddTask}
+                onDropTask={handleDropTask}
               />
             ))}
           </div>

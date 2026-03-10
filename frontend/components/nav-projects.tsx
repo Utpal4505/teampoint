@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ import {
   Trash2Icon,
   PlusIcon,
   FolderKanban,
+  ArrowRight,
 } from 'lucide-react'
 
 import {
@@ -33,6 +35,9 @@ import {
   CreateProjectPayload,
   ProjectMemberPayload,
 } from '@/components/projects/create-project'
+
+const MAX_VISIBLE = 3
+
 export function NavProjects({
   projects,
   workspaceId,
@@ -41,16 +46,16 @@ export function NavProjects({
   workspaceId: string
 }) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
   const [modalOpen, setModalOpen] = useState(false)
+
+  const visibleProjects = projects.slice(0, MAX_VISIBLE)
+  const hasMore = projects.length > MAX_VISIBLE
 
   async function handleCreateProject(
     project: CreateProjectPayload,
     members: ProjectMemberPayload[],
   ) {
-    // TODO: wire API
-    // const { projectId } = await createProject(project)
-    // await Promise.all(members.map(m => addProjectMember(projectId, m)))
-    // await invalidateProjects()
     console.log('Create project payload:', project, members)
   }
 
@@ -59,7 +64,6 @@ export function NavProjects({
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
         <div className="flex items-center justify-between mb-2">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-
           <button
             onClick={() => setModalOpen(true)}
             className="flex items-center justify-center h-6 w-6 rounded-md
@@ -72,7 +76,7 @@ export function NavProjects({
         </div>
 
         <SidebarMenu>
-          {projects.map(project => (
+          {visibleProjects.map(project => (
             <SidebarMenuItem key={project.name}>
               <SidebarMenuButton asChild>
                 <a href={project.url}>
@@ -97,14 +101,11 @@ export function NavProjects({
                     <FolderKanban />
                     <span>Open Project</span>
                   </DropdownMenuItem>
-
                   <DropdownMenuItem>
                     <SettingsIcon />
                     <span>Project Settings</span>
                   </DropdownMenuItem>
-
                   <DropdownMenuSeparator />
-
                   <DropdownMenuItem
                     className="group flex items-center cursor-pointer rounded-md outline-none
                       transition-all duration-200
@@ -119,11 +120,26 @@ export function NavProjects({
             </SidebarMenuItem>
           ))}
 
-          <SidebarMenuItem>
-            <SidebarMenuButton className="text-muted-foreground">
-              View All
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {hasMore && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => router.push(`/workspace/${workspaceId}/projects`)}
+                className="text-muted-foreground hover:text-foreground group"
+              >
+                <ArrowRight
+                  size={14}
+                  className="transition-transform duration-150 group-hover:translate-x-0.5"
+                />
+                <span>View All Projects</span>
+                <span
+                  className="ml-auto text-[10px] font-medium tabular-nums
+                  rounded-full bg-muted px-1.5 py-0.5 text-muted-foreground"
+                >
+                  {projects.length}
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
       </SidebarGroup>
 

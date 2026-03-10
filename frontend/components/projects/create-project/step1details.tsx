@@ -1,7 +1,7 @@
 import { Activity } from 'lucide-react'
 import { FieldLabel, FieldError } from './fieldhelpers'
 import { StatusSelector } from './statusselector'
-import { ProjectStatus, Step1Errors } from '@/features/projects/create-project/schemas'
+import { ProjectStatus, Step1Errors } from '@/features/projects/schemas'
 
 interface Step1DetailsProps {
   name: string

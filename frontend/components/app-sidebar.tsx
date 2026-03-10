@@ -26,7 +26,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const workspacesData =
     workspaces?.map(ws => ({
       name: ws.name,
-      workspaceId: String(ws.id), // normalise to string throughout
+      workspaceId: String(ws.id),
     })) ?? []
 
   const navMain = [
@@ -44,6 +44,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // TODO: replace with useListProjects(activeWorkspaceId)
   const projects = [
+    { name: 'Design Engineering', url: '#' },
+    { name: 'Sales & Marketing', url: '#' },
+    { name: 'Travel', url: '#' },
+    { name: 'Design Engineering', url: '#' },
+    { name: 'Sales & Marketing', url: '#' },
+    { name: 'Travel', url: '#' },
+    { name: 'Design Engineering', url: '#' },
+    { name: 'Sales & Marketing', url: '#' },
+    { name: 'Travel', url: '#' },
     { name: 'Design Engineering', url: '#' },
     { name: 'Sales & Marketing', url: '#' },
     { name: 'Travel', url: '#' },

@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { ChevronDown, Check } from 'lucide-react'
 import { createPortal } from 'react-dom'
-import type { ProjectRole } from '@/features/projects/create-project/schemas'
-import { ROLE_OPTIONS } from '@/features/projects/create-project/constants'
+import type { ProjectRole } from '@/features/projects/schemas'
+import { ROLE_OPTIONS } from '@/features/projects/constants'
 
 export function RoleDropdown({
   value,

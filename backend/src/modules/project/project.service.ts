@@ -1,4 +1,5 @@
 import { prisma } from '../../config/db.config.ts'
+import type { Prisma } from '../../generated/prisma/client.ts'
 import type { ProjectStatus } from '../../generated/prisma/enums.ts'
 import type {
   CreateProjectDTO,
@@ -162,29 +163,42 @@ export const deleteProjectService = async (
 export const listAllWorkspaceProjectService = async (
   workspaceId: number,
   userId: number,
+  filters: {
+    status?: ProjectStatus
+    search?: string
+    createdBy?: number
+  } = {},
 ): Promise<ListAllWorkspaceProjectDTO> => {
-  return prisma.project.findMany({
-    where: {
-      workspaceId,
-      status: { not: 'DELETED' },
-      OR: [
-        {
-          projectMembers: {
-            some: { userId },
-          },
+  const { status, createdBy } = filters
+
+  const where: Prisma.ProjectWhereInput = {
+    workspaceId,
+    status: status ? status : { not: 'DELETED' },
+    OR: [
+      {
+        projectMembers: {
+          some: { userId },
         },
-        {
-          workspace: {
-            workspaceMembers: {
-              some: {
-                userId,
-                role: { in: ['OWNER', 'ADMIN'] },
-              },
+      },
+      {
+        workspace: {
+          workspaceMembers: {
+            some: {
+              userId,
+              role: { in: ['OWNER', 'ADMIN'] },
             },
           },
         },
-      ],
-    },
+      },
+    ],
+  }
+
+  if (createdBy) {
+    where.createdBy = createdBy
+  }
+
+  return prisma.project.findMany({
+    where,
     select: {
       id: true,
       name: true,

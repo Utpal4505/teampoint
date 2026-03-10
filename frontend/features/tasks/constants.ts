@@ -143,6 +143,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: '2026-06-20',
     project: 'TeamPoint Frontend',
     assignee: 'Utpal',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Utpal&background=6366f1&color=fff&size=40',
     type: 'PROJECT',
     description: 'Implement workspace switching logic for dashboard navigation.',
   },
@@ -154,6 +156,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: '2026-06-19',
     project: 'AuthService',
     assignee: 'Aman',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Aman&background=f59e0b&color=fff&size=40',
     type: 'PROJECT',
     description: 'Users are being logged out unexpectedly on token refresh.',
   },
@@ -165,6 +169,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: null,
     project: 'Marketing Site',
     assignee: 'Utpal',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Utpal&background=6366f1&color=fff&size=40',
     type: 'PROJECT',
     description: 'Integrate Mixpanel for user event tracking.',
   },
@@ -176,6 +182,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: '2026-06-25',
     project: 'Mobile App',
     assignee: 'Priya',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Priya&background=ec4899&color=fff&size=40',
     type: 'PROJECT',
     description: 'Create wireframes for the 3-step onboarding flow.',
   },
@@ -187,6 +195,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: null,
     project: 'TeamPoint Frontend',
     assignee: 'Rahul',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Rahul&background=10b981&color=fff&size=40',
     type: 'PROJECT',
     description: 'Sync Swagger docs with latest endpoint changes.',
   },
@@ -198,6 +208,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: '2026-06-18',
     project: null,
     assignee: 'Utpal',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Utpal&background=6366f1&color=fff&size=40',
     type: 'PERSONAL',
     description: 'Review 3 open PRs before end of sprint.',
   },
@@ -209,6 +221,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: '2026-06-15',
     project: 'AuthService',
     assignee: 'Aman',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Aman&background=f59e0b&color=fff&size=40',
     type: 'PROJECT',
     description: 'Achieve 80% coverage on auth module.',
   },
@@ -220,6 +234,8 @@ export const INITIAL_TASKS: Task[] = [
     dueDate: null,
     project: 'TeamPoint Frontend',
     assignee: 'Priya',
+    avatarUrl:
+      'https://ui-avatars.com/api/?name=Priya&background=ec4899&color=fff&size=40',
     type: 'PROJECT',
     description: 'Extract sidebar logic into reusable hooks.',
   },

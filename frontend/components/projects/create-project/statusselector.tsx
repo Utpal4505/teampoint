@@ -1,5 +1,5 @@
-import { STATUS_OPTIONS } from '@/features/projects/create-project/constants'
-import { ProjectStatus } from '@/features/projects/create-project/schemas'
+import { STATUS_OPTIONS } from '@/features/projects/constants'
+import { ProjectStatus } from '@/features/projects/schemas'
 import { Check } from 'lucide-react'
 
 export function StatusSelector({

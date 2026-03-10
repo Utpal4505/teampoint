@@ -5,18 +5,15 @@ import { X, FolderKanban, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import { StepIndicator } from './stepindicator'
 import { Step1Details } from './step1details'
 import { Step2Members, type AddedMember } from './step2members'
-import {
-  createProjectSchema,
-  addProjectMemberSchema,
-} from '@/features/projects/create-project/schemas'
+import { createProjectSchema, addProjectMemberSchema } from '@/features/projects/schemas'
 import type {
   ProjectStatus,
   ProjectRole,
   CreateProjectPayload,
   ProjectMemberPayload,
   Step1Errors,
-} from '@/features/projects/create-project/schemas'
-import { MOCK_WORKSPACE_MEMBERS } from '@/features/projects/create-project/constants'
+} from '@/features/projects/schemas'
+import { MOCK_WORKSPACE_MEMBERS } from '@/features/projects/constants'
 
 export type { CreateProjectPayload, ProjectMemberPayload }
 
@@ -36,7 +33,6 @@ export function CreateProjectModal({
   workspaceId,
   onSubmit,
 }: CreateProjectModalProps) {
-  // ── State ──────────────────────────────────────────────────
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -45,7 +41,6 @@ export function CreateProjectModal({
   const [members, setMembers] = useState<AddedMember[]>([])
   const [loading, setLoading] = useState(false)
 
-  // ── Step 1 validation ──────────────────────────────────────
   function validateStep1(): boolean {
     const result = createProjectSchema.safeParse({
       workspaceId: Number(workspaceId),
@@ -61,7 +56,6 @@ export function CreateProjectModal({
     return true
   }
 
-  // ── Members ────────────────────────────────────────────────
   function addMember(m: (typeof MOCK_WORKSPACE_MEMBERS)[number]) {
     if (members.find(x => x.userId === m.userId)) return
     setMembers(p => [...p, { ...m, role: 'MEMBER' as const }])
@@ -80,7 +74,6 @@ export function CreateProjectModal({
     )
   }
 
-  // ── Submit ─────────────────────────────────────────────────
   function reset() {
     setStep(1)
     setName('')

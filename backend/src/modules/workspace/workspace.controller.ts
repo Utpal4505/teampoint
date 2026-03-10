@@ -1,6 +1,8 @@
+import type { ProjectStatus } from '../../generated/prisma/enums.ts'
 import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.ts'
 import { listAllWorkspaceProjectService } from '../project/project.service.ts'
 import {
   archiveWorkspaceService,
@@ -138,8 +140,21 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
   assertUser(req.user)
 
   const { workspaceId } = req.params
+  const parsed = listAllWorkspaceProjectQuerySchema.parse(req.query)
 
-  const projects = await listAllWorkspaceProjectService(Number(workspaceId), req.user.id)
+  const filters: {
+    status?: ProjectStatus
+    createdBy?: number
+  } = {}
+
+  if (parsed.status !== undefined) filters.status = parsed.status
+  if (parsed.createdBy !== undefined) filters.createdBy = parsed.createdBy
+
+  const projects = await listAllWorkspaceProjectService(
+    Number(workspaceId),
+    req.user.id,
+    filters,
+  )
 
   return res
     .status(200)

@@ -29,7 +29,7 @@ export const addProjectMemberSchema = z.object({
 })
 
 // ── Exported payload types ─────────────────────────────────────
-export type ProjectStatus = 'ACTIVE' | 'ONHOLD'
+export type ProjectStatus = 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'DELETED'
 export type ProjectRole   = ProjectMemberRole
 
 export interface CreateProjectPayload {

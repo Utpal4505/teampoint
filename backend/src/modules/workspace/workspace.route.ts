@@ -17,6 +17,7 @@ import { hardAuth } from '../../middlewares/auth.middlewares.ts'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
 import { userIdParamSchema } from '../user/user.schema.ts'
 import { listWorkspaceAssignedTasksController } from '../tasks/task.controller.ts'
+import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.ts'
 
 const router = Router()
 
@@ -83,6 +84,7 @@ router.delete(
 router.get(
   '/:workspaceId/projects',
   validateRequest(workspaceIdParamSchema, 'params'),
+  validateRequest(listAllWorkspaceProjectQuerySchema, 'query'),
   listAllWorkspaceProjectController,
 )
 
