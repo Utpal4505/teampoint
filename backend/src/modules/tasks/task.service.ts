@@ -556,6 +556,7 @@ export const listWorkspaceAssignedTasksService = async (
         select: {
           id: true,
           fullName: true,
+          avatarUrl: true,
         },
       },
     },
@@ -604,6 +605,7 @@ export const listWorkspaceAssignedTasksService = async (
       ? {
           id: task.assignee.id,
           name: task.assignee.fullName,
+          avatarUrl: task.assignee.avatarUrl ?? undefined,
         }
       : null,
   }))

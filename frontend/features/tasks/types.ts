@@ -1,8 +1,16 @@
+import React from 'react'
+
+export type Priority = 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW'
+export type Status = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
+export type TaskType = 'PERSONAL' | 'PROJECT'
+export type ViewMode = 'kanban' | 'list'
+
+// API response type
 export interface AssignedTask {
   id: number
   title: string
-  status: string
-  priority: string
+  status: Status
+  priority: Priority
   dueDate: string | null
   project: {
     id: number
@@ -11,24 +19,14 @@ export interface AssignedTask {
   assignedTo: {
     id: number
     name: string
+    avatarUrl?: string
   } | null
 }
 
-export type Priority = 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW'
-export type Status = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
-export type TaskType = 'PERSONAL' | 'PROJECT'
-export type ViewMode = 'kanban' | 'list'
-
-export interface Task {
-  id: number
-  title: string
-  priority: Priority
-  status: Status
-  dueDate: string | null
-  project: string | null
-  assignee: string
-  type: TaskType
+export interface Task extends AssignedTask {
   description: string
+  type: TaskType
+  assignee: string
   avatarUrl?: string
 }
 

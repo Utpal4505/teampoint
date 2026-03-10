@@ -9,6 +9,7 @@ interface TaskCardProps {
   onClick: (task: Task) => void
   dragging?: boolean
   onDragStart?: (e: React.DragEvent, task: Task) => void
+  onDragEnd?: () => void
 }
 
 export default function TaskCard({
@@ -16,15 +17,19 @@ export default function TaskCard({
   onClick,
   dragging,
   onDragStart,
+  onDragEnd,
 }: TaskCardProps) {
   const p = PRIORITY_CONFIG[task.priority]
   const P_Icon = p.Icon
+
+  console.log(task.avatarUrl)
 
   return (
     <div
       draggable
       onDragStart={e => onDragStart?.(e, task)}
       onClick={() => onClick(task)}
+      onDragEnd={onDragEnd}
       className={`group cursor-pointer rounded-xl border border-border bg-card p-3.5 transition-all duration-150
         hover:border-border/80 hover:shadow-[0_4px_20px_oklch(0_0_0/0.3)] hover:-translate-y-px
         ${dragging ? 'opacity-50 rotate-2 scale-[0.98]' : ''}`}
@@ -59,7 +64,7 @@ export default function TaskCard({
           {task.project ? (
             <>
               <FolderKanban size={10} />
-              <span className="truncate max-w-[100px]">{task.project}</span>
+              <span className="truncate max-w-[100px]">{task.project.name}</span>
             </>
           ) : (
             <>

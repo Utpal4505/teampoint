@@ -41,10 +41,12 @@ export function CreateProjectModal({
   const [members, setMembers] = useState<AddedMember[]>([])
   const [loading, setLoading] = useState(false)
 
+  console.log("Clicked")
+
   function validateStep1(): boolean {
     const result = createProjectSchema.safeParse({
       workspaceId: Number(workspaceId),
-      name,
+      name: name,
       description: description || undefined,
     })
     if (!result.success) {
@@ -112,7 +114,7 @@ export function CreateProjectModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.7)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) handleClose()
@@ -123,7 +125,6 @@ export function CreateProjectModal({
         shadow-[0_32px_80px_oklch(0_0_0/0.7)]
         animate-in fade-in-0 zoom-in-95 duration-200"
       >
-        {/* Shimmer */}
         <div className="overflow-hidden rounded-t-2xl">
           <div
             className="h-[2px] w-full"
@@ -134,7 +135,6 @@ export function CreateProjectModal({
           />
         </div>
 
-        {/* Header */}
         <div className="flex items-start justify-between px-6 pt-5 pb-4">
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
@@ -169,7 +169,6 @@ export function CreateProjectModal({
 
         <div className="h-px mx-6 bg-border" />
 
-        {/* Steps */}
         {step === 1 && (
           <Step1Details
             name={name}
@@ -197,7 +196,6 @@ export function CreateProjectModal({
           />
         )}
 
-        {/* Footer */}
         <div className="flex items-center gap-2.5 border-t border-border px-6 py-4">
           {step === 1 ? (
             <>
@@ -205,8 +203,7 @@ export function CreateProjectModal({
                 onClick={handleClose}
                 className="flex-1 rounded-xl border border-border bg-background
                   px-4 py-2.5 font-sans text-sm text-muted-foreground
-                  transition-all duration-150 hover:bg-accent hover:text-foreground
-                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  transition-all duration-150 hover:bg-accent hover:text-foreground"
               >
                 Cancel
               </button>
@@ -217,8 +214,7 @@ export function CreateProjectModal({
                 className="flex flex-[2] items-center justify-center gap-2 rounded-xl
                   bg-primary px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground
                   shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all duration-150
-                  hover:-translate-y-px hover:shadow-[0_4px_20px_oklch(0.6_0.16_262/0.45)]
-                  active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  hover:-translate-y-px active:translate-y-0"
               >
                 Continue <ArrowRight size={14} />
               </button>
@@ -229,8 +225,7 @@ export function CreateProjectModal({
                 onClick={() => setStep(1)}
                 className="flex items-center gap-2 rounded-xl border border-border bg-background
                   px-4 py-2.5 font-sans text-sm text-muted-foreground
-                  transition-all duration-150 hover:bg-accent hover:text-foreground
-                  focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  transition-all duration-150 hover:bg-accent hover:text-foreground"
               >
                 <ArrowLeft size={14} /> Back
               </button>
@@ -240,13 +235,12 @@ export function CreateProjectModal({
                 className="flex flex-1 items-center justify-center gap-2 rounded-xl
                   bg-primary px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground
                   shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all duration-150
-                  hover:-translate-y-px hover:shadow-[0_4px_20px_oklch(0.6_0.16_262/0.45)]
-                  active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50
-                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  hover:-translate-y-px active:translate-y-0
+                  disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {loading ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" /> Creating…
+                    <Loader2 size={14} className="animate-spin" /> Creating...
                   </>
                 ) : (
                   <>

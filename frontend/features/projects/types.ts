@@ -17,3 +17,12 @@ export interface Project {
   members: ProjectMember[]
   createdAt: string
 }
+
+export type ListAllWorkspaceProjectDTO = {
+  id: number
+  name: string
+  description: string | null
+  status: ProjectStatus
+  createdBy: number
+  createdAt: Date
+}[]

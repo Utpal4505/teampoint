@@ -2,8 +2,14 @@
 
 import { useState } from 'react'
 import { LayoutGrid, List, Plus } from 'lucide-react'
-import { INITIAL_TASKS, COLUMNS } from '@/features/tasks/constants'
-import type { Task, Filters, Status, ViewMode } from '@/features/tasks/types'
+import { COLUMNS } from '@/features/tasks/constants'
+import type {
+  AssignedTask,
+  Filters,
+  Status,
+  Task,
+  ViewMode,
+} from '@/features/tasks/types'
 import FilterDropdown from './filterdropdown'
 import FilterChips from './filterchips'
 import KanbanColumn from './kanbancolumn'
@@ -11,15 +17,37 @@ import ListView from './listview'
 import TaskDrawer from './taskdrawer'
 import { TaskCreateModal, TaskCreatePayload } from './taskcreatemodal'
 import { SidebarInset, SidebarTrigger } from '../ui/sidebar'
+import { useWorkspaceAssignedTasks, useUpdateTaskStatus } from '@/features/tasks/hooks'
+import { useWorkspaceId } from '@/hooks/useworkspaceid'
+import { toast } from 'sonner'
+import { useQueryClient } from '@tanstack/react-query'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
+// Convert AssignedTask → Task for UI components
+function toTask(t: AssignedTask): Task {
+  return {
+    ...t,
+    description: '',
+    type: 'PROJECT',
+    assignee: t.assignedTo?.name ?? 'Unassigned',
+    avatarUrl: t.assignedTo?.avatarUrl ?? undefined,
+  }
+}
+
 export default function TasksPage() {
-  const [tasks, setTasks] = useState<Task[]>(INITIAL_TASKS)
+  const workspaceId = useWorkspaceId()
+  const queryClient = useQueryClient()
+
+  const { data: rawTasks = [], isLoading } = useWorkspaceAssignedTasks(workspaceId)
+  const { mutate: updateStatus } = useUpdateTaskStatus(workspaceId)
+
+  const tasks: Task[] = rawTasks.map(toTask)
+
   const [view, setView] = useState<ViewMode>('kanban')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  const [modalOpen, setModalOpen] = useState<boolean>(false)
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [modalOpen, setModalOpen] = useState(false)
   const [modalStatus, setModalStatus] = useState<Status>('TODO')
 
   const filteredTasks = tasks.filter(t => {
@@ -29,33 +57,37 @@ export default function TasksPage() {
     return true
   })
 
+  const selectedTask = selectedTaskId
+    ? (tasks.find(t => t.id === selectedTaskId) ?? null)
+    : null
+
   function handleAddTask(status: Status) {
     setModalStatus(status)
     setModalOpen(true)
   }
 
-  function handleDropTask(taskId: Task['id'], newStatus: Status) {
-    setTasks(prev => prev.map(t => (t.id === taskId ? { ...t, status: newStatus } : t)))
+  async function handleDropTask(taskId: number, newStatus: Status) {
+    const raw = rawTasks.find(t => t.id === taskId)
+    const projectId = raw?.project?.id
+    if (!projectId) {
+      toast.error('Project association not found')
+      return
+    }
+    updateStatus({ projectId, taskId, status: newStatus })
   }
 
-  async function handleCreateTask(payload: TaskCreatePayload) {
-    const optimistic: Task = {
-      id: Date.now(),
-      title: payload.title,
-      description: payload.description,
-      type: payload.type,
-      project: payload.projectId,
-      priority: payload.priority,
-      status: payload.status,
-      dueDate: payload.dueDate,
-      assignee: 'me',
+  async function handleCreateTask(_payload: TaskCreatePayload) {
+    try {
+      setModalOpen(false)
+      toast.success('Task created!')
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    } catch {
+      toast.error('Could not create task')
     }
-    setTasks(prev => [...prev, optimistic])
   }
 
   return (
     <SidebarInset>
-      {/* Header */}
       <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex flex-1 items-center gap-3 px-6">
           <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
@@ -66,10 +98,8 @@ export default function TasksPage() {
         </div>
       </header>
 
-      {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-border px-6 py-3">
         <div className="flex items-center gap-3 flex-wrap">
-          {/* View Toggle */}
           <div className="flex items-center gap-0.5 rounded-xl border border-border bg-muted/40 p-1">
             {(['kanban', 'list'] as ViewMode[]).map(v => (
               <button
@@ -104,9 +134,12 @@ export default function TasksPage() {
         <FilterChips filters={filters} onChange={setFilters} />
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-hidden p-6">
-        {view === 'kanban' ? (
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          </div>
+        ) : view === 'kanban' ? (
           <div
             className="grid h-full gap-4"
             style={{
@@ -119,18 +152,26 @@ export default function TasksPage() {
                 key={status}
                 status={status}
                 tasks={filteredTasks.filter(t => t.status === status)}
-                onTaskClick={setSelectedTask}
+                onTaskClick={t => setSelectedTaskId(t.id)}
                 onAddTask={handleAddTask}
                 onDropTask={handleDropTask}
               />
             ))}
           </div>
         ) : (
-          <ListView tasks={filteredTasks} onTaskClick={setSelectedTask} />
+          <ListView
+            tasks={filteredTasks}
+            onTaskClick={t => setSelectedTaskId(t.id)}
+            onStatusChange={handleDropTask}
+          />
         )}
       </div>
 
-      <TaskDrawer task={selectedTask} onClose={() => setSelectedTask(null)} />
+      <TaskDrawer
+        task={selectedTask}
+        onClose={() => setSelectedTaskId(null)}
+        onStatusChange={handleDropTask}
+      />
 
       <TaskCreateModal
         open={modalOpen}

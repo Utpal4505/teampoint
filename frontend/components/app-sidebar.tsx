@@ -16,6 +16,7 @@ import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
 import { WorkspaceSwitcher } from './workspace-switcher'
 import { NavProjects } from './nav-projects'
+import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore(state => state.user)
@@ -42,21 +43,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ]
 
-  // TODO: replace with useListProjects(activeWorkspaceId)
-  const projects = [
-    { name: 'Design Engineering', url: '#' },
-    { name: 'Sales & Marketing', url: '#' },
-    { name: 'Travel', url: '#' },
-    { name: 'Design Engineering', url: '#' },
-    { name: 'Sales & Marketing', url: '#' },
-    { name: 'Travel', url: '#' },
-    { name: 'Design Engineering', url: '#' },
-    { name: 'Sales & Marketing', url: '#' },
-    { name: 'Travel', url: '#' },
-    { name: 'Design Engineering', url: '#' },
-    { name: 'Sales & Marketing', url: '#' },
-    { name: 'Travel', url: '#' },
-  ]
+  const { data: projectsData = [] } = useListAllWorkspaceProjects(
+    Number(activeWorkspaceId),
+  )
+
+  const projects = projectsData.map(p => ({
+    name: p.name,
+    url: `/workspace/${activeWorkspaceId}/projects/${p.id}`,
+  }))
 
   return (
     <Sidebar collapsible="icon" {...props}>

@@ -1,16 +1,24 @@
 import Image from 'next/image'
+import { ChevronDown, Check } from 'lucide-react'
 import { PRIORITY_CONFIG, STATUS_CONFIG } from '@/features/tasks/constants'
 import { formatDate, getInitials } from '@/lib/utils'
-import type { Task } from '@/features/tasks/types'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import type { Task, Status } from '@/features/tasks/types'
 
 interface ListViewProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
+  onStatusChange: (taskId: number, newStatus: Status) => void
 }
 
-const GRID = '1fr 130px 110px 110px 120px 150px'
+const GRID = '1fr 150px 110px 110px 120px 150px'
 
-export default function ListView({ tasks, onTaskClick }: ListViewProps) {
+export default function ListView({ tasks, onTaskClick, onStatusChange }: ListViewProps) {
   return (
     <div className="rounded-xl border border-border overflow-hidden">
       {/* Header */}
@@ -52,13 +60,44 @@ export default function ListView({ tasks, onTaskClick }: ListViewProps) {
                 {task.title}
               </span>
 
-              {/* Status */}
-              <span
-                className={`flex items-center gap-1.5 text-xs font-medium ${s.color}`}
-              >
-                <S_Icon size={12} />
-                {s.label}
-              </span>
+              {/* Status — dropdown */}
+              <div onClick={e => e.stopPropagation()}>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    className={`flex items-center gap-1.5 rounded-lg border border-transparent
+                      px-2 py-1 text-xs font-medium outline-none transition-all
+                      hover:border-border/50 hover:bg-accent/50 ${s.color}`}
+                  >
+                    <S_Icon size={12} />
+                    {s.label}
+                    <ChevronDown size={10} className="ml-0.5 opacity-50" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-36">
+                    {(Object.keys(STATUS_CONFIG) as Status[])
+                      .filter(key => key !== 'CANCELLED')
+                      .map(key => (
+                        <DropdownMenuItem
+                          key={key}
+                          onClick={() => onStatusChange(task.id, key)}
+                          className="flex items-center justify-between text-[11px] font-medium"
+                        >
+                          <span
+                            className={`flex items-center gap-1.5 ${STATUS_CONFIG[key].color}`}
+                          >
+                            {(() => {
+                              const Icon = STATUS_CONFIG[key].Icon
+                              return <Icon size={11} />
+                            })()}
+                            {STATUS_CONFIG[key].label}
+                          </span>
+                          {task.status === key && (
+                            <Check size={11} className="text-primary" />
+                          )}
+                        </DropdownMenuItem>
+                      ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
 
               {/* Priority */}
               <span
@@ -74,7 +113,7 @@ export default function ListView({ tasks, onTaskClick }: ListViewProps) {
                 {task.dueDate ? formatDate(task.dueDate) : '—'}
               </span>
 
-              {/* Assignee — avatar + name */}
+              {/* Assignee */}
               <div className="flex items-center gap-2">
                 {task.avatarUrl ? (
                   <Image
@@ -100,7 +139,7 @@ export default function ListView({ tasks, onTaskClick }: ListViewProps) {
 
               {/* Project */}
               <span className="truncate text-xs text-muted-foreground">
-                {task.project || 'Personal'}
+                {task.project?.name || 'Personal'}
               </span>
             </div>
           )

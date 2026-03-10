@@ -16,7 +16,11 @@ export const validateRequest = <T extends z.ZodType>(
       throw new ApiError(400, errors)
     }
 
-    req[target] = data
+    if (target === 'query') {
+      Object.assign(req.query, data)
+    } else {
+      req[target] = data
+    }
 
     next()
   })

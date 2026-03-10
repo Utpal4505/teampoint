@@ -37,3 +37,4 @@ export const createWorkspace = async (name: string, description?: string) => {
 
   return data.data
 }
+

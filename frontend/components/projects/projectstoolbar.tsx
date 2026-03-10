@@ -109,7 +109,7 @@ export default function ProjectsToolbar({
       </div>
 
       <div className="flex-1" />
-
+    
       {/* New project */}
       <button
         onClick={onNewProject}

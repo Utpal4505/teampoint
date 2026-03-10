@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AssignedTask } from './types'
+import { AssignedTask, Status } from './types'
 import { getWorkspaceAssignedTasks, updateTaskStatus } from './api'
 import { handleApiError } from '@/lib/handle-api-error'
 
@@ -37,9 +37,10 @@ export const useUpdateTaskStatus = (workspaceId: number) => {
 
       queryClient.setQueryData<AssignedTask[]>(
         ['workspace', workspaceId, 'myTasks'],
-        old => {
-          return old?.map(task => (task.id === taskId ? { ...task, status } : task))
-        },
+        old =>
+          old?.map(task =>
+            task.id === taskId ? { ...task, status: status as Status } : task,
+          ),
       )
 
       return { previousTasks }

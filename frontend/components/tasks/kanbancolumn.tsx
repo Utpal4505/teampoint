@@ -45,6 +45,11 @@ export default function KanbanColumn({
     setDraggingId(null)
   }
 
+  function handleDragEnd() {
+    setDraggingId(null)
+    setDragOver(false)
+  }
+
   return (
     <div
       className={`flex flex-col rounded-2xl border transition-all duration-200 ${cfg.border}`}
@@ -79,6 +84,7 @@ export default function KanbanColumn({
             onClick={onTaskClick}
             dragging={draggingId === task.id}
             onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           />
         ))}
       </div>
