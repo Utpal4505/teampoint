@@ -14,6 +14,7 @@ import {
   CreateProjectPayload,
   ProjectMemberPayload,
 } from '@/components/projects/create-project'
+import { useRouter } from 'next/navigation'
 
 interface ProjectsPageProps {
   workspaceId: string
@@ -25,12 +26,14 @@ export default function ProjectsPage({ workspaceId }: ProjectsPageProps) {
   const [statusOpen, setStatusOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
 
+  const router = useRouter()
+
   const filtered = MOCK_PROJECTS.filter(
     p => statusFilter === 'ALL' || p.status === statusFilter,
   )
 
   function handleProjectClick(project: Project) {
-    console.log('Open project:', project.id)
+    router.push(`/workspace/${workspaceId}/projects/${project.id}`)
   }
 
   function handleStatusChange(v: StatusFilter) {

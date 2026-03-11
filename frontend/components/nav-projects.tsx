@@ -62,7 +62,7 @@ export function NavProjects({
   return (
     <>
       <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-0.5">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <button
             onClick={() => setModalOpen(true)}

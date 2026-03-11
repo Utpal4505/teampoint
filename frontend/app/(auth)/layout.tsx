@@ -28,8 +28,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     if (!wsLoading && workspaces) {
       if (workspaces.length === 0) {
         router.replace('/onboarding/create-workspace')
-      } else {
-        router.replace(`/workspace/${workspaces[0].id}/dashboard`)
       }
     }
   }, [user, initialized, wsLoading, workspaces, router])

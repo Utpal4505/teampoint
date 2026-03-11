@@ -27,8 +27,8 @@ export const createDocumentController = asyncHandler(async (req, res) => {
 export const listDocumentsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
   const userId = req.user.id
-
-  const projectId = Number(req.query.projectId)
+  
+  const projectId = Number(req.params.projectId)
 
   const documents = await listDocumentsService(projectId, userId)
 

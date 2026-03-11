@@ -23,6 +23,13 @@ router.use(hardAuth)
 
 router.use(validateRequest(projectIdParamSchema, 'params'))
 
+router.use((req, _res, next) => {
+  console.log(`➡️  REQ: ${req.method} ${req.path}`)
+  console.log(`📦 Body:`, req.body)
+  console.log(`🔗 Params:`, req.params)
+  next()
+})
+
 router.post(
   '/',
   validateRequest(CreateDocumentSchema, 'body'),

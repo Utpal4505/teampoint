@@ -7,16 +7,22 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { CheckSquareIcon, LayoutDashboardIcon } from 'lucide-react'
+import { CheckSquareIcon, LayoutDashboardIcon, MessageSquareIcon } from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
 import { WorkspaceSwitcher } from './workspace-switcher'
 import { NavProjects } from './nav-projects'
 import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
+import Link from 'next/link'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const user = useUserStore(state => state.user)
@@ -63,6 +69,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={navMain} />
         <NavProjects projects={projects} workspaceId={activeWorkspaceId} />
+        <SidebarGroup>
+          <SidebarGroupLabel>Support</SidebarGroupLabel>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <a href={`/workspace/${activeWorkspaceId}/feedback`}>
+                  <MessageSquareIcon />
+                  <span>Feedback</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
         <NavUser
