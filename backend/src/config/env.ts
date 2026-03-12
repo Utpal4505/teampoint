@@ -44,6 +44,10 @@ export const env = {
   R2_AVATARS_PUBLIC_BASE_URL: requiredEnv('R2_AVATARS_PUBLIC_BASE_URL'),
   GOOGLE_INTEGRATION_CALLBACK_URL: requiredEnv('GOOGLE_INTEGRATION_CALLBACK_URL'),
 
+  GITHUB_PAT: requiredEnv('GITHUB_PAT'),
+  GITHUB_OWNER: requiredEnv('GITHUB_OWNER'),
+  GITHUB_REPO: requiredEnv('GITHUB_REPO'),
+
   ENABLE_RATE_LIMIT: optionalEnv('ENABLE_RATE_LIMIT', 'true') === 'true',
   GLOBAL_RATE_LIMIT: optionalEnv('GLOBAL_RATE_LIMIT', 100) as number,
   AUTH_RATE_LIMIT: optionalEnv('AUTH_RATE_LIMIT', 5) as number,

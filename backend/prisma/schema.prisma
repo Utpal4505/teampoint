@@ -226,6 +226,7 @@ model User {
   discussionsReopenedReviewer   Discussion[]            @relation("DiscussionReopenedReviewedBy")
   integrations                  Integration[]
   meetingActionItems            MeetingActionItem[]     @relation("MeetingActionAssignedUser")
+  bugReports                    BugReport[]
 }
 
 model AuthProvider {
@@ -373,6 +374,7 @@ model Project {
   goals          Goal[]
   milestones     Milestone[]
   activityLog    ActivityLog[]
+  bugReports     BugReport[]
 
   @@index([workspaceId, status])
 }
@@ -661,7 +663,7 @@ model RefreshToken {
   createdAt DateTime  @default(now())
   revokedAt DateTime?
 
-  replacedBy Int?  @unique
+  replacedBy Int? @unique
 
   user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   replaced RefreshToken?  @relation("TokenRotation", fields: [replacedBy], references: [id])
@@ -697,7 +699,7 @@ model Upload {
   fileName String
 
   category    UploadCategory
-  contextId   Int           
+  contextId   Int
   contextType ContextType?
   contentType String
 
@@ -720,4 +722,61 @@ model Upload {
   @@index([category, contextId])
   @@index([expiresAt])
   @@index([status])
+}
+
+//Bug reporting models
+enum BugReportStatus {
+  PENDING
+  PROCESSING
+  DUPLICATE
+  AI_PROCESSED
+  GITHUB_CREATED
+  FAILED
+  RESOLVED
+  ARCHIVED
+}
+
+enum SeverityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model BugReport {
+  id         Int @id @default(autoincrement())
+  reportedBy Int?
+
+  projectId   Int?
+  page        String?
+  title       String  @db.VarChar(255)
+  description String?
+  consoleLog  String?
+  apiRoute    String?
+  attachments Json?
+  metadata    Json?
+  stepToReproduce String?
+
+  fingerprint      String          @db.VarChar(255)
+  reportCount      Int             @default(1)
+  status           BugReportStatus @default(PENDING)
+  severityLevel    SeverityLevel?
+  severityScore    Float?
+  aiSummary        String?
+  aiTags           Json?
+  processStartTime DateTime?
+  processEndTime   DateTime?
+  githubIssueUrl   String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
+
+  reporter User?     @relation(fields: [reportedBy], references: [id])
+  project  Project? @relation(fields: [projectId], references: [id])
+
+  @@index([status])
+  @@index([fingerprint])
+  @@index([projectId])
+  @@index([severityLevel])
 }

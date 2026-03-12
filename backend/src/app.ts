@@ -36,8 +36,10 @@ import milestoneRouter from './modules/milestone/milestone.route.ts'
 import workspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.ts'
 import integrationRouter from './modules/integration/integration.routes.ts'
 import meetingRouter from './modules/meeting/meeting.route.ts'
+import bugReportRouter from './modules/bug-report/bug-report.routes.ts'
 
 import { env } from './config/env.ts'
+import { registerBugReportEvents } from './modules/bug-report/bug-report.events.ts'
 
 const app: Application = express()
 
@@ -61,6 +63,8 @@ app.use(cookieParser())
 app.use(googlePassport.initialize())
 app.use(githubPassport.initialize())
 
+registerBugReportEvents()
+
 app.use('/api/v1/auth', authLimiter, googleAuthRouter)
 app.use('/api/v1/auth', authLimiter, githubAuthRouter)
 app.use('/api/v1/auth', authLimiter, refreshAuthRouter)
@@ -82,6 +86,7 @@ app.use('/api/v1/projects/:projectId/goals', goalRouter)
 app.use('/api/v1/projects/:projectId/milestones', milestoneRouter)
 app.use('/api/v1/workspaces/:workspaceId/leave-requests', workspaceLeaveRouter)
 app.use('/api/v1/projects/:projectId/meetings', meetingRouter)
+app.use('/api/v1/bug-reports', bugReportRouter)
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
