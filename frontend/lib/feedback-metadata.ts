@@ -32,6 +32,6 @@ export function collectMetadata(): Metadata {
     viewport: isBrowser ? `${window.innerWidth}x${window.innerHeight}` : '',
     network_status: isBrowser ? (navigator.onLine ? 'online' : 'offline') : 'unknown',
     timestamp: new Date().toISOString(),
-    pageLoadTimeMs: isBrowser ? Math.round(performance.now()) : 0,
+    pageLoadTimeMs: Math.round(performance.now()),
   }
 }

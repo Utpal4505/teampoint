@@ -27,7 +27,14 @@ export const useBugReport = ({ projectId, onSuccess }: UseBugReportOptions = {})
         attachments: formData.attachments,
         metadata: meta,
         consoleLog:
-          capturedErrors.length > 0 ? JSON.stringify(capturedErrors) : undefined,
+          capturedErrors.length > 0
+            ? capturedErrors
+                .map(
+                  e =>
+                    `[${e.timestamp}] ${e.message}${e.source ? ` at ${e.source}` : ''}${e.line ? `:${e.line}` : ''}`,
+                )
+                .join('\n')
+            : undefined,
       })
     },
     onSuccess: res => {

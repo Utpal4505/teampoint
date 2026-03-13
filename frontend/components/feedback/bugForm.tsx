@@ -44,7 +44,7 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
   useImperativeHandle(ref, () => ({ reset }))
 
   const severityLevel = useWatch({ control, name: 'severityLevel' })
-  const attachments = useWatch({ control, name: 'attachments' }) ?? []
+  // const attachments = useWatch({ control, name: 'attachments' }) ?? []
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">

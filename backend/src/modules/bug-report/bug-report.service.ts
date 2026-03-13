@@ -7,12 +7,24 @@ function generateFingerprint({
   consoleLog,
   page,
   apiRoute,
+  title,
 }: {
   consoleLog: string[]
   page?: string | null
   apiRoute?: string | null
+  title: string
 }) {
-  const combinedString = [...(consoleLog || []), page || '', apiRoute || ''].join('\n')
+  const cleanedLogs = consoleLog
+    .map(log => log.replace(/\[\d{4}-\d{2}-\d{2}T[\d:.]+Z\]\s*/g, '').trim())
+    .filter(Boolean)
+    .sort()
+
+  const combinedString = [
+    title.toLowerCase().trim(),
+    ...cleanedLogs,
+    page ? new URL(page).pathname : '',
+    apiRoute?.toLowerCase() ?? '',
+  ].join('\n')
 
   return crypto.createHash('sha256').update(combinedString).digest('hex')
 }
@@ -27,10 +39,11 @@ export const createBugReportService = async (
       ? [data.consoleLog]
       : []
 
-  const fingerprint = await generateFingerprint({
+  const fingerprint = generateFingerprint({
     consoleLog: consoleLogsArray,
     page: data.page ?? null,
     apiRoute: data.apiRoute ?? null,
+    title: data.title,
   })
 
   const existingBug = await prisma.bugReport.findFirst({
@@ -48,6 +61,7 @@ export const createBugReportService = async (
         reportCount: {
           increment: 1,
         },
+        status: 'DUPLICATE',
       },
     })
 

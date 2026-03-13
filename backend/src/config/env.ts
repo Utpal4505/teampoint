@@ -48,6 +48,8 @@ export const env = {
   GITHUB_OWNER: requiredEnv('GITHUB_OWNER'),
   GITHUB_REPO: requiredEnv('GITHUB_REPO'),
 
+  OPENAI_API_KEY: requiredEnv('OPENAI_API_KEY'),
+
   ENABLE_RATE_LIMIT: optionalEnv('ENABLE_RATE_LIMIT', 'true') === 'true',
   GLOBAL_RATE_LIMIT: optionalEnv('GLOBAL_RATE_LIMIT', 100) as number,
   AUTH_RATE_LIMIT: optionalEnv('AUTH_RATE_LIMIT', 5) as number,
