@@ -27,6 +27,7 @@ const allowedRoutesForNewUser = [
   '/users/me',
   '/auth/logout',
   '/workspaces/invites/accept',
+  '/bug-reports/*',
 ]
 
 export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {

@@ -17,7 +17,10 @@ function generateFingerprint({
   return crypto.createHash('sha256').update(combinedString).digest('hex')
 }
 
-export const createBugReportService = async (data: CreateBugReport, userId: number) => {
+export const createBugReportService = async (
+  data: CreateBugReport,
+  userId: number | undefined,
+) => {
   const consoleLogsArray: string[] = Array.isArray(data.consoleLog)
     ? data.consoleLog
     : data.consoleLog

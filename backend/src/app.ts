@@ -71,6 +71,7 @@ app.use('/api/v1/auth', authLimiter, refreshAuthRouter)
 app.use('/api/v1/auth', authLimiter, devAuthRouter)
 
 app.use('/api/v1/integrations', integrationLimiter, integrationRouter)
+app.use('/api/v1/bug-reports', bugReportRouter)
 
 app.use('/api/v1', hardAuth, restrictNewUserRoutes, apiLimiter)
 app.use('/api/v1/users', userRouter)
@@ -86,12 +87,11 @@ app.use('/api/v1/projects/:projectId/goals', goalRouter)
 app.use('/api/v1/projects/:projectId/milestones', milestoneRouter)
 app.use('/api/v1/workspaces/:workspaceId/leave-requests', workspaceLeaveRouter)
 app.use('/api/v1/projects/:projectId/meetings', meetingRouter)
-app.use('/api/v1/bug-reports', bugReportRouter)
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.get('/health', (_req, res) => {
-  res.status(200).json({ message: 'Server running' })
+  res.status(200).json({ message: 'Server is running' })
 })
 
 app.use(errorHandler)

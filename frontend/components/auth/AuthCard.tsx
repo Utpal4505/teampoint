@@ -1,10 +1,13 @@
 import { ReactNode } from 'react'
+import { ArrowLeft } from 'lucide-react'
 
 interface AuthCardProps {
   children: ReactNode
+  showBack?: boolean
+  onBack?: () => void
 }
 
-export function AuthCard({ children }: AuthCardProps) {
+export function AuthCard({ children, showBack, onBack }: AuthCardProps) {
   return (
     <div
       className="
@@ -21,6 +24,18 @@ export function AuthCard({ children }: AuthCardProps) {
         bg-linear-to-r from-transparent via-primary/50 to-transparent
         "
       />
+
+      {showBack && onBack && (
+        <button
+          onClick={onBack}
+          className="absolute top-4 left-4 flex items-center gap-1.5
+            text-xs font-medium text-muted-foreground
+            hover:text-foreground transition-colors duration-150"
+        >
+          <ArrowLeft size={13} />
+          Back
+        </button>
+      )}
 
       {children}
     </div>

@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest'
 import type { CreateBugReport } from '../types/bug-report.type.ts'
+import { env } from '../config/env.ts'
 
 const severityEmoji: Record<string, string> = {
   LOW: '🟢',
@@ -98,7 +99,7 @@ ${fingerprint}
 }
 
 const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
+  auth: env.GITHUB_PAT,
 })
 
 export const createGithubIssue = async (
@@ -110,8 +111,8 @@ export const createGithubIssue = async (
   const severity = bug.severityLevel ?? 'LOW'
 
   const response = await octokit.issues.create({
-    owner: process.env.GITHUB_OWNER!,
-    repo: process.env.GITHUB_REPO!,
+    owner: env.GITHUB_OWNER!,
+    repo: env.GITHUB_REPO!,
     title: `🐛 [${severity}] ${bug.title}`,
     body,
     labels: ['bug', severity.toLowerCase()],

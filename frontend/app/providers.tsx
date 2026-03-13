@@ -5,12 +5,24 @@ import { queryClient } from '@/lib/query-client'
 import { ThemeProvider } from 'next-themes'
 import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { useEffect } from 'react'
+import { initConsoleCapture } from '@/lib/feedback-consoleError'
+
+function ConsoleCaptureInit() {
+  useEffect(() => {
+    initConsoleCapture()
+  }, [])
+  return null
+}
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider attribute="class" defaultTheme="system">
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>{children}</TooltipProvider>
+        <TooltipProvider>
+          <ConsoleCaptureInit />
+          {children}
+        </TooltipProvider>
         <Toaster richColors />
       </QueryClientProvider>
     </ThemeProvider>
