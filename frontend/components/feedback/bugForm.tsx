@@ -181,14 +181,13 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
                         placeholder:text-muted-foreground/30 focus:outline-none"
                     />
 
-                    {/* Remove button — only show when >1 step */}
                     {lines.length > 1 && (
                       <button
                         type="button"
                         onClick={() => updateLines(lines.filter((_, idx) => idx !== i))}
                         className="mr-2 flex h-5 w-5 items-center justify-center rounded-md
                           text-muted-foreground/0 group-hover:text-muted-foreground/40
-                          hover:!text-destructive hover:bg-destructive/10
+                          hover:text-destructive hover:bg-destructive/10
                           transition-all duration-150"
                       >
                         <X size={11} />
@@ -196,8 +195,6 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
                     )}
                   </div>
                 ))}
-
-                {/* Add step — disabled if last step is empty or max reached */}
                 <button
                   type="button"
                   onClick={() => {
@@ -217,40 +214,6 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
               </div>
             )
           }}
-        />
-      </div>
-
-      {/* Attachments */}
-      <div>
-        <Label>Attachments</Label>
-        <Controller
-          name="attachments"
-          control={control}
-          render={({ field }) => (
-            <>
-              <button
-                type="button"
-                onClick={() => fileRef.current?.click()}
-                className="flex w-full items-center justify-center gap-2.5 rounded-xl
-                  border border-dashed border-border px-3.5 py-3.5
-                  text-xs text-muted-foreground/50 bg-muted/20
-                  hover:border-ring/50 hover:text-muted-foreground hover:bg-muted/40
-                  transition-all duration-150"
-              >
-                <Upload size={13} />
-                {(field.value?.length ?? 0) > 0
-                  ? `${field.value!.length} file(s) attached`
-                  : 'Attach screenshots or files'}
-              </button>
-              <input
-                ref={fileRef}
-                type="file"
-                multiple
-                className="hidden"
-                onChange={e => field.onChange(Array.from(e.target.files ?? []))}
-              />
-            </>
-          )}
         />
       </div>
 

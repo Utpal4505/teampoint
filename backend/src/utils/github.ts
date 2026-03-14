@@ -1,8 +1,7 @@
 import { Octokit } from '@octokit/rest'
 import type { CreateBugReport } from '../types/bug-report.type.ts'
 import { env } from '../config/env.ts'
-import type { AIEnrichment } from '../modules/bug-report/bug-report.ai.ts'
-
+import type { BugAIEnrichment } from '../types/ai.types.ts'
 
 const severityEmoji: Record<string, string> = {
   LOW: '🟢',
@@ -35,13 +34,11 @@ const TAG_LABELS: Record<string, { color: string; description: string }> = {
   regression: { color: 'fca5a5', description: 'Regression from previous version' },
 }
 
-
 const octokit = new Octokit({
   auth: env.GITHUB_PAT,
 })
 
-
-const severityScoreBar = (score: number): string => {
+export const severityScoreBar = (score: number): string => {
   const filled = Math.round(score * 10)
   const empty = 10 - filled
   return '█'.repeat(filled) + '░'.repeat(empty) + ` ${(score * 100).toFixed(0)}%`
@@ -100,7 +97,7 @@ export const formatGithubIssueBody = (
   bug: CreateBugReport & { reportedBy: number },
   reportCount: number,
   fingerprint: string,
-  ai?: AIEnrichment | null,
+  ai?: BugAIEnrichment | null,
 ) => {
   const severity = ai?.severityLevel ?? bug.severityLevel ?? 'LOW'
   const emoji = severityEmoji[severity] ?? '🟢'
@@ -212,7 +209,7 @@ export const createGithubIssue = async (
   bug: CreateBugReport & { reportedBy: number },
   reportCount: number,
   fingerprint: string,
-  ai?: AIEnrichment | null,
+  ai?: BugAIEnrichment | null,
 ) => {
   const severity = ai?.severityLevel ?? bug.severityLevel ?? 'LOW'
   const aiTags = ai?.aiTags ?? []

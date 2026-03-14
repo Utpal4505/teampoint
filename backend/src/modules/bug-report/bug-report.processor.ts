@@ -1,9 +1,12 @@
 import { prisma } from '../../config/db.config.ts'
+import type { DiscordAlertColor } from '../../config/discord.config.ts'
 import type { SeverityLevel } from '../../generated/prisma/enums.ts'
+import { sendDiscordAlert } from '../../services/discord.service.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import { eventBus } from '../../utils/eventBus.ts'
-import { createGithubIssue } from '../../utils/github.ts'
+import { createGithubIssue, severityScoreBar } from '../../utils/github.ts'
 import { enrichBugWithAI } from './ai/bugEnricher.service.ts'
+import { extractPath } from './ai/prompts.ts'
 
 export const processBugReport = async (bugReportId: number, userId: number) => {
   const bug = await prisma.bugReport.findUnique({
@@ -91,6 +94,30 @@ export const processBugAIReport = async (bugReportId: number, userId: number) =>
         githubIssueUrl: issue.html_url,
         processEndTime: new Date(),
       },
+    })
+
+    await sendDiscordAlert({
+      webhookKey: 'alerts',
+      color: bug.severityLevel as DiscordAlertColor,
+      title: `🐛 [${bug.severityLevel}] ${bug.title}`,
+      ...(bug.aiSummary || bug.description
+        ? { description: bug.aiSummary ?? bug.description ?? '' }
+        : {}),
+      fields: [
+        {
+          name: '📊 Score',
+          value: `\`${severityScoreBar(bug.severityScore ?? 0)}\``,
+          inline: true,
+        },
+
+        {
+          name: '🏷️ Tags',
+          value: (bug.aiTags as string[])?.map(t => `\`${t}\``).join(' ') || 'N/A',
+          inline: true,
+        },
+        { name: '📄 Page', value: extractPath(bug.page), inline: true },
+        { name: '🔗 GitHub', value: `[View Issue](${issue.html_url})`, inline: false },
+      ],
     })
   } catch (error) {
     console.error(`Bug AI enrichment failed #${bugReportId}:`, error)

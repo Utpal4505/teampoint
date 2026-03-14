@@ -7,7 +7,7 @@ export const openai = new OpenAI({
 
 export const AI_MODELS = {
   bugEnrichment: {
-    model: 'gpt-5-nano',
+    model: 'gpt-4o-mini',
     temperature: 0.1,
     max_completion_tokens: 400,
     description: 'Bug triage — severity classification, tagging, summarization',

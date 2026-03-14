@@ -24,7 +24,6 @@ export const useBugReport = ({ projectId, onSuccess }: UseBugReportOptions = {})
         description: formData.description,
         severityLevel: formData.severityLevel,
         stepsToReproduce: formData.stepsToReproduce,
-        attachments: formData.attachments,
         metadata: meta,
         consoleLog:
           capturedErrors.length > 0

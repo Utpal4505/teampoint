@@ -1,6 +1,4 @@
-// src/services/openai.service.ts
 import { z } from 'zod'
-import { zodResponseFormat } from 'openai/helpers/zod'
 import { openai, AI_MODELS, type AIModelKey } from '../config/ai.config.ts'
 
 export type AICallOptions<T extends z.ZodTypeAny> = {
@@ -33,19 +31,20 @@ export const callAI = async <T extends z.ZodTypeAny>(
       if (!options.schema || !options.schemaName)
         throw new Error(`schema and schemaName required for: ${options.modelKey}`)
 
-      const response = await openai.chat.completions.parse({
+      const response = await openai.chat.completions.create({
         model: config.model,
         temperature,
-        max_tokens: maxCompletionTokens,
+        max_completion_tokens: maxCompletionTokens,
         messages,
-        response_format: zodResponseFormat(options.schema, options.schemaName),
+        response_format: { type: 'json_object' },
       })
 
-      const message = response?.choices[0]?.message
-      if (message?.refusal) throw new Error(`AI refused: ${message.refusal}`)
-      if (!message?.parsed) throw new Error(`AI parse failed: ${config.model}`)
+      const content = response?.choices[0]?.message.content
 
-      return message.parsed as z.infer<T>
+      if (!content) throw new Error(`Empty response: ${config.model}`)
+
+      const parsed = options.schema.parse(JSON.parse(content))
+      return parsed as z.infer<T>
     }
 
     case 'text':

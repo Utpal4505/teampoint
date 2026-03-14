@@ -8,8 +8,8 @@ export type BugInput = {
   metadata?: Record<string, unknown> | null
 }
 
-const extractPath = (page?: string | null): string => {
-  if (!page) return 'Not provided'
+export const extractPath = (page?: string | null): string => {
+  if (!page) return 'N/A'
   try {
     return new URL(page).pathname
   } catch {

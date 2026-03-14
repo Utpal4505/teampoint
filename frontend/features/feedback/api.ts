@@ -11,10 +11,7 @@ import type {
 export const submitBugReport = async (
   payload: BugReportPayload,
 ): Promise<BugReportResponse> => {
-  const { attachments: _a, ...jsonPayload } = payload
-
-  const res = await api.post<{ data: BugReportResponse }>('/bug-reports', jsonPayload)
-
+  const res = await api.post<{ data: BugReportResponse }>('/bug-reports', payload)
   return res.data.data
 }
 

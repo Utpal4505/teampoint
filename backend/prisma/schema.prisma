@@ -151,6 +151,7 @@ enum DocumentLinkStatus {
 enum UploadCategory {
   AVATAR
   DOCUMENT
+  BUG_ATTACHMENT
 }
 
 enum ContextType {
