@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Plus, X, AlertCircle, ChevronDown, Check, UserPlus } from 'lucide-react'
 
-type MemberRole = "ADMIN" | "MEMBER"
+type MemberRole = 'ADMIN' | 'MEMBER'
 export interface InvitedMember {
   email: string
   role: MemberRole

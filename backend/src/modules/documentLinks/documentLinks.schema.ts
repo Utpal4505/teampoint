@@ -2,9 +2,9 @@ import z from 'zod'
 import { DocumentEntityType, DocumentLinkStatus } from '../../generated/prisma/enums.ts'
 export const idParam = z.number().int().positive().transform(Number)
 
-export const DocumentEntityTypeSchema = z.enum(DocumentEntityType)
+export const DocumentEntityTypeSchema = z.nativeEnum(DocumentEntityType)
 
-export const DocumentLinkStatusSchema = z.enum(DocumentLinkStatus)
+export const DocumentLinkStatusSchema = z.nativeEnum(DocumentLinkStatus)
 
 export const CreateDocumentLinkSchema = z.object({
   documentId: idParam,

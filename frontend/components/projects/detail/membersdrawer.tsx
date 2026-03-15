@@ -1,17 +1,19 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import { X, UserPlus, Crown, Shield, User } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { ProjectMember, ProjectRole } from '@/features/projects/detail/types'
+import InviteMemberModal from './invitemembermodal'
 
 const ROLE_CONFIG: Record<
   ProjectRole,
   { label: string; Icon: React.ElementType; color: string }
 > = {
-  OWNER: { label: 'Owner', Icon: Crown, color: 'text-amber-400' },
-  ADMIN: { label: 'Admin', Icon: Shield, color: 'text-blue-400' },
-  MEMBER: { label: 'Member', Icon: User, color: 'text-muted-foreground' },
+  OWNER:  { label: 'Owner',  Icon: Crown,  color: 'text-amber-400'      },
+  ADMIN:  { label: 'Admin',  Icon: Shield, color: 'text-blue-400'        },
+  MEMBER: { label: 'Member', Icon: User,   color: 'text-muted-foreground' },
 }
 
 interface MembersDrawerProps {
@@ -21,11 +23,13 @@ interface MembersDrawerProps {
 }
 
 export default function MembersDrawer({ open, onClose, members }: MembersDrawerProps) {
+  const [inviteOpen, setInviteOpen] = useState(false)
+
   return (
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 transition-all duration-300
+        className={`fixed inset-0 z-40 transition-opacity duration-300
           ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
         style={{ background: 'oklch(0 0 0 / 0.5)' }}
         onClick={onClose}
@@ -56,10 +60,11 @@ export default function MembersDrawer({ open, onClose, members }: MembersDrawerP
               {members.length} member{members.length !== 1 ? 's' : ''} in this project
             </p>
           </div>
+          {/* ← X button — calls onClose directly */}
           <button
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-lg
-              text-muted-foreground transition-all duration-150
+              text-muted-foreground transition-colors duration-100
               hover:bg-destructive/10 hover:text-destructive"
           >
             <X size={14} />
@@ -71,30 +76,28 @@ export default function MembersDrawer({ open, onClose, members }: MembersDrawerP
         {/* Members list */}
         <div className="flex-1 overflow-y-auto py-3">
           {members.map(m => {
-            const role = ROLE_CONFIG[m.role as ProjectRole] ?? ROLE_CONFIG.MEMBER
+            const role     = ROLE_CONFIG[m.role as ProjectRole] ?? ROLE_CONFIG.MEMBER
             const RoleIcon = role.Icon
             return (
               <div
                 key={m.user.id}
                 className="flex items-center gap-3 px-5 py-2.5
-                  transition-colors hover:bg-accent/30"
+                  transition-colors duration-100 hover:bg-accent/30"
               >
                 {m.user.avatarUrl ? (
                   <Image
                     src={m.user.avatarUrl}
                     alt={m.user.fullName}
-                    width={34}
-                    height={34}
+                    width={34} height={34}
                     className="rounded-full ring-1 ring-border/50 shrink-0 object-cover"
                   />
                 ) : (
-                  <div
-                    className="flex h-[34px] w-[34px] shrink-0 items-center justify-center
-                    rounded-full bg-primary/20 text-[11px] font-bold text-primary"
-                  >
+                  <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center
+                    rounded-full bg-primary/20 text-[11px] font-bold text-primary">
                     {getInitials(m.user.fullName)}
                   </div>
                 )}
+
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-medium text-foreground truncate">
                     {m.user.fullName}
@@ -107,9 +110,8 @@ export default function MembersDrawer({ open, onClose, members }: MembersDrawerP
                     })}
                   </p>
                 </div>
-                <span
-                  className={`flex items-center gap-1 text-[10px] font-semibold ${role.color}`}
-                >
+
+                <span className={`flex items-center gap-1 text-[10px] font-semibold ${role.color}`}>
                   <RoleIcon size={11} />
                   {role.label}
                 </span>
@@ -121,15 +123,29 @@ export default function MembersDrawer({ open, onClose, members }: MembersDrawerP
         {/* Footer — Invite */}
         <div className="border-t border-border px-5 py-4 shrink-0">
           <button
+            onClick={() => setInviteOpen(true)}
             className="flex w-full items-center justify-center gap-2 rounded-xl
               bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground
-              shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all
+              shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all duration-150
               hover:opacity-90 hover:-translate-y-px active:translate-y-0"
           >
             <UserPlus size={14} /> Invite Member
           </button>
         </div>
       </div>
+
+      {/* Invite modal — renders above drawer */}
+      {inviteOpen && (
+        <InviteMemberModal
+          currentMembers={members}
+          onClose={() => setInviteOpen(false)}
+          onInvite={(userId, role) => {
+            // TODO: wire to POST /projects/{id}/members
+            console.log('Invite user', userId, 'as', role)
+            setInviteOpen(false)
+          }}
+        />
+      )}
     </>
   )
 }

@@ -2,9 +2,9 @@ import { z } from 'zod'
 import { sanitizeText } from '../../utils/sanitize.ts'
 import { Priority, TaskStatus, TaskType } from '../../generated/prisma/enums.ts'
 
-export const TaskTypeEnum = z.enum(TaskType)
-export const TaskStatusEnum = z.enum(TaskStatus)
-export const TaskPriorityEnum = z.enum(Priority)
+export const TaskTypeEnum = z.nativeEnum(TaskType)
+export const TaskStatusEnum = z.nativeEnum(TaskStatus)
+export const TaskPriorityEnum = z.nativeEnum(Priority)
 
 const idParam = z.number().int().positive().transform(Number)
 

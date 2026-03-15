@@ -12,12 +12,13 @@ import {
 import ProjectHeader from './projectheader'
 import ProjectTabs from './projecttabs'
 import TasksTab from './tabs/taskstab'
-import OverviewTab from './tabs/overviewtab'
 import EditProjectModal from './editprojectmodal'
 import DeleteConfirmModal from './deleteconfirmmodal'
 import MembersDrawer from './membersdrawer'
 import { Loader2 } from 'lucide-react'
-import type { ProjectStatus } from '@/features/projects/detail/types'
+import OverviewTab from './tabs/overview'
+import DocumentsTab from './tabs/document'
+import MembersTab from './tabs/member'
 
 export type TabKey = 'tasks' | 'overview' | 'documents' | 'members'
 
@@ -32,7 +33,10 @@ interface ProjectDetailPageProps {
   projectId: number
 }
 
-export default function ProjectDetailPage({ workspaceId, projectId }: ProjectDetailPageProps) {
+export default function ProjectDetailPage({
+  workspaceId,
+  projectId,
+}: ProjectDetailPageProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<TabKey>('tasks')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
@@ -77,17 +81,13 @@ export default function ProjectDetailPage({ workspaceId, projectId }: ProjectDet
               Projects
             </span>
             <span>/</span>
-            <span className="text-foreground font-medium truncate max-w-[200px]">
+            <span className="text-foreground font-medium truncate max-w-50">
               {project.name}
             </span>
           </nav>
         </div>
 
-        <ProjectHeader
-          project={project}
-          tasks={tasks}
-          onOpenModal={setModal}
-        />
+        <ProjectHeader project={project} tasks={tasks} onOpenModal={setModal} />
         <ProjectTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </header>
 
@@ -109,16 +109,8 @@ export default function ProjectDetailPage({ workspaceId, projectId }: ProjectDet
             onTabChange={setActiveTab}
           />
         )}
-        {activeTab === 'documents' && (
-          <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-            Documents coming soon
-          </div>
-        )}
-        {activeTab === 'members' && (
-          <div className="flex h-64 items-center justify-center text-sm text-muted-foreground">
-            Members coming soon
-          </div>
-        )}
+        {activeTab === 'documents' && <DocumentsTab />}
+        {activeTab === 'members' && <MembersTab />}
       </div>
 
       {/* ── Modals & Drawers — outside header so z-index works correctly ── */}
