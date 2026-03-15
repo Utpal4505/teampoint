@@ -110,7 +110,6 @@ export const cancelGoogleMeetEvent = async (
     .delete(`${CALENDAR_BASE}/${googleEventId}`, { headers })
     .catch(err => {
       const status = err.response?.status
-      // 410 = already deleted — silent
       if (status === 410) return
       const msg = err.response?.data?.error?.message ?? 'Failed to cancel Google Calendar event'
       throw new ApiError(502, msg)

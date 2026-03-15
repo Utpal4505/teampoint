@@ -19,8 +19,10 @@ import { Loader2 } from 'lucide-react'
 import OverviewTab from './tabs/overview'
 import DocumentsTab from './tabs/document'
 import MembersTab from './tabs/member'
+import MeetingsTab from './tabs/meetings' // ← new
 
-export type TabKey = 'tasks' | 'overview' | 'documents' | 'members'
+// ── added 'meetings' to TabKey ────────────────────────────────
+export type TabKey = 'tasks' | 'overview' | 'documents' | 'members' | 'meetings'
 
 export type ModalState =
   | { type: 'none' }
@@ -111,9 +113,10 @@ export default function ProjectDetailPage({
         )}
         {activeTab === 'documents' && <DocumentsTab />}
         {activeTab === 'members' && <MembersTab />}
+        {activeTab === 'meetings' && <MeetingsTab />}
       </div>
 
-      {/* ── Modals & Drawers — outside header so z-index works correctly ── */}
+      {/* ── Modals & Drawers ── */}
       <EditProjectModal
         open={modal.type === 'edit'}
         onClose={() => setModal({ type: 'none' })}

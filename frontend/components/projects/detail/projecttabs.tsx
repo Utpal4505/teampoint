@@ -1,11 +1,12 @@
-import { LayoutGrid, BarChart2, FileText, Users } from 'lucide-react'
+import { BarChart2, FileText, Users, CalendarDays, ListChecks } from 'lucide-react'
 import type { TabKey } from './projectdetailpage'
 
 const TABS: { key: TabKey; label: string; Icon: React.ElementType }[] = [
-  { key: 'tasks',     label: 'Tasks',     Icon: LayoutGrid },
-  { key: 'overview',  label: 'Overview',  Icon: BarChart2  },
-  { key: 'documents', label: 'Documents', Icon: FileText   },
-  { key: 'members',   label: 'Members',   Icon: Users      },
+  { key: 'tasks', label: 'Tasks', Icon: ListChecks },
+  { key: 'overview', label: 'Overview', Icon: BarChart2 },
+  { key: 'documents', label: 'Documents', Icon: FileText },
+  { key: 'members', label: 'Members', Icon: Users },
+  { key: 'meetings', label: 'Meetings', Icon: CalendarDays },
 ]
 
 interface ProjectTabsProps {
@@ -32,9 +33,10 @@ export default function ProjectTabs({
             className={`
               relative flex items-center gap-2 px-3.5 py-3 text-xs font-medium
               transition-all duration-200 rounded-t-lg group
-              ${isActive
-                ? 'text-foreground'
-                : 'text-muted-foreground hover:text-foreground/80'
+              ${
+                isActive
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:text-foreground/80'
               }
             `}
           >
@@ -56,9 +58,10 @@ export default function ProjectTabs({
               <span
                 className={`flex h-4 min-w-4 items-center justify-center rounded-full
                   px-1 text-[9px] font-bold tabular-nums transition-colors duration-200
-                  ${isActive
-                    ? 'bg-primary/15 text-primary'
-                    : 'bg-muted text-muted-foreground/60 group-hover:bg-muted/80'
+                  ${
+                    isActive
+                      ? 'bg-primary/15 text-primary'
+                      : 'bg-muted text-muted-foreground/60 group-hover:bg-muted/80'
                   }`}
               >
                 {count}
