@@ -76,7 +76,7 @@ export const STATUS_OPTIONS: {
     desc: 'Ready to work on',
   },
   {
-    value: 'ON_HOLD',
+    value: 'ONHOLD',
     label: 'On Hold',
     dot: 'bg-[oklch(0.7_0.15_55)]',
     desc: 'Paused for now',
@@ -111,7 +111,7 @@ export const STATUS_CONFIG: Record<
     dot: 'bg-emerald-400',
     barColor: 'bg-emerald-500',
   },
-  ON_HOLD: {
+  ONHOLD: {
     label: 'On Hold',
     color: 'text-amber-400',
     bg: 'bg-amber-500/10',
@@ -177,7 +177,7 @@ export const MOCK_PROJECTS: Project[] = [
     id: 'p2',
     name: 'Sales & Marketing',
     description: 'Q2 campaign planning and lead pipeline setup',
-    status: 'ON_HOLD',
+    status: 'ONHOLD',
     totalTasks: 24,
     doneTasks: 9,
     createdAt: '2024-02-11',

@@ -9,7 +9,7 @@ type StatusFilter = 'ALL' | ProjectStatus
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'ALL', label: 'All Status' },
   { value: 'ACTIVE', label: 'Active' },
-  { value: 'ON_HOLD', label: 'On Hold' },
+  { value: 'ONHOLD', label: 'On Hold' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'DELETED', label: 'Archived' },
 ]
@@ -109,7 +109,7 @@ export default function ProjectsToolbar({
       </div>
 
       <div className="flex-1" />
-    
+
       {/* New project */}
       <button
         onClick={onNewProject}

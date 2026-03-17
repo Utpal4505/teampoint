@@ -25,10 +25,10 @@ const STATUS_CFG = {
   },
   COMPLETED: {
     label: 'Completed',
-    dot: 'bg-sky-400',
-    color: 'text-sky-400',
-    bg: 'bg-sky-400/10',
-    border: 'border-sky-400/20',
+    dot: 'bg-primary',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
+    border: 'border-primary/20',
   },
   CANCELLED: {
     label: 'Cancelled',
@@ -258,7 +258,7 @@ export default function MeetingDetail({
                   className="rounded-xl border border-border/40 bg-muted/10 px-4 py-3.5
                   relative overflow-hidden"
                 >
-                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-sky-400/40" />
+                  <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary/40" />
                   <p className="text-[13px] text-foreground/75 leading-relaxed whitespace-pre-wrap pl-3">
                     {meeting.keyDecisions}
                   </p>
@@ -316,7 +316,7 @@ export default function MeetingDetail({
                         {item.taskId && (
                           <span
                             className="flex items-center gap-0.5 text-[9px] font-semibold
-                            text-sky-400/70 bg-sky-400/8 border border-sky-400/15
+                            text-primary/70 bg-primary/8 border border-primary/15
                             px-1.5 py-0.5 rounded-full"
                           >
                             <CheckCircle2 size={8} /> Task

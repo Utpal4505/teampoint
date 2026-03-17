@@ -1,4 +1,4 @@
-export type ProjectStatus = 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'DELETED'
+export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED'
 export type ViewMode = 'card' | 'list'
 
 export interface ProjectMember {
@@ -24,5 +24,5 @@ export type ListAllWorkspaceProjectDTO = {
   description: string | null
   status: ProjectStatus
   createdBy: number
-  createdAt: Date
+  createdAt: string
 }[]

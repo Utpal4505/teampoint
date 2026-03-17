@@ -20,11 +20,11 @@ const STATUS_CFG = {
   },
   COMPLETED: {
     label: 'Completed',
-    dotColor: 'bg-sky-400',
-    textColor: 'text-sky-400',
-    badgeBg: 'bg-sky-400/10',
-    badgeBorder: 'border-sky-400/20',
-    barColor: 'bg-sky-500',
+    dotColor: 'bg-primary',
+    textColor: 'text-primary',
+    badgeBg: 'bg-primary/10',
+    badgeBorder: 'border-primary/20',
+    barColor: 'bg-primary',
   },
   CANCELLED: {
     label: 'Cancelled',
@@ -128,7 +128,7 @@ export default function MeetingCard({ meeting, onView, onCancel }: MeetingCardPr
             {isCompleted && taskCount > 0 && (
               <>
                 <span className="text-muted-foreground/25">·</span>
-                <span className="flex items-center gap-1 text-sky-400/70">
+                <span className="flex items-center gap-1 text-primary/70">
                   <CheckCircle2 size={10} />
                   {taskCount} task{taskCount !== 1 ? 's' : ''} created
                 </span>

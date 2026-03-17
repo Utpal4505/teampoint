@@ -131,7 +131,7 @@ export default function MeetingsTab() {
         >
           {[
             { label: 'Scheduled', value: counts.SCHEDULED, color: 'text-emerald-400' },
-            { label: 'Completed', value: counts.COMPLETED, color: 'text-sky-400' },
+            { label: 'Completed', value: counts.COMPLETED, color: 'text-primary' },
             {
               label: 'Cancelled',
               value: counts.CANCELLED,

@@ -1,6 +1,5 @@
 'use client'
 
-import { Bell } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 
@@ -22,17 +21,6 @@ export function DashboardHeader({ title = 'Dashboard' }: DashboardHeaderProps) {
       </h1>
 
       {/* Notification bell */}
-      <button
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl
-        border border-[oklch(0.28_0.01_250)] bg-[oklch(0.2_0.01_250)]
-        text-[oklch(0.55_0_0)] transition-all duration-150
-        hover:border-[oklch(0.35_0.01_250)] hover:bg-[oklch(0.25_0.01_250)] hover:text-[oklch(0.85_0_0)]
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[oklch(0.6_0.16_262)]"
-      >
-        <Bell size={16} />
-        {/* Unread dot */}
-        <span className="absolute right-[9px] top-[9px] h-[6px] w-[6px] rounded-full bg-[oklch(0.6_0.16_262)] ring-2 ring-[oklch(0.17_0.01_250)]" />
-      </button>
     </header>
   )
 }

@@ -1,8 +1,6 @@
 'use client'
 
-import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
-import { Bell } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MyTasksCard } from '@/components/dashboard/mytaskscard'
 import { TodaysMeetingsCard } from '@/components/dashboard/todaysmeetingscard'
@@ -59,10 +57,6 @@ export default function DashboardPage() {
           <h1 className="flex-1 font-display text-lg font-bold tracking-tight text-foreground">
             Dashboard
           </h1>
-          <button className="relative flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-all duration-150 hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-            <Bell size={18} />
-            <span className="absolute right-[7px] top-[7px] h-[5px] w-[5px] rounded-full bg-primary ring-[1.5px] ring-background" />
-          </button>
         </div>
       </header>
 

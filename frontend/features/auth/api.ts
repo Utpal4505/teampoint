@@ -9,13 +9,9 @@ export const loginWithGithub = () => {
 }
 
 export const logout = () => {
-  return api('/auth/logout', {
-    method: 'POST',
-  })
+  return api.post('/auth/logout')
 }
 
 export const refreshToken = () => {
-  return api('/auth/refresh', {
-    method: 'POST',
-  })
-}
+  return api.post('/auth/refresh')
+  }

@@ -1,7 +1,11 @@
-import { faker } from '@faker-js/faker'
-// import { TaskStatus, TaskType, Priority } from './generated/prisma/client.ts'
 import { prisma } from './config/db.config.ts'
-import { PROJECT_ROLE_PERMISSIONS } from './modules/project/project.permissions.ts'
+import { createUsers } from '../prisma/seed/users.seed'
+import { seedWorkspaceMembers } from '../prisma/seed/workspace.seed'
+import { createProjects } from '../prisma/seed/project.seed'
+import { createAllProjectTasks } from '../prisma/seed/task.seed'
+import { createAllProjectMeetings } from '../prisma/seed/meeting.seed'
+import { createAllProjectDocuments } from '../prisma/seed/document.seed'
+import { createActivityLogs } from '../prisma/seed/activity.seed'
 
 declare const process: {
   exit: (code?: number) => never
@@ -9,79 +13,55 @@ declare const process: {
 }
 
 async function main() {
-  console.log('🌱 Seeding fake tasks...')
+  console.log('\n╔════════════════════════════════════╗')
+  console.log('║  🌱 TeamPoint Seeding Engine 🌱   ║')
+  console.log('║  Simulating 90 days of activity    ║')
+  console.log('╚════════════════════════════════════╝\n')
 
-  // // 1. Ek existing user dhoondhein ya naya banayein
-  // const user = await prisma.user.upsert({
-  //   where: { email: 'testuser@example.com' },
-  //   update: {},
-  //   create: {
-  //     fullName: 'Test User',
-  //     email: 'testuser@example.com',
-  //     is_new: false,
-  //     status: 'ACTIVE',
-  //   },
-  // })
+  try {
+    const WORKSPACE_ID = 4
+    const OWNER_ID = 6
 
-  // 2. Ek workspace banayein
-  // const workspace = await prisma.workspace.create({
-  //   data: {
-  //     name: 'Development Workspace',
-  //     createdBy: 6,
-  //     description: 'A place for fake data testing',
-  //   },
-  // })
+    // Step 1: Create 9 new users (in addition to existing user 6)
+    const users = await createUsers()
 
-  // // 3. 2-3 Projects banayein
-  // const projectNames = ['Frontend Refactor', 'Mobile App API', 'Marketing Website']
+    // Create user ID array including the owner
+    const userIds = users.map(u => u.id)
+    userIds.push(OWNER_ID)
 
-  // for (const name of projectNames) {
-  //   const project = await prisma.project.create({
-  //     data: {
-  //       name,
-  //       workspaceId: workspace.id,
-  //       createdBy: 6,
-  //       description: faker.lorem.sentence(),
-  //       status: 'ACTIVE',
-  //     },
-  //   })
+    // Step 2: Add members to workspace
+    await seedWorkspaceMembers(WORKSPACE_ID, users)
 
-  //   // 4. Har project mein 10-15 tasks generate karein
-  //   const taskCount = faker.number.int({ min: 10, max: 15 })
+    // Step 3: Create 7 projects
+    const projects = await createProjects(WORKSPACE_ID, OWNER_ID)
 
-  //   const tasksData = Array.from({ length: taskCount }).map(() => ({
-  //     title: faker.hacker.phrase().slice(0, 100),
-  //     description: faker.lorem.paragraph(),
-  //     taskType: 'PROJECT' as TaskType,
-  //     status: faker.helpers.arrayElement(['TODO', 'IN_PROGRESS', 'DONE']) as TaskStatus,
-  //     priority: faker.helpers.arrayElement([
-  //       'LOW',
-  //       'MEDIUM',
-  //       'HIGH',
-  //       'URGENT',
-  //     ]) as Priority,
-  //     dueDate: faker.date.future(),
-  //     projectId: project.id,
-  //     createdBy: 6,
-  //     assignedTo: 6, // Aapko assign kiya gaya hai
-  //   }))
+    // Step 4: Populate each project with realistic data
+    await createAllProjectTasks(projects, userIds)
+    await createAllProjectMeetings(projects, userIds)
+    await createAllProjectDocuments(projects, userIds)
 
-  //   await prisma.tasks.createMany({
-  //     data: tasksData,
-  //   })
-  // }
+    // Step 5: Create activity logs tying everything together
+    await createActivityLogs(
+      WORKSPACE_ID,
+      projects.map(p => p.id),
+      userIds,
+    )
 
-  // const projectMember = await prisma.project_Members.create({
-  //   data: {
-  //     projectId: 4,
-  //     userId: 6,
-  //     role: 'OWNER',
-  //     permissions: PROJECT_ROLE_PERMISSIONS.OWNER,
-  //     joinedAt: new Date(),
-  //   }
-  // })
-
-  console.log('✅ Seed successful! Generated projects and tasks.')
+    // Summary
+    console.log('╔════════════════════════════════════╗')
+    console.log('║  ✅ Seeding Complete! Summary:     ║')
+    console.log('╠════════════════════════════════════╣')
+    console.log(`║ Users:              10 team members║`)
+    console.log(`║ Projects:           7 active       ║`)
+    console.log(`║ Tasks:              ~210 tasks     ║`)
+    console.log(`║ Meetings:           ~70 meetings   ║`)
+    console.log(`║ Documents:          ~49 docs       ║`)
+    console.log(`║ Activity Log:       200 events     ║`)
+    console.log('╚════════════════════════════════════╝\n')
+  } catch (error) {
+    console.error('\n❌ Seeding failed:', error)
+    throw error
+  }
 }
 
 main()

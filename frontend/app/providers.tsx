@@ -7,6 +7,7 @@ import { Toaster } from 'sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useEffect } from 'react'
 import { initConsoleCapture } from '@/lib/feedback-consoleError'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 function ConsoleCaptureInit() {
   useEffect(() => {
@@ -24,6 +25,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
           {children}
         </TooltipProvider>
         <Toaster richColors />
+        {process.env.NODE_ENV === 'development' && (
+          <ReactQueryDevtools initialIsOpen={false} />
+        )}
       </QueryClientProvider>
     </ThemeProvider>
   )
