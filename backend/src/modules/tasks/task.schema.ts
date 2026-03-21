@@ -86,3 +86,22 @@ export const listTasksQuerySchema = z.object({
   status: TaskStatusEnum.optional(),
   taskType: TaskTypeEnum.optional(),
 })
+
+export const createPersonalTaskSchema = z.object({
+  taskType: z.literal('PERSONAL'),
+  title: z.string().trim().min(2).max(100).transform(sanitizeText),
+  description: z
+    .string()
+    .trim()
+    .min(5)
+    .max(500)
+    .optional()
+    .or(z.literal(''))
+    .transform(v => (v ? sanitizeText(v) : undefined)),
+  assignedTo: idParam,
+  priority: TaskPriorityEnum,
+  dueDate: z.preprocess(
+    arg => (arg ? new Date(arg as string) : undefined),
+    z.date().optional(),
+  ),
+})

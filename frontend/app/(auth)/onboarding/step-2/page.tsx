@@ -61,7 +61,7 @@ export default function OnboardingStep2() {
   }
 
   function handleSkip() {
-    router.push('/onboarding/step-3')
+    router.push(`/onboarding/step-3?workspaceId=${workspaceId}`)
   }
 
   return (

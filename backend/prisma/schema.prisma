@@ -41,7 +41,6 @@ enum InviteStatus {
 
 enum ProjectStatus {
   ACTIVE
-  INACTIVE
   ARCHIVED
   ONHOLD
   COMPLETED

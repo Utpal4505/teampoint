@@ -5,6 +5,7 @@ import {
   changeTaskStatusController,
   cancelTaskController,
   createTaskController,
+  createPersonalTaskController,
   getTaskByIdController,
   listTasksController,
   updateTaskController,
@@ -12,6 +13,7 @@ import {
 import {
   changeTaskStatusSchema,
   createTaskSchema,
+  createPersonalTaskSchema,
   listTasksQuerySchema,
   taskIdParamSchema,
   updateTaskSchema,
@@ -65,4 +67,15 @@ router.post(
   cancelTaskController,
 )
 
+const personalTaskRouter = Router()
+
+personalTaskRouter.use(hardAuth)
+
+personalTaskRouter.post(
+  '/',
+  validateRequest(createPersonalTaskSchema, 'body'),
+  createPersonalTaskController,
+)
+
 export default router
+export { personalTaskRouter }

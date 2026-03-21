@@ -1,6 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AssignedTask, Status } from './types'
-import { getWorkspaceAssignedTasks, updateTaskStatus } from './api'
+import { AssignedTask, Status, createTaskInput, GetTaskDTO } from './types'
+import {
+  getWorkspaceAssignedTasks,
+  updateTaskStatus,
+  listProjectTasks,
+  getTaskById,
+  createProjectTask,
+  createPersonalTask,
+  updateTask,
+  cancelTask,
+} from './api'
 import { handleApiError } from '@/lib/handle-api-error'
 
 export const useWorkspaceAssignedTasks = (workspaceId: number) => {
@@ -9,6 +18,92 @@ export const useWorkspaceAssignedTasks = (workspaceId: number) => {
     queryFn: () => getWorkspaceAssignedTasks(workspaceId),
     enabled: !!workspaceId,
     staleTime: 1000 * 60 * 5,
+  })
+}
+
+export const useProjectTasks = (
+  projectId: number,
+  filters?: {
+    assignedTo?: number
+    status?: string
+    taskType?: string
+  },
+) => {
+  return useQuery<AssignedTask[]>({
+    queryKey: ['project', projectId, 'tasks', filters],
+    queryFn: () => listProjectTasks(projectId, filters),
+    enabled: !!projectId,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export const useTaskById = (projectId: number, taskId: number) => {
+  return useQuery<GetTaskDTO>({
+    queryKey: ['project', projectId, 'task', taskId],
+    queryFn: () => getTaskById(projectId, taskId),
+    enabled: !!projectId && !!taskId,
+    staleTime: 1000 * 60 * 5,
+  })
+}
+
+export const useCreateTask = (workspaceId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (input: createTaskInput) => {
+      if (input.taskType === 'PROJECT') {
+        if (!input.projectId) {
+          throw new Error('projectId is required for PROJECT tasks')
+        }
+        return createProjectTask(input.projectId, {
+          taskType: input.taskType,
+          projectId: input.projectId,
+          title: input.title,
+          description: input.description,
+          assignedTo: input.assignedTo,
+          priority: input.priority,
+          dueDate: input.dueDate,
+        })
+      } else if (input.taskType === 'PERSONAL') {
+        return createPersonalTask({
+          taskType: input.taskType,
+          title: input.title,
+          description: input.description,
+          assignedTo: input.assignedTo,
+          priority: input.priority,
+          dueDate: input.dueDate,
+        })
+      } else {
+        throw new Error(`Invalid taskType: ${input.taskType}`)
+      }
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    },
+
+    onError: err => {
+      handleApiError(err)
+    },
+  })
+}
+
+export const useUpdateTask = (projectId: number, workspaceId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (input: { taskId: number; data: Partial<createTaskInput> }) => {
+      return updateTask(projectId, input.taskId, input.data)
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['project', projectId, 'tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    },
+
+    onError: err => {
+      handleApiError(err)
+    },
   })
 }
 
@@ -56,6 +151,23 @@ export const useUpdateTaskStatus = (workspaceId: number) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    },
+  })
+}
+
+export const useCancelTask = (workspaceId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ projectId, taskId }: { projectId: number; taskId: number }) =>
+      cancelTask(projectId, taskId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+    },
+
+    onError: err => {
+      handleApiError(err)
     },
   })
 }

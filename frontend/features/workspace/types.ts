@@ -22,7 +22,7 @@ export type ListUserWorkspacesDTO = {
 }[]
 
 export type GetWorkspaceDTO = {
-  id: number
+  workspaceId: number
   name: string
   description: string | null
   status: WorkspaceStatus

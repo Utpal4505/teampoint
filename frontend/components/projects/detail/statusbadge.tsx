@@ -7,9 +7,10 @@ import type { ProjectStatus } from '@/features/projects/detail/types'
 
 const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
   { value: 'ACTIVE', label: 'Active' },
-  { value: 'ON_HOLD', label: 'Paused' },
+  { value: 'ONHOLD', label: 'Paused' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'DELETED', label: 'Archived' },
+  { value: 'INACTIVE', label: 'Inactive' },
 ]
 
 interface StatusBadgeProps {

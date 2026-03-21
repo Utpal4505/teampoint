@@ -1,3 +1,5 @@
+'use client'
+
 import Image from 'next/image'
 import {
   X,
@@ -169,12 +171,12 @@ export default function TaskDrawer({ task, onClose, onStatusChange }: TaskDrawer
                   className="flex items-center gap-1 rounded-lg border border-border
                   bg-muted/40 px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground"
                 >
-                  {task.type === 'PROJECT' ? (
+                  {task.taskType === 'PROJECT' ? (
                     <FolderKanban size={10} />
                   ) : (
                     <User size={10} />
                   )}
-                  {task.type.charAt(0) + task.type.slice(1).toLowerCase()}
+                  {task.taskType.charAt(0) + task.taskType.slice(1).toLowerCase()}
                 </span>
               </div>
 

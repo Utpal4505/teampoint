@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { UserPlus } from 'lucide-react'
+import { CloudHail, UserPlus } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { ProjectDetail, ProjectTask } from '@/features/projects/detail/types'
 import ProjectMenu from './projectmenu'
@@ -20,6 +20,8 @@ export default function ProjectHeader({ project, tasks, onOpenModal }: ProjectHe
   const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length
   const todo = tasks.filter(t => t.status === 'TODO').length
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
+
+  console.log(project)
 
   return (
     <div className="px-6 py-5 flex flex-col gap-4">

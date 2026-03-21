@@ -135,6 +135,14 @@ export const STATUS_CONFIG: Record<
     dot: 'bg-muted-foreground',
     barColor: 'bg-muted-foreground',
   },
+  INACTIVE: {
+    label: 'Inactive',
+    color: 'text-destructive',
+    bg: 'bg-destructive/10',
+    border: 'border-destructive/20',
+    dot: 'bg-destructive',
+    barColor: 'bg-destructive',
+  },
 }
 
 export const MOCK_PROJECTS: Project[] = [

@@ -29,6 +29,7 @@ export interface TaskCreatePayload {
   priority: Priority
   status: TaskStatus
   dueDate: string | null
+  assignedTo?: number
 }
 
 const MOCK_PROJECTS = [
@@ -181,14 +182,16 @@ function DatePickerField({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setOpen(v => !v)}
+        onKeyDown={e => e.key === 'Enter' && setOpen(v => !v)}
         className={`flex w-full items-center gap-2.5 rounded-xl border border-border
-          bg-background px-3.5 py-2.5 text-sm transition-all duration-150
-          hover:border-border/80 hover:bg-accent/50
-          focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
-          ${formatted ? 'text-foreground' : 'text-muted-foreground'}`}
+    bg-background px-3.5 py-2.5 text-sm transition-all duration-150
+    hover:border-border/80 hover:bg-accent/50 cursor-pointer
+    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
+    ${formatted ? 'text-foreground' : 'text-muted-foreground'}`}
       >
         <CalendarDays size={13} className="shrink-0 text-muted-foreground/60" />
         <span className="flex-1 text-left font-medium">{formatted ?? 'Pick a date'}</span>
@@ -204,7 +207,7 @@ function DatePickerField({
             <X size={11} />
           </button>
         )}
-      </button>
+      </div>
 
       {open && (
         <div

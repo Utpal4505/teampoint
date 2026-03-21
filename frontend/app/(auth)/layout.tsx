@@ -21,7 +21,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     }
 
     if (user.is_new) {
-      router.replace('/onboarding')
+      router.replace('/onboarding/step-1')
       return
     }
 

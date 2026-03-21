@@ -17,19 +17,24 @@ import ListView from './listview'
 import TaskDrawer from './taskdrawer'
 import { TaskCreateModal, TaskCreatePayload } from './taskcreatemodal'
 import { SidebarInset, SidebarTrigger } from '../ui/sidebar'
-import { useWorkspaceAssignedTasks, useUpdateTaskStatus } from '@/features/tasks/hooks'
+import {
+  useWorkspaceAssignedTasks,
+  useUpdateTaskStatus,
+  useCreateTask,
+} from '@/features/tasks/hooks'
 import { useWorkspaceId } from '@/hooks/useworkspaceid'
+import { useUserStore } from '@/store/user.store'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { handleApiError } from '@/lib/handle-api-error'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
-// Convert AssignedTask → Task for UI components
 function toTask(t: AssignedTask): Task {
   return {
     ...t,
-    description: '',
-    type: 'PROJECT',
+    description: t.description ?? '',
+    type: t.taskType,
     assignee: t.assignedTo?.name ?? 'Unassigned',
     avatarUrl: t.assignedTo?.avatarUrl ?? undefined,
   }
@@ -38,9 +43,11 @@ function toTask(t: AssignedTask): Task {
 export default function TasksPage() {
   const workspaceId = useWorkspaceId()
   const queryClient = useQueryClient()
+  const { user } = useUserStore()
 
   const { data: rawTasks = [], isLoading } = useWorkspaceAssignedTasks(workspaceId)
   const { mutate: updateStatus } = useUpdateTaskStatus(workspaceId)
+  const { mutate: createTaskMutate } = useCreateTask(workspaceId)
 
   const tasks: Task[] = rawTasks.map(toTask)
 
@@ -48,7 +55,6 @@ export default function TasksPage() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [modalOpen, setModalOpen] = useState(false)
-  const [modalStatus, setModalStatus] = useState<Status>('TODO')
 
   const filteredTasks = tasks.filter(t => {
     if (filters.status?.length && !filters.status.includes(t.status)) return false
@@ -61,8 +67,7 @@ export default function TasksPage() {
     ? (tasks.find(t => t.id === selectedTaskId) ?? null)
     : null
 
-  function handleAddTask(status: Status) {
-    setModalStatus(status)
+  function handleAddTask() {
     setModalOpen(true)
   }
 
@@ -76,13 +81,38 @@ export default function TasksPage() {
     updateStatus({ projectId, taskId, status: newStatus })
   }
 
-  async function handleCreateTask(_payload: TaskCreatePayload) {
+  async function handleCreateTask(payload: TaskCreatePayload) {
     try {
+      if (!user) {
+        toast.error('User not found please login again')
+        return
+      }
+
+      if (payload.type === 'PROJECT' && payload.projectId) {
+        createTaskMutate({
+          taskType: payload.type,
+          projectId: parseInt(payload.projectId),
+          title: payload.title,
+          description: payload.description,
+          priority: payload.priority,
+          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+          assignedTo: user.id,
+        })
+      } else {
+        createTaskMutate({
+          taskType: 'PERSONAL',
+          title: payload.title,
+          description: payload.description,
+          priority: payload.priority,
+          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+          assignedTo: user.id,
+        })
+      }
       setModalOpen(false)
-      toast.success('Task created!')
+      toast.success('Task created successfully!')
       queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
-    } catch {
-      toast.error('Could not create task')
+    } catch (error) {
+      handleApiError(error)
     }
   }
 

@@ -42,10 +42,8 @@ export default function OnboardingStep1() {
       e.name = 'Must be at least 2 characters'
     }
 
-    if (!form.description.trim()) {
-      e.description = 'Description cannot be empty'
-    } else if (form.description.trim().length < 10) {
-      e.description = 'Description must be at least 10 characters long'
+    if (form.description.trim() && form.description.trim().length < 10) {
+      e.description = 'Description must be at least 10 characters'
     }
 
     setErrors(e)
@@ -63,13 +61,13 @@ export default function OnboardingStep1() {
         description: form.description,
       })
 
-      queryClient.setQueryData(['workspace', 'detail', res.id], res)
+      queryClient.setQueryData(['workspace', 'detail', res.workspaceId], res)
 
       queryClient.invalidateQueries({
         queryKey: ['user-workspaces'],
       })
 
-      router.push(`/onboarding/step-2?workspaceId=${res.id}`)
+      router.push(`/onboarding/step-2?workspaceId=${res.workspaceId}`)
     } catch (error) {
       handleApiError(error)
     } finally {

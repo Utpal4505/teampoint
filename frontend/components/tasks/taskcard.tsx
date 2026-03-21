@@ -22,8 +22,6 @@ export default function TaskCard({
   const p = PRIORITY_CONFIG[task.priority]
   const P_Icon = p.Icon
 
-  console.log(task.avatarUrl)
-
   return (
     <div
       draggable

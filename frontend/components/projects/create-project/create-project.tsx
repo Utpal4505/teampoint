@@ -41,8 +41,6 @@ export function CreateProjectModal({
   const [members, setMembers] = useState<AddedMember[]>([])
   const [loading, setLoading] = useState(false)
 
-  console.log("Clicked")
-
   function validateStep1(): boolean {
     const result = createProjectSchema.safeParse({
       workspaceId: Number(workspaceId),

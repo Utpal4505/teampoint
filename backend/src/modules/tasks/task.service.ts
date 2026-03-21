@@ -147,6 +147,7 @@ export const listTasksService = async (
     select: {
       id: true,
       title: true,
+      description: true,
       status: true,
       priority: true,
       assignedTo: true,
@@ -158,6 +159,7 @@ export const listTasksService = async (
         select: {
           id: true,
           fullName: true,
+          avatarUrl: true,
         },
       },
     },
@@ -190,11 +192,17 @@ export const listTasksService = async (
   return accessibleTasks.map(task => ({
     id: task.id,
     title: task.title,
+    description: task.description ?? null,
+    taskType: task.taskType,
     status: task.status,
     priority: task.priority,
     dueDate: task.dueDate,
     assignedTo: task.assignee
-      ? { id: task.assignee.id, name: task.assignee.fullName }
+      ? {
+          id: task.assignee.id,
+          name: task.assignee.fullName,
+          avatarUrl: task.assignee.avatarUrl ?? null,
+        }
       : null,
   })) as ListTaskDTO
 }
@@ -215,6 +223,13 @@ export const getTaskByIdService = async (
       priority: true,
       createdBy: true,
       assignedTo: true,
+      assignee: {
+        select: {
+          id: true,
+          fullName: true,
+          avatarUrl: true,
+        },
+      },
       createdAt: true,
       dueDate: true,
     },
@@ -528,9 +543,8 @@ export const listWorkspaceAssignedTasksService = async (
   workspaceId: number,
   userId: number,
 ): Promise<ListTaskDTO> => {
-  const tasks = await prisma.tasks.findMany({
+  const projectTasks = await prisma.tasks.findMany({
     where: {
-      taskType: 'PROJECT',
       assignedTo: userId,
       status: { not: 'CANCELLED' },
       project: {
@@ -540,8 +554,10 @@ export const listWorkspaceAssignedTasksService = async (
     select: {
       id: true,
       title: true,
+      description: true,
       status: true,
       priority: true,
+      taskType: true,
       dueDate: true,
       projectId: true,
       createdBy: true,
@@ -563,15 +579,52 @@ export const listWorkspaceAssignedTasksService = async (
     orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
   })
 
+  const personalTasks = await prisma.tasks.findMany({
+    where: {
+      assignedTo: userId,
+      status: { not: 'CANCELLED' },
+      taskType: 'PERSONAL',
+      projectId: null,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      status: true,
+      priority: true,
+      taskType: true,
+      dueDate: true,
+      projectId: true,
+      createdBy: true,
+      assignedTo: true,
+      project: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      assignee: {
+        select: {
+          id: true,
+          fullName: true,
+          avatarUrl: true,
+        },
+      },
+    },
+    orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
+  })
+
+  const allTasks = [...projectTasks, ...personalTasks]
+
   const accessibleTasks = await prisma.$transaction(async tx => {
     const result = []
 
-    for (const task of tasks) {
+    for (const task of allTasks) {
       try {
         await assertTaskPermission(
           tx,
           {
-            taskType: 'PROJECT',
+            taskType: task.taskType,
             projectId: task.projectId,
             createdBy: task.createdBy,
             assignedTo: task.assignedTo,
@@ -592,9 +645,11 @@ export const listWorkspaceAssignedTasksService = async (
   const formattedTasks: ListTaskDTO = accessibleTasks.map(task => ({
     id: task.id,
     title: task.title,
+    description: task.description ?? null,
     status: task.status,
     priority: task.priority,
     dueDate: task.dueDate,
+    taskType: task.taskType,
     project: task.project
       ? {
           id: task.project.id,
@@ -605,7 +660,7 @@ export const listWorkspaceAssignedTasksService = async (
       ? {
           id: task.assignee.id,
           name: task.assignee.fullName,
-          avatarUrl: task.assignee.avatarUrl ?? undefined,
+          avatarUrl: task.assignee.avatarUrl ?? null,
         }
       : null,
   }))

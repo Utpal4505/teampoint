@@ -18,11 +18,14 @@ export type CreateTaskDTO = {
 export type ListTaskDTO = {
   id: number
   title: string
+  description?: string | null
   status: TaskStatus
   priority: Priority
+  taskType?: TaskType
   assignedTo: {
     id: number
     name: string
+    avatarUrl: string | null
   } | null
   dueDate: Date | null
 }[]
@@ -36,7 +39,11 @@ export type GetTaskDTO = {
   status: TaskStatus
   priority: Priority
   createdBy: number
-  assignedTo?: number | null
+  assignee: {
+    id: number
+    fullName: string
+    avatarUrl: string | null
+  }
   createdAt: Date
   dueDate?: Date
 }

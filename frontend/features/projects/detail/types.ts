@@ -1,5 +1,5 @@
 // ── Project Detail ─────────────────────────────────────────
-export type ProjectStatus = 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'DELETED'
+export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 
 export interface ProjectMember {
