@@ -16,6 +16,12 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
+import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { useUserStore } from '@/store/user.store'
+import { useCreateTask, formatTaskPayload } from '@/features/tasks/hooks'
+import { handleApiError } from '@/lib/handle-api-error'
+import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
 
 export type TaskType = 'PERSONAL' | 'PROJECT'
 export type TaskStatus = 'TODO'
@@ -31,12 +37,6 @@ export interface TaskCreatePayload {
   dueDate: string | null
   assignedTo?: number
 }
-
-const MOCK_PROJECTS = [
-  { id: 'p1', name: 'TeamPoint Frontend' },
-  { id: 'p2', name: 'Marketing Site' },
-  { id: 'p3', name: 'Mobile App' },
-]
 
 const PRIORITY_OPTIONS: {
   value: Priority
@@ -263,7 +263,7 @@ function FieldError({ msg }: { msg?: string }) {
 interface TaskCreateModalProps {
   open: boolean
   onClose: () => void
-  onSubmit?: (payload: TaskCreatePayload) => Promise<void>
+  workspaceId: number
 }
 
 interface FormErrors {
@@ -271,7 +271,17 @@ interface FormErrors {
   projectId?: string
 }
 
-export function TaskCreateModal({ open, onClose, onSubmit }: TaskCreateModalProps) {
+export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalProps) {
+  const queryClient = useQueryClient()
+  const { user } = useUserStore()
+  const { mutate: createTaskMutate } = useCreateTask(workspaceId)
+  const { data: projectsData = [] } = useListAllWorkspaceProjects(workspaceId)
+
+  const projects = projectsData.map(p => ({
+    id: String(p.id),
+    name: p.name,
+  }))
+
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [type, setType] = useState<TaskType>('PERSONAL')
@@ -307,21 +317,33 @@ export function TaskCreateModal({ open, onClose, onSubmit }: TaskCreateModalProp
 
   async function handleSubmit() {
     if (!validate()) return
-    const payload: TaskCreatePayload = {
-      title: title.trim(),
-      description: description.trim(),
-      type,
-      projectId: type === 'PROJECT' ? projectId : null,
-      priority,
-      status: 'TODO',
-      dueDate: dueDate ? dueDate.toISOString() : null,
-    }
-    if (onSubmit) {
+
+    try {
+      if (!user) {
+        toast.error('User not found please login again')
+        return
+      }
+
+      const payload: TaskCreatePayload = {
+        title: title.trim(),
+        description: description.trim(),
+        type,
+        projectId: type === 'PROJECT' ? projectId : null,
+        priority,
+        status: 'TODO',
+        dueDate: dueDate ? dueDate.toISOString() : null,
+      }
+
       setLoading(true)
-      await onSubmit(payload)
+      const taskInput = formatTaskPayload(payload, user.id)
+      createTaskMutate(taskInput)
+      toast.success('Task created successfully!')
+      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+      handleClose()
+    } catch (error) {
+      handleApiError(error)
       setLoading(false)
     }
-    handleClose()
   }
 
   if (!open) return null
@@ -472,7 +494,7 @@ export function TaskCreateModal({ open, onClose, onSubmit }: TaskCreateModalProp
                   <option value="" disabled>
                     Select a project…
                   </option>
-                  {MOCK_PROJECTS.map(p => (
+                  {projects.map(p => (
                     <option key={p.id} value={p.id}>
                       {p.name}
                     </option>

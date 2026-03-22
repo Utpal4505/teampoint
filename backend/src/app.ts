@@ -28,7 +28,7 @@ import workspaceInviteRouter from './modules/inviteMember/inviteMember.route.ts'
 import uploadRouter from './modules/upload/upload.routes.ts'
 import projectRouter from './modules/project/project.route.ts'
 import projectMemberRouter from './modules/projectMember/projectMember.route.ts'
-import taskRouter, { personalTaskRouter } from './modules/tasks/task.route.ts'
+import taskRouter from './modules/tasks/task.route.ts'
 import documentRouter from './modules/document/document.route.ts'
 import documentLinkRouter from './modules/documentLinks/documentLinks.route.ts'
 import goalRouter from './modules/goal/goal.route.ts'
@@ -80,8 +80,7 @@ app.use('/api/v1/workspaces', workspaceInviteRouter)
 app.use('/api/v1/uploads', uploadLimiter, uploadRouter)
 app.use('/api/v1/projects', projectRouter)
 app.use('/api/v1/projects', projectMemberRouter)
-app.use('/api/v1/projects/:projectId/tasks', taskRouter)
-app.use('/api/v1/personal-tasks', personalTaskRouter)
+app.use('/api/v1/projects/tasks', taskRouter)
 app.use('/api/v1/projects/:projectId/documents', documentRouter)
 app.use('/api/v1/projects/:projectId/document-links', documentLinkRouter)
 app.use('/api/v1/projects/:projectId/goals', goalRouter)

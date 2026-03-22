@@ -3,7 +3,6 @@ import { ApiResponse } from '../../utils/apiResponse.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { asyncHandler } from '../../utils/asyncHandler.ts'
 import {
-  createProjectSchema,
   projectIdParamSchema,
   updateProjectSchema,
 } from './project.schema.ts'
@@ -17,7 +16,7 @@ import {
 export const createProjectController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
-  const { description, name, workspaceId } = createProjectSchema.parse(req.body)
+  const { description, name, workspaceId } = req.body
 
   const project = await createProjectService({
     workspaceId,

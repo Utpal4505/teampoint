@@ -79,6 +79,7 @@ export const createTaskService = async (
       },
       select: {
         id: true,
+        projectId: true,
         title: true,
         status: true,
         taskType: true,
@@ -91,14 +92,14 @@ export const createTaskService = async (
       },
     })
 
-    const workspaceId = await getWorkspaceIdFromProject(projectId, userId, tx)
+    const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx)
 
     const activityProjectId = task.taskType === 'PROJECT' ? projectId : null
 
     await tx.activityLog.create({
       data: {
         action: 'CREATED',
-        projectId: activityProjectId,
+        projectId: activityProjectId ?? null,
         workspaceId,
         actorId: userId,
         entityType: 'TASK',

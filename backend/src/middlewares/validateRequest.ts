@@ -8,7 +8,6 @@ export const validateRequest = <T extends z.ZodType>(
 ) =>
   asyncHandler(async (req, _res, next) => {
     const result = schema.safeParse(req[target])
-
     const { success, data, error } = result
 
     if (!success) {

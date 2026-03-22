@@ -25,9 +25,9 @@ export const requireProjectPermission = (
     const memebership = await prisma.project_Members.findUnique({
       where: {
         projectId_userId: {
-            projectId,
-            userId: user.id
-        }
+          projectId,
+          userId: user.id,
+        },
       },
       select: {
         role: true,
@@ -46,7 +46,6 @@ export const requireProjectPermission = (
     if (!allowed) {
       throw new ApiError(403, 'Permission denied')
     }
-
     next()
   })
 }

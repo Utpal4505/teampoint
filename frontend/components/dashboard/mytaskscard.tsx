@@ -21,14 +21,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { TaskCreateModal, TaskCreatePayload } from '../tasks/taskcreatemodal'
+import { TaskCreateModal } from '../tasks/taskcreatemodal'
 import { useParams } from 'next/navigation'
 import { useUpdateTaskStatus, useWorkspaceAssignedTasks } from '@/features/tasks/hooks'
-import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 
 type Priority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
-type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
+type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE'
 
 const PRIORITY_CONFIG: Record<
   Priority,
@@ -44,12 +43,10 @@ const STATUS_CONFIG: Record<TaskStatus, { label: string; color: string }> = {
   TODO: { label: 'Todo', color: 'text-slate-400 bg-slate-400/10' },
   IN_PROGRESS: { label: 'In Progress', color: 'text-amber-500 bg-amber-500/10' },
   DONE: { label: 'Done', color: 'text-emerald-500 bg-emerald-500/10' },
-  CANCELLED: { label: 'Cancelled', color: 'text-red-400 bg-red-400/10' },
 }
 
 export function MyTasksCard() {
   const params = useParams()
-  const queryClient = useQueryClient()
   const workspaceId = Number(params.workspaceId)
 
   const { data: tasks = [], isLoading } = useWorkspaceAssignedTasks(workspaceId)
@@ -59,29 +56,16 @@ export function MyTasksCard() {
 
   async function handleUpdateTask(taskId: number, newStatus: string) {
     const task = tasks.find(t => t.id === taskId)
-    const projectId = task?.project?.id
 
-    if (!projectId) {
-      toast.error('Project association not found')
+    if (!task) {
+      toast.error('Task not found')
       return
     }
 
     updateStatus({
-      projectId,
       taskId,
       status: newStatus,
     })
-  }
-
-  //TODO: will do it in next PR
-  async function handleCreateTask(payload: TaskCreatePayload) {
-    try {
-      setModalOpen(false)
-      toast.success('Task created!')
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
-    } catch (error) {
-      toast.error('Could not create task')
-    }
   }
 
   const done = tasks.filter(t => t.status === 'DONE').length
@@ -90,7 +74,7 @@ export function MyTasksCard() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-xl border border-border bg-card">
+      <div className="flex h-75 items-center justify-center rounded-xl border border-border bg-card">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     )
@@ -221,7 +205,7 @@ export function MyTasksCard() {
       <TaskCreateModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={handleCreateTask}
+        workspaceId={workspaceId}
       />
     </>
   )

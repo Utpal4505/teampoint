@@ -8,11 +8,7 @@ import ProjectsHeader from './projectsheader'
 import ProjectsEmpty from './projectsempty'
 import ProjectsGrid from './projectsgrid'
 import ProjectsListView from './projectslistview'
-import {
-  CreateProjectModal,
-  CreateProjectPayload,
-  ProjectMemberPayload,
-} from '@/components/projects/create-project'
+import { CreateProjectModal } from '@/components/projects/create-project'
 import { useRouter } from 'next/navigation'
 import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
 
@@ -52,14 +48,6 @@ export default function ProjectsPage({ workspaceId }: ProjectsPageProps) {
     setStatusOpen(false)
   }
 
-  async function handleCreateProject(
-    project: CreateProjectPayload,
-    members: ProjectMemberPayload[],
-  ) {
-    // TODO: wire API
-    console.log('Create project:', project, members)
-  }
-
   return (
     <SidebarInset>
       <ProjectsHeader />
@@ -88,7 +76,6 @@ export default function ProjectsPage({ workspaceId }: ProjectsPageProps) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         workspaceId={workspaceId}
-        onSubmit={handleCreateProject}
       />
     </SidebarInset>
   )

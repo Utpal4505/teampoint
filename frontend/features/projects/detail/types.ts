@@ -1,3 +1,5 @@
+import { WorkspaceRole } from '@/features/workspace/types'
+
 // ── Project Detail ─────────────────────────────────────────
 export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
@@ -62,4 +64,11 @@ export interface ProjectStats {
   doneTasks: number
   totalMembers: number
   totalDocuments: number
+}
+
+export interface UpdateProjectMemberRoleInput {
+  projectId: number
+  userId: number
+  role: WorkspaceRole | null
+  status: 'ACTIVE' | 'INVITED' | 'REMOVED' | 'LEFT' | 'BLOCKED' | null
 }

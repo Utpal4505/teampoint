@@ -36,19 +36,17 @@ export const listProjectTasks = async (
 }
 
 export const getTaskById = async (
-  projectId: number,
   taskId: number,
 ): Promise<GetTaskDTO> => {
-  const res = await api.get(`/projects/${projectId}/tasks/${taskId}`)
+  const res = await api.get(`/projects/tasks/${taskId}`)
 
   return res.data.data
 }
 
 export const createProjectTask = async (
-  projectId: number,
   input: Omit<createTaskInput, 'projectId'> & { projectId: number },
 ): Promise<CreateTaskDTO> => {
-  const res = await api.post(`/projects/${projectId}/tasks`, input)
+  const res = await api.post(`/projects/tasks/`, input)
 
   return res.data.data
 }
@@ -56,36 +54,33 @@ export const createProjectTask = async (
 export const createPersonalTask = async (
   input: Omit<createTaskInput, 'projectId'>,
 ): Promise<CreateTaskDTO> => {
-  const res = await api.post(`/personal-tasks`, input)
+  const res = await api.post(`/projects/tasks/`, input)
 
   return res.data.data
 }
 
 export const updateTask = async (
-  projectId: number,
   taskId: number,
   data: Partial<createTaskInput>,
 ): Promise<UpdateTaskDTO> => {
-  const res = await api.patch(`/projects/${projectId}/tasks/${taskId}`, data)
+  const res = await api.patch(`/projects/tasks/${taskId}`, data)
 
   return res.data.data
 }
 
 export const updateTaskStatus = async (
-  projectId: number,
   taskId: number,
   status: string,
 ): Promise<ChangeTaskStatusDTO> => {
-  const res = await api.patch(`/projects/${projectId}/tasks/${taskId}/status`, { status })
+  const res = await api.patch(`/projects/tasks/${taskId}/status`, { status })
 
   return res.data.data
 }
 
 export const cancelTask = async (
-  projectId: number,
   taskId: number,
 ): Promise<CancelTaskDTO> => {
-  const res = await api.post(`/projects/${projectId}/tasks/${taskId}/cancel`)
+  const res = await api.post(`/projects/tasks/${taskId}/cancel`)
 
   return res.data.data
 }

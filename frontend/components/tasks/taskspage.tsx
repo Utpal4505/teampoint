@@ -15,18 +15,10 @@ import FilterChips from './filterchips'
 import KanbanColumn from './kanbancolumn'
 import ListView from './listview'
 import TaskDrawer from './taskdrawer'
-import { TaskCreateModal, TaskCreatePayload } from './taskcreatemodal'
+import { TaskCreateModal } from './taskcreatemodal'
 import { SidebarInset, SidebarTrigger } from '../ui/sidebar'
-import {
-  useWorkspaceAssignedTasks,
-  useUpdateTaskStatus,
-  useCreateTask,
-} from '@/features/tasks/hooks'
+import { useWorkspaceAssignedTasks, useUpdateTaskStatus } from '@/features/tasks/hooks'
 import { useWorkspaceId } from '@/hooks/useworkspaceid'
-import { useUserStore } from '@/store/user.store'
-import { toast } from 'sonner'
-import { useQueryClient } from '@tanstack/react-query'
-import { handleApiError } from '@/lib/handle-api-error'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
@@ -42,12 +34,9 @@ function toTask(t: AssignedTask): Task {
 
 export default function TasksPage() {
   const workspaceId = useWorkspaceId()
-  const queryClient = useQueryClient()
-  const { user } = useUserStore()
 
   const { data: rawTasks = [], isLoading } = useWorkspaceAssignedTasks(workspaceId)
   const { mutate: updateStatus } = useUpdateTaskStatus(workspaceId)
-  const { mutate: createTaskMutate } = useCreateTask(workspaceId)
 
   const tasks: Task[] = rawTasks.map(toTask)
 
@@ -72,48 +61,8 @@ export default function TasksPage() {
   }
 
   async function handleDropTask(taskId: number, newStatus: Status) {
-    const raw = rawTasks.find(t => t.id === taskId)
-    const projectId = raw?.project?.id
-    if (!projectId) {
-      toast.error('Project association not found')
-      return
-    }
-    updateStatus({ projectId, taskId, status: newStatus })
-  }
-
-  async function handleCreateTask(payload: TaskCreatePayload) {
-    try {
-      if (!user) {
-        toast.error('User not found please login again')
-        return
-      }
-
-      if (payload.type === 'PROJECT' && payload.projectId) {
-        createTaskMutate({
-          taskType: payload.type,
-          projectId: parseInt(payload.projectId),
-          title: payload.title,
-          description: payload.description,
-          priority: payload.priority,
-          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
-          assignedTo: user.id,
-        })
-      } else {
-        createTaskMutate({
-          taskType: 'PERSONAL',
-          title: payload.title,
-          description: payload.description,
-          priority: payload.priority,
-          dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
-          assignedTo: user.id,
-        })
-      }
-      setModalOpen(false)
-      toast.success('Task created successfully!')
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
-    } catch (error) {
-      handleApiError(error)
-    }
+    rawTasks.find(t => t.id === taskId)
+    updateStatus({ taskId, status: newStatus })
   }
 
   return (
@@ -206,7 +155,7 @@ export default function TasksPage() {
       <TaskCreateModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        onSubmit={handleCreateTask}
+        workspaceId={Number(workspaceId)}
       />
     </SidebarInset>
   )

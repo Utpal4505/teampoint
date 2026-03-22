@@ -30,11 +30,8 @@ import {
   ArrowRight,
 } from 'lucide-react'
 
-import {
-  CreateProjectModal,
-  CreateProjectPayload,
-  ProjectMemberPayload,
-} from '@/components/projects/create-project'
+import { CreateProjectModal } from '@/components/projects/create-project'
+import Link from 'next/link'
 
 const MAX_VISIBLE = 3
 
@@ -51,13 +48,6 @@ export function NavProjects({
 
   const visibleProjects = projects.slice(0, MAX_VISIBLE)
   const hasMore = projects.length > MAX_VISIBLE
-
-  async function handleCreateProject(
-    project: CreateProjectPayload,
-    members: ProjectMemberPayload[],
-  ) {
-    console.log('Create project payload:', project, members)
-  }
 
   return (
     <>
@@ -79,10 +69,10 @@ export function NavProjects({
           {visibleProjects.map(project => (
             <SidebarMenuItem key={project.name}>
               <SidebarMenuButton asChild>
-                <a href={project.url}>
+                <Link href={project.url}>
                   <FolderKanban />
                   <span>{project.name}</span>
-                </a>
+                </Link>
               </SidebarMenuButton>
 
               <DropdownMenu>
@@ -147,7 +137,6 @@ export function NavProjects({
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         workspaceId={workspaceId}
-        onSubmit={handleCreateProject}
       />
     </>
   )

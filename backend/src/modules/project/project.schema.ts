@@ -42,16 +42,17 @@ export const updateProjectSchema = z
       .max(500, 'Description must be less than 500 characters long')
       .optional()
       .or(z.literal(''))
+      .or(z.null())
       .transform(v => {
         if (!v) return undefined
         return sanitizeText(v.trim())
       }),
-    status: z.enum(ProjectStatus),
+    status: z.nativeEnum(ProjectStatus),
   })
   .partial()
 
 export const listAllWorkspaceProjectQuerySchema = z.object({
-  status: z.enum(ProjectStatus).optional(),
+  status: z.nativeEnum(ProjectStatus).optional(),
   search: z.string().trim().optional(),
   createdBy: z.coerce.number().positive().optional(),
 })

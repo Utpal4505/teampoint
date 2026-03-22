@@ -11,6 +11,35 @@ import {
   cancelTask,
 } from './api'
 import { handleApiError } from '@/lib/handle-api-error'
+import { TaskCreatePayload } from '@/components/tasks/taskcreatemodal'
+
+export const formatTaskPayload = (
+  payload: TaskCreatePayload,
+  userId: number,
+): createTaskInput => {
+  if (payload.type === 'PROJECT' && payload.projectId) {
+    return {
+      taskType: payload.type,
+      projectId: parseInt(payload.projectId),
+      title: payload.title,
+      description: payload.description,
+      priority: payload.priority,
+      dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+      assignedTo: userId,
+    }
+  } else if (payload.type === 'PERSONAL') {
+    return {
+      taskType: 'PERSONAL',
+      title: payload.title,
+      description: payload.description,
+      priority: payload.priority,
+      dueDate: payload.dueDate ? new Date(payload.dueDate) : undefined,
+      assignedTo: userId,
+    }
+  } else {
+    throw new Error(`Invalid task type: ${payload.type}`)
+  }
+}
 
 export const useWorkspaceAssignedTasks = (workspaceId: number) => {
   return useQuery<AssignedTask[]>({
@@ -40,7 +69,7 @@ export const useProjectTasks = (
 export const useTaskById = (projectId: number, taskId: number) => {
   return useQuery<GetTaskDTO>({
     queryKey: ['project', projectId, 'task', taskId],
-    queryFn: () => getTaskById(projectId, taskId),
+    queryFn: () => getTaskById(taskId),
     enabled: !!projectId && !!taskId,
     staleTime: 1000 * 60 * 5,
   })
@@ -55,7 +84,7 @@ export const useCreateTask = (workspaceId: number) => {
         if (!input.projectId) {
           throw new Error('projectId is required for PROJECT tasks')
         }
-        return createProjectTask(input.projectId, {
+        return createProjectTask({
           taskType: input.taskType,
           projectId: input.projectId,
           title: input.title,
@@ -93,7 +122,7 @@ export const useUpdateTask = (projectId: number, workspaceId: number) => {
 
   return useMutation({
     mutationFn: async (input: { taskId: number; data: Partial<createTaskInput> }) => {
-      return updateTask(projectId, input.taskId, input.data)
+      return updateTask(input.taskId, input.data)
     },
 
     onSuccess: () => {
@@ -111,15 +140,8 @@ export const useUpdateTaskStatus = (workspaceId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({
-      projectId,
-      taskId,
-      status,
-    }: {
-      projectId: number
-      taskId: number
-      status: string
-    }) => updateTaskStatus(projectId, taskId, status),
+    mutationFn: ({ taskId, status }: { taskId: number; status: string }) =>
+      updateTaskStatus(taskId, status),
 
     onMutate: async ({ taskId, status }) => {
       await queryClient.cancelQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
@@ -159,8 +181,7 @@ export const useCancelTask = (workspaceId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ projectId, taskId }: { projectId: number; taskId: number }) =>
-      cancelTask(projectId, taskId),
+    mutationFn: ({ taskId }: { taskId: number }) => cancelTask(taskId),
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })

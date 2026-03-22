@@ -101,18 +101,3 @@ export const listWorkspaceAssignedTasksController = asyncHandler(async (req, res
     .status(200)
     .json(new ApiResponse(200, 'Workspace tasks retrieved successfully', tasks))
 })
-
-export const createPersonalTaskController = asyncHandler(async (req, res) => {
-  assertUser(req.user)
-
-  const input = {
-    ...req.body,
-    projectId: null,
-  }
-
-  const task = await createTaskService(input, req.user.id)
-
-  return res
-    .status(201)
-    .json(new ApiResponse(201, 'Personal task created successfully', task))
-})

@@ -11,7 +11,7 @@ const idParam = z.number().int().positive().transform(Number)
 export const createTaskSchema = z
   .object({
     taskType: TaskTypeEnum,
-    projectId: idParam,
+    projectId: z.number().int().positive().optional(),
     title: z.string().trim().min(2).max(100).transform(sanitizeText),
     description: z
       .string()

@@ -14,6 +14,8 @@ import type {
   Step1Errors,
 } from '@/features/projects/schemas'
 import { MOCK_WORKSPACE_MEMBERS } from '@/features/projects/constants'
+import { useCreateProject } from '@/features/projects/hooks'
+import { createPortal } from 'react-dom'
 
 export type { CreateProjectPayload, ProjectMemberPayload }
 
@@ -21,18 +23,14 @@ interface CreateProjectModalProps {
   open: boolean
   onClose: () => void
   workspaceId: string
-  onSubmit?: (
-    project: CreateProjectPayload,
-    members: ProjectMemberPayload[],
-  ) => Promise<void>
 }
 
 export function CreateProjectModal({
   open,
   onClose,
   workspaceId,
-  onSubmit,
 }: CreateProjectModalProps) {
+  const createProjectMutation = useCreateProject()
   const [step, setStep] = useState<1 | 2>(1)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -97,35 +95,40 @@ export function CreateProjectModal({
     )
     if (!allValid) return
 
-    if (onSubmit) {
-      setLoading(true)
-      await onSubmit(
-        { workspaceId, name: name.trim(), description: description.trim(), status },
-        members.map(({ userId, role }) => ({ userId, role })),
-      )
+    setLoading(true)
+    try {
+      const projectPayload = {
+        workspaceId: Number(workspaceId),
+        name: name.trim(),
+        description: description.trim() || undefined,
+      }
+      await createProjectMutation.mutateAsync(projectPayload)
+      handleClose()
+    } catch (error) {
+      console.error('Failed to create project:', error)
+    } finally {
       setLoading(false)
     }
-    handleClose()
   }
 
   if (!open) return null
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-200 flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.7)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) handleClose()
       }}
     >
       <div
-        className="relative w-full max-w-[440px] rounded-2xl border border-border bg-card
+        className="relative w-full max-w-110 rounded-2xl border border-border bg-card
         shadow-[0_32px_80px_oklch(0_0_0/0.7)]
         animate-in fade-in-0 zoom-in-95 duration-200"
       >
         <div className="overflow-hidden rounded-t-2xl">
           <div
-            className="h-[2px] w-full"
+            className="h-0.5 w-full"
             style={{
               background:
                 'linear-gradient(90deg,transparent 10%,oklch(0.6 0.16 262/0.7) 50%,transparent 90%)',
@@ -209,7 +212,7 @@ export function CreateProjectModal({
                 onClick={() => {
                   if (validateStep1()) setStep(2)
                 }}
-                className="flex flex-[2] items-center justify-center gap-2 rounded-xl
+                className="flex flex-2 items-center justify-center gap-2 rounded-xl
                   bg-primary px-4 py-2.5 font-sans text-sm font-medium text-primary-foreground
                   shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all duration-150
                   hover:-translate-y-px active:translate-y-0"
@@ -250,6 +253,7 @@ export function CreateProjectModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

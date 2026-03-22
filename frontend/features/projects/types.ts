@@ -26,3 +26,25 @@ export type ListAllWorkspaceProjectDTO = {
   createdBy: number
   createdAt: string
 }[]
+
+export type CreateProjectInput = {
+  workspaceId: number
+  name: string
+  description: string | undefined
+}
+
+export type UpdateProjectInput = {
+  name?: string
+  description?: string | null
+  status?: ProjectStatus
+}
+
+export type CreateProjectDTO = {
+  id: number
+  workspaceId: number
+  name: string
+  description: string | null
+  status: ProjectStatus
+  createdBy: number
+  createdAt: Date
+}

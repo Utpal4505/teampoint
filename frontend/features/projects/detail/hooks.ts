@@ -5,8 +5,12 @@ import {
   getProjectMembers,
   getProjectTasks,
   updateProjectTaskStatus,
+  addProjectMember,
+  updateProjectMember,
+  removeProjectMember,
+  exitProject,
 } from './api'
-import { ProjectTask, TaskStatus } from './types'
+import { ProjectTask, TaskStatus, UpdateProjectMemberRoleInput } from './types'
 import { handleApiError } from '@/lib/handle-api-error'
 
 const projectKeys = {
@@ -72,6 +76,71 @@ export const useUpdateProjectTaskStatus = (projectId: number) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.tasks(projectId) })
+    },
+  })
+}
+
+export const useAddProjectMember = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: { email: string; role?: string }) =>
+      addProjectMember(projectId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useUpdateProjectMember = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      userId,
+      input,
+    }: {
+      userId: number
+      input: UpdateProjectMemberRoleInput
+    }) => updateProjectMember(projectId, userId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useRemoveProjectMember = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (userId: number) => removeProjectMember(projectId, userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useExitProject = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (projectId: number) => exitProject(projectId),
+    onSuccess: (data, projectId) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
+      // Also invalidate the projects list since user is no longer a member
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+    onError: error => {
+      handleApiError(error)
     },
   })
 }

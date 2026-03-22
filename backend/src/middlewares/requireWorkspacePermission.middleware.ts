@@ -16,7 +16,10 @@ export const requireWorkspacePermission = (
     assertUser(req.user)
     const user = req.user
 
-    const workspaceId = Number(req.params.workspaceId)
+    const workspaceId =
+      Number(req.params.workspaceId) ||
+      Number(req.body.workspaceId) ||
+      Number(req.query.workspaceId)
 
     if (!workspaceId) {
       throw new ApiError(400, 'Invalid workspace id')
