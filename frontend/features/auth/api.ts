@@ -9,7 +9,7 @@ export const loginWithGithub = () => {
 }
 
 export const logout = () => {
-  return api.post('/auth/logout')
+  return api.post('/users/logout')
 }
 
 export const refreshToken = () => {

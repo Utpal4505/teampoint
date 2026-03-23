@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   DropdownMenu,
@@ -16,7 +17,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon, UserIcon } from 'lucide-react'
+import { ChevronsUpDownIcon, LogOutIcon, SettingsIcon } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import { logout } from '@/features/auth/api'
+import { handleApiError } from '@/lib/handle-api-error'
+import { useRouter } from 'next/navigation'
 
 export function NavUser({
   user,
@@ -29,7 +34,18 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar()
 
-  console.log(user)
+  const params = useParams()
+  const router = useRouter()
+  const workspaceId = params.workspaceId
+
+  const handlelogout = async () => {
+    try {
+      await logout()
+      router.push('/login')
+    } catch (error) {
+      handleApiError(error)
+    }
+  }
 
   return (
     <SidebarMenu>
@@ -52,6 +68,7 @@ export function NavUser({
               <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
             side={isMobile ? 'bottom' : 'right'}
@@ -66,7 +83,6 @@ export function NavUser({
                     {user.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
-
                 <div className="grid flex-1 leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs text-muted-foreground">
@@ -79,29 +95,30 @@ export function NavUser({
             <DropdownMenuSeparator />
 
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <UserIcon />
-                Account Settings
-              </DropdownMenuItem>
-
-              <DropdownMenuItem>
-                <SettingsIcon />
-                Workspace Settings
+              <DropdownMenuItem asChild>
+                <Link
+                  href={`/workspace/${workspaceId}/settings/personal`}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <SettingsIcon className="h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
 
             <DropdownMenuItem
-              className="
-                              group flex items-center 
-                              cursor-pointer rounded-md outline-none
-                              transition-all duration-200
-                              hover:bg-destructive/10 hover:text-destructive
-                              focus:bg-destructive/10 focus:text-destructive
-                            "
+              onClick={handlelogout}
+              className="group flex items-center cursor-pointer rounded-md
+              outline-none transition-all duration-200
+              hover:bg-destructive/10 hover:text-destructive
+              focus:bg-destructive/10 focus:text-destructive"
             >
-              <LogOutIcon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-3" />
+              <LogOutIcon
+                className="h-4 w-4 transition-transform duration-200
+                group-hover:scale-110 group-hover:rotate-3"
+              />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

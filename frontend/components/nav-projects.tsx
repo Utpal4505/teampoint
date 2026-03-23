@@ -87,7 +87,11 @@ export function NavProjects({
                   side={isMobile ? 'bottom' : 'right'}
                   align={isMobile ? 'end' : 'start'}
                 >
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                  onClick={() => {
+                    router.push(project.url)
+                  }}
+                  >
                     <FolderKanban />
                     <span>Open Project</span>
                   </DropdownMenuItem>
