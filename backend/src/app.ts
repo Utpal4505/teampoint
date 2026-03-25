@@ -56,8 +56,8 @@ app.use(
 )
 
 app.use(helmet())
-app.use(express.urlencoded({ extended: true }))
-app.use(express.json({ limit: '16kb' }))
+app.use(express.urlencoded({ extended: true, limit: '50mb' }))
+app.use(express.json({ limit: '50mb' }))
 app.use(express.static('public'))
 app.use(cookieParser())
 app.use(googlePassport.initialize())
@@ -75,18 +75,20 @@ app.use('/api/v1/bug-reports', bugReportRouter)
 
 app.use('/api/v1', hardAuth, restrictNewUserRoutes, apiLimiter)
 app.use('/api/v1/users', userRouter)
-app.use('/api/v1/workspaces', workspaceRouter)
-app.use('/api/v1/workspaces', workspaceInviteRouter)
 app.use('/api/v1/uploads', uploadLimiter, uploadRouter)
-app.use('/api/v1/projects', projectRouter)
-app.use('/api/v1/projects', projectMemberRouter)
-app.use('/api/v1/projects/tasks', taskRouter)
+
 app.use('/api/v1/projects/:projectId/documents', documentRouter)
 app.use('/api/v1/projects/:projectId/document-links', documentLinkRouter)
 app.use('/api/v1/projects/:projectId/goals', goalRouter)
 app.use('/api/v1/projects/:projectId/milestones', milestoneRouter)
-app.use('/api/v1/workspaces/:workspaceId/leave-requests', workspaceLeaveRouter)
 app.use('/api/v1/projects/:projectId/meetings', meetingRouter)
+app.use('/api/v1/projects/tasks', taskRouter)
+app.use('/api/v1/projects', projectRouter)
+app.use('/api/v1/projects', projectMemberRouter)
+
+app.use('/api/v1/workspaces/:workspaceId/leave-requests', workspaceLeaveRouter)
+app.use('/api/v1/workspaces', workspaceRouter)
+app.use('/api/v1/workspaces', workspaceInviteRouter)
 
 app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 

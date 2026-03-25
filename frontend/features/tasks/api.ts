@@ -17,27 +17,24 @@ export const getWorkspaceAssignedTasks = async (
   return res.data.data
 }
 
-export const listProjectTasks = async (
-  projectId: number,
-  filters?: {
-    assignedTo?: number
-    status?: string
-    taskType?: string
-  },
-): Promise<AssignedTask[]> => {
+export const listProjectTasks = async (filters?: {
+  assignedTo?: number
+  status?: string
+  taskType?: string
+  projectId?: number
+}): Promise<AssignedTask[]> => {
   const params = new URLSearchParams()
   if (filters?.assignedTo) params.append('assignedTo', filters.assignedTo.toString())
   if (filters?.status) params.append('status', filters.status)
   if (filters?.taskType) params.append('taskType', filters.taskType)
+  if (filters?.projectId) params.append('projectId', filters.projectId.toString())
 
-  const res = await api.get(`/projects/${projectId}/tasks?${params.toString()}`)
+  const res = await api.get(`/projects/tasks?${params.toString()}`)
 
   return res.data.data
 }
 
-export const getTaskById = async (
-  taskId: number,
-): Promise<GetTaskDTO> => {
+export const getTaskById = async (taskId: number): Promise<GetTaskDTO> => {
   const res = await api.get(`/projects/tasks/${taskId}`)
 
   return res.data.data
@@ -77,9 +74,7 @@ export const updateTaskStatus = async (
   return res.data.data
 }
 
-export const cancelTask = async (
-  taskId: number,
-): Promise<CancelTaskDTO> => {
+export const cancelTask = async (taskId: number): Promise<CancelTaskDTO> => {
   const res = await api.post(`/projects/tasks/${taskId}/cancel`)
 
   return res.data.data

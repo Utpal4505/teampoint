@@ -30,8 +30,12 @@ export type UploadCompleteRequestDTO = {
 
 export interface IStorage {
   generateSignedUploadUrl(input: UploadRequest): Promise<StorageUploadResult>
-  generateSignedDownloadUrl(fileKey: string, expiresIn?: number): Promise<StorageUploadResult>
+  generateSignedDownloadUrl(
+    fileKey: string,
+    expiresIn?: number,
+  ): Promise<StorageUploadResult>
   verifyFileExists(fileKey: string): Promise<boolean>
+  directUploadToR2(input: UploadRequest, fileBuffer: Buffer): Promise<StorageUploadResult>
 }
 
 export interface StorageUploadResult {

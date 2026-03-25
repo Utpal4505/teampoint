@@ -18,9 +18,9 @@ export const CreateDocumentSchema = z.object({
       return sanitizeText(v.trim())
     }),
 
-  projectId: z.number({ error: 'Project ID is required' }).int().positive(),
+  projectId: z.number().int().positive(),
 
-  uploadId: z.number({ error: 'Upload ID is required' }).int().positive(),
+  uploadId: z.number().int().positive(),
 })
 
 export const UpdateDocumentSchema = z.object({

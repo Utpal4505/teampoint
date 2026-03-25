@@ -95,4 +95,33 @@ export class R2Storage {
       throw err
     }
   }
+
+  async directUploadToR2(
+    input: UploadRequest,
+    fileBuffer: Buffer,
+  ): Promise<StorageUploadResult> {
+    const { category, contextId, fileName, contentType } = input
+
+    const fileKey = this.generateFileKey(category, contextId, fileName)
+    const bucket = category === 'AVATAR' ? this.avatarBucket : this.defaultBucket
+
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: fileKey,
+      Body: fileBuffer,
+      ContentType: contentType,
+    })
+
+    await r2.send(command)
+
+    return {
+      fileKey,
+      presignedUrl: '',
+      expiresIn: 0,
+      publicUrl:
+        category === 'AVATAR'
+          ? `${env.R2_AVATARS_PUBLIC_BASE_URL}/${fileKey}`
+          : undefined,
+    }
+  }
 }

@@ -87,8 +87,6 @@ export const getProjectByIdService = async (
     },
   })
 
-  console.log(project)
-
   if (!project) {
     throw new ApiError(404, 'Project not found')
   }

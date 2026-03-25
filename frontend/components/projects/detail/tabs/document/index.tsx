@@ -3,25 +3,35 @@
 import { useState, useMemo } from 'react'
 import { Upload, FileText, Link2, Archive, FolderOpen } from 'lucide-react'
 
-import { FAKE_DOCUMENTS } from './fakeData'
 import DocumentFilterBar from './documentFilterBar'
 import DocumentCard from './documentCard'
 import DocumentLinksDrawer from './documentLinksDrawer'
 import DocumentUploadModal from './documentUploadModal'
 import DocumentEmptyState from './documentEmptyState'
+import {
+  useProjectDocuments,
+  useDeleteDocument,
+} from '@/features/projects/document/hooks'
+import { updateDocument } from '@/features/projects/document/api'
+import { useQueryClient } from '@tanstack/react-query'
 import type { DocumentFilter, DocumentWithLinks } from './documentsTab.types'
 
 const PAGE_SIZE = 6
 
-export default function DocumentsTab() {
-  const docs = FAKE_DOCUMENTS
+export interface DocumentsTabProps {
+  projectId: number
+}
+
+export default function DocumentsTab({ projectId }: DocumentsTabProps) {
+  const { data: docs = [], isLoading, error } = useProjectDocuments(projectId)
+  const deleteDocMutation = useDeleteDocument(projectId)
+  const queryClient = useQueryClient()
 
   const [filter, setFilter] = useState<DocumentFilter>('ALL')
   const [uploadOpen, setUploadOpen] = useState(false)
   const [drawerDoc, setDrawerDoc] = useState<DocumentWithLinks | null>(null)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
-  // ── Counts ────────────────────────────────────────────────
   const counts = useMemo<Record<DocumentFilter, number>>(
     () => ({
       ALL: docs.length,
@@ -32,7 +42,6 @@ export default function DocumentsTab() {
     [docs],
   )
 
-  // ── Filtered ──────────────────────────────────────────────
   const filtered = useMemo(() => {
     switch (filter) {
       case 'LINKED':
@@ -49,6 +58,22 @@ export default function DocumentsTab() {
   const visible = filtered.slice(0, visibleCount)
   const hasMore = filtered.length > visibleCount
 
+  if (isLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-sm text-muted-foreground">Loading documents...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="p-6 flex items-center justify-center h-96">
+        <div className="text-sm text-destructive">Failed to load documents</div>
+      </div>
+    )
+  }
+
   function handleFilterChange(f: DocumentFilter) {
     setFilter(f)
     setVisibleCount(PAGE_SIZE)
@@ -57,7 +82,6 @@ export default function DocumentsTab() {
   return (
     <>
       <div className="p-6 flex flex-col gap-6">
-        {/* ── Page header ─────────────────────────────────────── */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h2 className="text-base font-bold text-foreground">Documents</h2>
@@ -76,7 +100,6 @@ export default function DocumentsTab() {
           </button>
         </div>
 
-        {/* ── Stats strip ─────────────────────────────────────── */}
         <div className="grid grid-cols-4 gap-3">
           {[
             {
@@ -133,21 +156,45 @@ export default function DocumentsTab() {
           ))}
         </div>
 
-        {/* ── Filter bar ──────────────────────────────────────── */}
         <DocumentFilterBar
           active={filter}
           counts={counts}
           onChange={handleFilterChange}
         />
 
-        {/* ── Cards grid ──────────────────────────────────────── */}
         {filtered.length === 0 ? (
           <DocumentEmptyState filter={filter} onUpload={() => setUploadOpen(true)} />
         ) : (
           <>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {visible.map(doc => (
-                <DocumentCard key={doc.id} doc={doc} onViewLinks={d => setDrawerDoc(d)} />
+                <DocumentCard
+                  key={doc.id}
+                  projectId={projectId}
+                  doc={doc}
+                  onViewLinks={d => setDrawerDoc(d)}
+                  onDelete={async (docId: number) => {
+                    try {
+                      await deleteDocMutation.mutateAsync(docId)
+                    } catch (error) {
+                      console.error('Failed to delete document:', error)
+                    }
+                  }}
+                  onArchive={async (docId: number) => {
+                    try {
+                      const docToUpdate = docs.find(d => d.id === docId)
+                      if (!docToUpdate) return
+                      await updateDocument(projectId, docId, {
+                        isArchived: !docToUpdate.isArchived,
+                      })
+                      queryClient.invalidateQueries({
+                        queryKey: ['documents', 'project', projectId],
+                      })
+                    } catch (error) {
+                      console.error('Failed to archive document:', error)
+                    }
+                  }}
+                />
               ))}
             </div>
 
@@ -171,10 +218,16 @@ export default function DocumentsTab() {
       </div>
 
       {drawerDoc && (
-        <DocumentLinksDrawer doc={drawerDoc} onClose={() => setDrawerDoc(null)} />
+        <DocumentLinksDrawer
+          projectId={projectId}
+          doc={drawerDoc}
+          onClose={() => setDrawerDoc(null)}
+        />
       )}
 
-      {uploadOpen && <DocumentUploadModal onClose={() => setUploadOpen(false)} />}
+      {uploadOpen && (
+        <DocumentUploadModal projectId={projectId} onClose={() => setUploadOpen(false)} />
+      )}
     </>
   )
 }

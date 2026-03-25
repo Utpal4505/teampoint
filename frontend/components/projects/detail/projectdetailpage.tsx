@@ -48,6 +48,14 @@ export default function ProjectDetailPage({
   const { data: documents = [] } = useProjectDocuments(projectId)
   const { mutate: updateTaskStatus } = useUpdateProjectTaskStatus(projectId)
 
+  const updatedTasks = tasks.map(t => ({
+    ...t,
+    project: {
+      id: projectId,
+      name: project?.name || 'Project Name',
+    },
+  }))
+
   if (projectLoading) {
     return (
       <SidebarInset>
@@ -70,7 +78,6 @@ export default function ProjectDetailPage({
 
   return (
     <SidebarInset>
-      {/* Sticky header */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex h-14 items-center gap-3 px-6">
           <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
@@ -93,12 +100,10 @@ export default function ProjectDetailPage({
         <ProjectTabs activeTab={activeTab} onTabChange={setActiveTab} />
       </header>
 
-      {/* Tab content */}
       <div className="flex-1 overflow-auto">
         {activeTab === 'tasks' && (
           <TasksTab
-            projectId={projectId}
-            tasks={tasks}
+            tasks={updatedTasks}
             isLoading={tasksLoading}
             onStatusChange={(taskId, status) => updateTaskStatus({ taskId, status })}
           />
@@ -111,7 +116,7 @@ export default function ProjectDetailPage({
             onTabChange={setActiveTab}
           />
         )}
-        {activeTab === 'documents' && <DocumentsTab />}
+        {activeTab === 'documents' && <DocumentsTab projectId={projectId} />}
         {activeTab === 'members' && <MembersTab />}
         {activeTab === 'meetings' && <MeetingsTab />}
       </div>

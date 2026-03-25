@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, Plus, ExternalLink, Link2 } from 'lucide-react'
 import type { DocumentWithLinks, LinkEntityType } from './documentsTab.types'
 import DocumentLinkModal from './documentLinkModal'
+import { useCreateDocumentLink } from '@/features/projects/document/hooks'
 
 const ENTITY_META: Record<
   LinkEntityType,
@@ -39,12 +40,18 @@ const ENTITY_META: Record<
 }
 
 interface DocumentLinksDrawerProps {
+  projectId: number
   doc: DocumentWithLinks
   onClose: () => void
 }
 
-export default function DocumentLinksDrawer({ doc, onClose }: DocumentLinksDrawerProps) {
+export default function DocumentLinksDrawer({
+  projectId,
+  doc,
+  onClose,
+}: DocumentLinksDrawerProps) {
   const [linkModalOpen, setLinkModalOpen] = useState(false)
+  const createLinkMutation = useCreateDocumentLink(projectId, doc.id)
 
   const grouped = doc.links.reduce<Partial<Record<LinkEntityType, typeof doc.links>>>(
     (acc, l) => {
@@ -192,12 +199,20 @@ export default function DocumentLinksDrawer({ doc, onClose }: DocumentLinksDrawe
       {/* Link modal — sits above the drawer */}
       {linkModalOpen && (
         <DocumentLinkModal
+          projectId={projectId}
           doc={doc}
           onClose={() => setLinkModalOpen(false)}
-          onLink={(entityType, entityId) => {
-            // TODO: wire to POST /document-links
-            console.log('Link', doc.id, '→', entityType, entityId)
-            setLinkModalOpen(false)
+          onLink={async (entityType, entityId) => {
+            try {
+              await createLinkMutation.mutateAsync({
+                documentId: doc.id,
+                entityType,
+                entityId,
+              })
+              setLinkModalOpen(false)
+            } catch (error) {
+              console.error('Failed to create link:', error)
+            }
           }}
         />
       )}

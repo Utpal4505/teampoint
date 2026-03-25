@@ -14,7 +14,8 @@ export interface DocumentWithLinks {
   title: string
   description: string | null
   fileType: string
-  uploaderName: string
+  uploaderName?: string
+  uploadedBy?: number
   isArchived: boolean
   createdAt: string
   links: DocumentLink[]

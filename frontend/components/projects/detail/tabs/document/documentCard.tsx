@@ -15,11 +15,10 @@ import {
 } from 'lucide-react'
 import type { DocumentWithLinks } from './documentsTab.types'
 
-// ── File type config — icon + full card accent ────────────────
 const FILE_CONFIG: {
   match: (t: string) => boolean
   Icon: React.ElementType
-  accent: string // top bar color
+  accent: string
   iconBg: string
   iconColor: string
   label: string
@@ -273,21 +272,18 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
           )}
         </div>
 
-        {/* Divider */}
         <div className="mt-3.5 mb-3 border-t border-border/40" />
 
-        {/* Footer: meta + actions */}
         <div className="flex items-center justify-between gap-2">
-          {/* Uploader + date */}
           <div className="flex items-center gap-1.5 min-w-0">
             <div
               className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full
               bg-primary/20 text-[8px] font-bold text-primary"
             >
-              {doc.uploaderName.charAt(0).toUpperCase()}
+              {doc.uploaderName ? doc.uploaderName.charAt(0).toUpperCase() : 'U'}
             </div>
             <span className="text-[11px] text-muted-foreground/60 truncate">
-              {doc.uploaderName}
+              {doc.uploaderName || `User ${doc.uploadedBy || '—'}`}
             </span>
             <span className="text-muted-foreground/30 text-[10px]">·</span>
             <span className="text-[11px] text-muted-foreground/40 shrink-0">

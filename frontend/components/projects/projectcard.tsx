@@ -153,7 +153,6 @@ function ProjectMenu({ onStop }: { onStop: (e: React.MouseEvent) => void }) {
 }
 
 export default function ProjectCard({ project, onClick }: ProjectCardProps) {
-  console.log(project)
   const cfg = STATUS_CONFIG[project.status] ?? STATUS_CONFIG['ACTIVE']
   const pct =
     project.totalTasks > 0

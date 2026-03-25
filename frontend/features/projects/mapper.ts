@@ -1,7 +1,6 @@
 import type { Project, ListAllWorkspaceProjectDTO } from './types'
 
 export function mapProjects(dto: ListAllWorkspaceProjectDTO): Project[] {
-    console.log(dto)
   return dto.map(project => ({
     id: String(project.id),
     name: project.name,

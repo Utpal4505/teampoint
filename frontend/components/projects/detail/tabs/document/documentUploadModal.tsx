@@ -2,25 +2,47 @@
 
 import { useState, useRef } from 'react'
 import { X, Upload, FileText, CloudUpload } from 'lucide-react'
+import { useUploadAndCreateDocument } from '@/features/projects/document/hooks'
 
 interface DocumentUploadModalProps {
+  projectId: number
   onClose: () => void
 }
 
-export default function DocumentUploadModal({ onClose }: DocumentUploadModalProps) {
+export default function DocumentUploadModal({
+  projectId,
+  onClose,
+}: DocumentUploadModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  const canSubmit = title.trim().length > 0 && file !== null
+  const uploadMutation = useUploadAndCreateDocument(projectId)
+
+  const canSubmit = title.trim().length > 0 && file !== null && !uploadMutation.isPending
 
   function handleFileDrop(e: React.DragEvent) {
     e.preventDefault()
     setDragOver(false)
     const dropped = e.dataTransfer.files[0]
     if (dropped) setFile(dropped)
+  }
+
+  async function handleUpload() {
+    if (!canSubmit) return
+
+    try {
+      await uploadMutation.mutateAsync({
+        file,
+        title: title.trim(),
+        description: description.trim() || undefined,
+      })
+      onClose()
+    } catch (error) {
+      console.error('Upload failed:', error)
+    }
   }
 
   return (
@@ -185,12 +207,22 @@ export default function DocumentUploadModal({ onClose }: DocumentUploadModalProp
             Cancel
           </button>
           <button
+            onClick={handleUpload}
             disabled={!canSubmit}
             className="rounded-xl bg-primary px-5 py-2 text-xs font-semibold
               text-primary-foreground hover:bg-primary/90 transition-all duration-150
               disabled:opacity-35 disabled:cursor-not-allowed flex items-center gap-1.5"
           >
-            <Upload size={11} /> Upload
+            {uploadMutation.isPending ? (
+              <>
+                <div className="animate-spin h-3 w-3 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <Upload size={11} /> Upload
+              </>
+            )}
           </button>
         </div>
       </div>

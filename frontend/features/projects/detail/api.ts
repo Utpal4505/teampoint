@@ -12,7 +12,7 @@ export const getProjectById = async (projectId: number): Promise<ProjectDetail> 
 }
 
 export const getProjectTasks = async (projectId: number): Promise<ProjectTask[]> => {
-  const { data } = await api.get(`/projects/${projectId}/tasks`)
+  const { data } = await api.get(`/projects/tasks/?projectId=${projectId}`)
   return data.data
 }
 

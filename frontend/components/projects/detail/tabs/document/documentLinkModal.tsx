@@ -52,13 +52,14 @@ const ENTITY_TYPES: {
 ]
 
 interface DocumentLinkModalProps {
+  projectId: number
   doc: DocumentWithLinks
   onClose: () => void
-  // onLink will be wired to POST /document-links later
-  onLink?: (entityType: string, entityId: number) => void
+  onLink?: (entityType: string, entityId: number) => void | Promise<void>
 }
 
 export default function DocumentLinkModal({
+  projectId,
   doc,
   onClose,
   onLink,
@@ -66,6 +67,7 @@ export default function DocumentLinkModal({
   const [entityType, setEntityType] = useState<string>('TASK')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Already linked entity IDs for this type — prevent duplicates
   const alreadyLinked = new Set(
@@ -79,10 +81,15 @@ export default function DocumentLinkModal({
 
   const activeMeta = ENTITY_TYPES.find(t => t.key === entityType)!
 
-  function handleConfirm() {
+  async function handleConfirm() {
     if (selected === null) return
-    onLink?.(entityType, selected)
-    onClose()
+    setIsLoading(true)
+    try {
+      await onLink?.(entityType, selected)
+      onClose()
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -261,12 +268,21 @@ export default function DocumentLinkModal({
             </button>
             <button
               onClick={handleConfirm}
-              disabled={selected === null}
+              disabled={selected === null || isLoading}
               className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold
                 text-primary-foreground hover:bg-primary/90 transition-colors duration-100
                 disabled:opacity-35 disabled:cursor-not-allowed flex items-center gap-1.5"
             >
-              <Link2 size={11} /> Link
+              {isLoading ? (
+                <>
+                  <div className="animate-spin h-3 w-3 border-2 border-primary-foreground border-t-transparent rounded-full" />
+                  Linking...
+                </>
+              ) : (
+                <>
+                  <Link2 size={11} /> Link
+                </>
+              )}
             </button>
           </div>
         </div>

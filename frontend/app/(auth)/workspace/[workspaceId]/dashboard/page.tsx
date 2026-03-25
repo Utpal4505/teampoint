@@ -4,7 +4,7 @@ import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { MyTasksCard } from '@/components/dashboard/mytaskscard'
 import { TodaysMeetingsCard } from '@/components/dashboard/todaysmeetingscard'
-import { TeamActivityCard } from '@/components/dashboard/teamactivitycard'
+import { WorkspaceActivityCard } from '@/components/dashboard/teamactivitycard'
 import { useCurrentUser } from '@/features/users/hooks'
 import { Spinner } from '@/components/ui/spinner'
 import { useUserStore } from '@/store/user.store'
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           <MyTasksCard />
           <div className="flex flex-col gap-4">
             <TodaysMeetingsCard />
-            <TeamActivityCard />
+            <WorkspaceActivityCard />
           </div>
         </div>
       </div>

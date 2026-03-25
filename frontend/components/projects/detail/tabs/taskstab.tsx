@@ -20,14 +20,14 @@ function toTask(t: ProjectTask): Task {
     priority: t.priority as Task['priority'],
     description: '',
     type: 'PROJECT',
+    taskType: 'PROJECT',
     assignee: t.assignedTo?.name ?? 'Unassigned',
     avatarUrl: t.assignedTo?.avatarUrl,
-    project: null,
+    project: { name: t.project?.name ?? 'Project Name', id: t.project?.id ?? 0 },
   }
 }
 
 interface TasksTabProps {
-  projectId: number
   tasks: ProjectTask[]
   isLoading: boolean
   onStatusChange: (taskId: number, status: TaskStatus) => void
@@ -46,11 +46,12 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
     return true
   })
 
-  const selectedTask = selectedTaskId ? uiTasks.find(t => t.id === selectedTaskId) ?? null : null
+  const selectedTask = selectedTaskId
+    ? (uiTasks.find(t => t.id === selectedTaskId) ?? null)
+    : null
 
   return (
     <div className="flex flex-col">
-      {/* Toolbar */}
       <div className="flex flex-col gap-3 border-b border-border px-6 py-3">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-0.5 rounded-xl border border-border bg-muted/40 p-1">
@@ -67,12 +68,15 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
             ))}
           </div>
           <div className="flex-1" />
-          <FilterDropdown filters={filters} onChange={setFilters} onClear={() => setFilters(EMPTY_FILTERS)} />
+          <FilterDropdown
+            filters={filters}
+            onChange={setFilters}
+            onClear={() => setFilters(EMPTY_FILTERS)}
+          />
         </div>
         <FilterChips filters={filters} onChange={setFilters} />
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-hidden p-6">
         {isLoading ? (
           <div className="flex h-64 items-center justify-center">
@@ -81,7 +85,10 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
         ) : view === 'kanban' ? (
           <div
             className="grid gap-4"
-            style={{ gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))', alignItems: 'start' }}
+            style={{
+              gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
+              alignItems: 'start',
+            }}
           >
             {COLUMNS.map(status => (
               <KanbanColumn

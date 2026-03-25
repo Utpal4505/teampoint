@@ -1,39 +1,83 @@
 'use client'
 
 import { useRef } from 'react'
+import Image from 'next/image'
 import { Camera, Loader2 } from 'lucide-react'
 import { useUnsaved } from '@/components/settings/_components/useUnsaved'
 import { getInitials } from '@/lib/utils'
+import { useUserStore } from '@/store/user.store'
+import {
+  updateUserProfile,
+  directUploadAvatar,
+  completeAvatarUpload,
+} from '@/features/users/api'
 
-const INITIAL = {
-  fullName: 'Utpal Singh',
-  avatarUrl: null as string | null,
+interface ProfileValues {
+  fullName: string
+  avatarUrl: string | null
+  avatarFile?: File | undefined
 }
 
 export default function ProfilePanel() {
-  const { values, set, dirty, saving, saved, discard, save } = useUnsaved(INITIAL)
+  const { user, setUser } = useUserStore()
+
+  const initialData: ProfileValues = {
+    fullName: user?.fullName || '',
+    avatarUrl: user?.avatarUrl || null,
+  }
+
+  const { values, set, dirty, saving, saved, discard, save } = useUnsaved(initialData)
+
   const fileRef = useRef<HTMLInputElement>(null)
 
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleSave(formValues: ProfileValues) {
+    if (formValues.fullName !== user?.fullName) {
+      const updatedUser = await updateUserProfile({
+        fullName: formValues.fullName,
+      })
+      setUser(updatedUser)
+    }
+
+    if (formValues.avatarFile && user?.id) {
+      const file = formValues.avatarFile
+
+      try {
+        // Upload directly through backend
+        const uploadResponse = await directUploadAvatar(file)
+
+        const updatedUser = await completeAvatarUpload(uploadResponse.uploadId)
+        setUser(updatedUser)
+      } catch (error) {
+        console.error('Avatar upload failed:', error)
+        throw error
+      }
+    }
+  }
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    set('avatarUrl', URL.createObjectURL(file))
+
+    const previewUrl = URL.createObjectURL(file)
+    set('avatarUrl', previewUrl)
+    const storeFile = file as unknown as File
+    set('avatarFile' as keyof ProfileValues, storeFile)
   }
 
   return (
     <div className="flex flex-col">
-      {/* Fields */}
       <div className="flex flex-col gap-5 p-5">
-        {/* Avatar */}
         <div className="flex items-center gap-4">
           <div
             className="relative group cursor-pointer shrink-0"
             onClick={() => fileRef.current?.click()}
           >
             {values.avatarUrl ? (
-              <img
+              <Image
                 src={values.avatarUrl}
                 alt="Avatar"
+                width={56}
+                height={56}
                 className="h-14 w-14 rounded-xl object-cover ring-2 ring-border/40"
               />
             ) : (
@@ -72,7 +116,6 @@ export default function ProfilePanel() {
           />
         </div>
 
-        {/* Name */}
         <div className="flex flex-col gap-1.5">
           <label className="text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
             Full Name
@@ -88,7 +131,6 @@ export default function ProfilePanel() {
         </div>
       </div>
 
-      {/* Footer */}
       <div
         className="flex items-center justify-end gap-2 px-5 py-3.5
         border-t border-border/40 bg-muted/10"
@@ -104,11 +146,7 @@ export default function ProfilePanel() {
           </button>
         )}
         <button
-          onClick={() =>
-            save(async () => {
-              await new Promise(r => setTimeout(r, 800))
-            })
-          }
+          onClick={() => save(handleSave)}
           disabled={!dirty || saving}
           className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-1.5
             text-xs font-semibold text-primary-foreground

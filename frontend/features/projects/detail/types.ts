@@ -41,6 +41,10 @@ export interface ProjectTask {
     name: string
     avatarUrl?: string
   } | null
+  project: {
+    id: number
+    name: string
+  } | null
 }
 
 // ── Documents ─────────────────────────────────────────────

@@ -27,7 +27,6 @@ function GoogleIcon({ size = 20 }: { size?: number }) {
   )
 }
 
-// Placeholder icons for future integrations
 function SlackIcon({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
@@ -85,7 +84,6 @@ function GithubIcon({ size = 20 }: { size?: number }) {
 interface Integration {
   id: string
   name: string
-  description: string
   Icon: React.ComponentType<{ size?: number }>
   connected: boolean
   account?: string
@@ -96,7 +94,6 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'google',
     name: 'Google',
-    description: 'Auto-generate Meet links and sync meetings with Google Calendar.',
     Icon: GoogleIcon,
     connected: true,
     account: 'utpal@gmail.com',
@@ -104,7 +101,6 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'slack',
     name: 'Slack',
-    description: 'Get notified about task updates and mentions in Slack.',
     Icon: SlackIcon,
     connected: false,
     comingSoon: true,
@@ -112,7 +108,6 @@ const INTEGRATIONS: Integration[] = [
   {
     id: 'github',
     name: 'GitHub',
-    description: 'Link pull requests and commits to tasks automatically.',
     Icon: GithubIcon,
     connected: false,
     comingSoon: true,
@@ -211,11 +206,6 @@ function IntegrationCard({ integration }: { integration: Integration }) {
           </button>
         )}
       </div>
-
-      {/* Description */}
-      <p className="text-[12px] text-muted-foreground/45 leading-relaxed">
-        {integration.description}
-      </p>
     </div>
   )
 }

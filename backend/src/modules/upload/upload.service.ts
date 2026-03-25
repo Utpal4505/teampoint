@@ -89,3 +89,54 @@ export const uploadCompleteService = async (
     contextId: updated.contextId,
   }
 }
+
+export const directUploadService = async (
+  input: UploadRequest,
+  fileBuffer: Buffer,
+  userId: number,
+): Promise<UploadCompleteRequestDTO> => {
+  const { category, contentType, contextId, fileName, fileSize } = input
+
+  if (category === 'AVATAR') {
+    if (contextId !== userId) {
+      throw new ApiError(403, 'You can only upload your own avatar')
+    }
+  }
+
+  if (category === 'DOCUMENT') {
+    await assertProjectMember(contextId, userId)
+  }
+
+  const uploadData = await storage.directUploadToR2(
+    {
+      category,
+      contextId,
+      fileName,
+      contentType,
+      fileSize,
+    },
+    fileBuffer,
+  )
+
+  const uploadStatus = category === 'DOCUMENT' ? 'UPLOADED' : 'PENDING'
+
+  const upload = await prisma.upload.create({
+    data: {
+      category,
+      contextId,
+      fileName,
+      size: fileSize,
+      contentType,
+      fileKey: uploadData.fileKey,
+      status: uploadStatus,
+      uploadedBy: userId,
+    },
+  })
+
+  return {
+    uploadId: upload.id,
+    fileKey: upload.fileKey,
+    category: upload.category,
+    contextId: upload.contextId,
+  }
+}

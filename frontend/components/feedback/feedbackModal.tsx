@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, ArrowLeft, MessageSquare, Bug } from 'lucide-react'
 import type { Step, Mode, FeedbackModalProps } from '@/features/feedback/types'
-import type { BugFormData, FeedbackFormData } from '@/features/feedback/types'
+import type { BugFormData } from '@/features/feedback/types'
+import type { FeedbackFormData } from './feedbackForm' // ← updated import
 import BugForm, { BugFormHandle } from './bugForm'
 import FeedbackForm, { FeedbackFormHandle } from './feedbackForm'
 import SelectStep from './selectStep'
@@ -64,6 +65,7 @@ export default function FeedbackModal({ open, onClose, projectId }: FeedbackModa
 
   const handleBugSubmit = async (data: BugFormData): Promise<void> =>
     void bugReport.mutateAsync(data)
+
   const handleFeedbackSubmit = async (data: FeedbackFormData): Promise<void> =>
     void feedback.mutateAsync(data)
 

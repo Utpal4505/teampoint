@@ -27,6 +27,10 @@ export interface AssignedTask {
 }
 
 export interface Task extends AssignedTask {
+  project: {
+    id: number
+    name: string
+  } | null
   description: string
   type: TaskType
   assignee: string
