@@ -39,5 +39,5 @@ export const UpdateDocumentSchema = z.object({
 })
 
 export const documentIdParamSchema = z.object({
-  documentId: z.number().int().positive().transform(Number),
+  documentId: z.coerce.number().int().positive().transform(Number),
 })

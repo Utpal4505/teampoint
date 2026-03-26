@@ -301,3 +301,34 @@ export const deleteDocumentService = async (
     title: updated.title,
   }
 }
+
+export const getDocumentDownloadUrlService = async (
+  documentId: number,
+  userId: number,
+): Promise<{ presignedUrl: string; expiresIn: number }> => {
+  const document = await prisma.document.findUnique({
+    where: { id: documentId },
+    select: {
+      id: true,
+      projectId: true,
+      upload: {
+        select: {
+          fileKey: true,
+        },
+      },
+    },
+  })
+
+  ensureExists(document, 'Document')
+
+  await assertProjectMember(document.projectId, userId)
+
+  const { default: storage } = await import('../../modules/upload/storage/index.ts')
+
+  const result = await storage.generateSignedDownloadUrl(document.upload.fileKey, 3600)
+
+  return {
+    presignedUrl: result.presignedUrl,
+    expiresIn: result.expiresIn,
+  }
+}

@@ -103,11 +103,21 @@ function useOutsideClick(ref: React.RefObject<HTMLElement>, cb: () => void) {
 }
 
 interface DocumentCardProps {
+  projectId?: number
   doc: DocumentWithLinks
   onViewLinks: (doc: DocumentWithLinks) => void
+  onDelete?: (docId: number) => Promise<void>
+  onArchive?: (docId: number) => Promise<void>
+  onOpen?: (doc: DocumentWithLinks) => void
 }
 
-export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
+export default function DocumentCard({
+  doc,
+  onViewLinks,
+  onDelete,
+  onArchive,
+  onOpen,
+}: DocumentCardProps) {
   const cfg = getFileCfg(doc.fileType)
   const linkCount = doc.links.length
   const { Icon } = cfg
@@ -169,8 +179,11 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
                     py-1.5 overflow-hidden"
                   >
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setMenuOpen(false)
+                        if (onOpen) {
+                          await onOpen(doc)
+                        }
                       }}
                       className="flex w-full items-center gap-2.5 px-3.5 py-2 text-xs
                         text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
@@ -198,8 +211,9 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
 
                     {doc.isArchived ? (
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           setMenuOpen(false)
+                          await onArchive?.(doc.id)
                         }}
                         className="flex w-full items-center gap-2.5 px-3.5 py-2 text-xs
                           text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
@@ -208,8 +222,9 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
                       </button>
                     ) : (
                       <button
-                        onClick={() => {
+                        onClick={async () => {
                           setMenuOpen(false)
+                          await onArchive?.(doc.id)
                         }}
                         className="flex w-full items-center gap-2.5 px-3.5 py-2 text-xs
                           text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
@@ -219,8 +234,9 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
                     )}
 
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         setMenuOpen(false)
+                        await onDelete?.(doc.id)
                       }}
                       className="flex w-full items-center gap-2.5 px-3.5 py-2 text-xs
                         text-red-500 hover:bg-red-500/10 transition-colors"
@@ -305,6 +321,11 @@ export default function DocumentCard({ doc, onViewLinks }: DocumentCardProps) {
         {/* Action buttons */}
         <div className="flex items-center gap-2 mt-3">
           <button
+            onClick={async () => {
+              if (onOpen) {
+                await onOpen(doc)
+              }
+            }}
             className="flex flex-1 items-center justify-center gap-1.5 rounded-xl
               border border-border/50 bg-muted/20 py-2 text-xs font-medium text-muted-foreground
               hover:bg-accent hover:text-foreground hover:border-border/80 transition-all duration-150"

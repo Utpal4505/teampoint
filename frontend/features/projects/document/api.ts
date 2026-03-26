@@ -76,7 +76,7 @@ export const getDocumentLinks = async (
   const { data } = await api.get(
     `/projects/${projectId}/documents/${documentId}/document-links`,
   )
-  return data.data
+  return data.data.data
 }
 
 export const createDocumentLink = async (
@@ -106,4 +106,82 @@ export const unlinkDocument = async (
     `/projects/${projectId}/document-links/${linkId}/unlink`,
   )
   return data.data
+}
+
+export const getDocumentDownloadUrl = async (
+  projectId: number,
+  documentId: number,
+): Promise<{ presignedUrl: string; expiresIn: number }> => {
+  const { data } = await api.post(
+    `/projects/${projectId}/documents/${documentId}/download-url`,
+  )
+  return data.data
+}
+
+export interface EntityOption {
+  id: number
+  title: string
+  type: DocumentEntityType
+  status?: string
+  date?: string
+}
+
+// Backend response types for entities
+interface MilestoneResponse {
+  id: number
+  title: string
+  dueDate?: string
+}
+
+interface MeetingResponse {
+  id: number
+  title: string
+  dateTime?: string
+}
+
+interface TaskResponse {
+  id: number
+  title: string
+  status?: string
+  dueDate?: string
+}
+
+interface DiscussionResponse {
+  id: number
+  title: string
+  createdAt?: string
+}
+
+export const getProjectDiscussions = async (
+  projectId: number,
+): Promise<EntityOption[]> => {
+  const { data } = await api.get(`/projects/${projectId}/discussions`)
+  return (data.data ?? []).map((discussion: DiscussionResponse) => ({
+    id: discussion.id,
+    title: discussion.title,
+    type: 'DISCUSSION' as const,
+    date: discussion.createdAt,
+  }))
+}
+
+export const getProjectMilestones = async (
+  projectId: number,
+): Promise<EntityOption[]> => {
+  const { data } = await api.get(`/projects/${projectId}/milestones`)
+  return (data.data ?? []).map((milestone: MilestoneResponse) => ({
+    id: milestone.id,
+    title: milestone.title,
+    type: 'MILESTONE' as const,
+    date: milestone.dueDate,
+  }))
+}
+
+export const getProjectMeetings = async (projectId: number): Promise<EntityOption[]> => {
+  const { data } = await api.get(`/projects/${projectId}/meetings`)
+  return (data.data ?? []).map((meeting: MeetingResponse) => ({
+    id: meeting.id,
+    title: meeting.title,
+    type: 'MEETING' as const,
+    date: meeting.dateTime,
+  }))
 }

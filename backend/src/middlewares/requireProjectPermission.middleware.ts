@@ -16,12 +16,15 @@ export const requireProjectPermission = (
     assertUser(req.user)
     const user = req.user
 
-    const projectId =
-      Number(req.params?.projectId) ||
-      Number(req.body?.projectId) ||
-      Number(req.query?.projectId)
+    const projectId = req.params?.projectId
+      ? Number(req.params.projectId)
+      : req.body?.projectId
+        ? Number(req.body.projectId)
+        : req.query?.projectId
+          ? Number(req.query.projectId)
+          : null
 
-    if (!projectId) {
+    if (!projectId || isNaN(projectId)) {
       throw new ApiError(400, 'Invalid project id')
     }
 

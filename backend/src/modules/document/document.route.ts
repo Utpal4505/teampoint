@@ -12,6 +12,7 @@ import {
   getSingleDocumentController,
   listDocumentsController,
   updateDocumentController,
+  getDocumentDownloadUrlController,
 } from './document.controller.ts'
 import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
 import { projectIdParamSchema } from '../project/project.schema.ts'
@@ -24,6 +25,13 @@ router.use(hardAuth)
 router.use(validateRequest(projectIdParamSchema, 'params'))
 
 router.post(
+  '/:documentId/download-url',
+  requireProjectPermission('canViewDocs'),
+  validateRequest(documentIdParamSchema, 'params'),
+  getDocumentDownloadUrlController,
+)
+
+router.post(
   '/',
   validateRequest(CreateDocumentSchema, 'body'),
   requireProjectPermission('canCreateDocs'),
@@ -34,28 +42,29 @@ router.get('/', requireProjectPermission('canViewDocs'), listDocumentsController
 
 router.get(
   '/:documentId',
-  validateRequest(documentIdParamSchema, 'params'),
   requireProjectPermission('canViewDocs'),
+  validateRequest(documentIdParamSchema, 'params'),
   getSingleDocumentController,
 )
 
 router.patch(
   '/:documentId',
+  requireProjectPermission('canEditAnyDocs'),
   validateRequest(documentIdParamSchema, 'params'),
   validateRequest(UpdateDocumentSchema, 'body'),
-  requireProjectPermission('canEditAnyDocs'),
   updateDocumentController,
 )
 
 router.delete(
   '/:documentId',
-  validateRequest(documentIdParamSchema, 'params'),
   requireProjectPermission('canDeleteAnyDocs'),
+  validateRequest(documentIdParamSchema, 'params'),
   deleteDocumentController,
 )
 
 router.get(
   '/:documentId/document-links',
+  requireProjectPermission('canViewDocs'),
   validateRequest(documentIdParamSchema, 'params'),
   listDocumentLinksController,
 )

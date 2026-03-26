@@ -10,6 +10,8 @@ import {
   getEntityDocuments,
   unlinkDocument,
   uploadDocumentFile,
+  getProjectMilestones,
+  getProjectMeetings,
 } from './api'
 import type {
   CreateDocumentInput,
@@ -17,7 +19,6 @@ import type {
   CreateDocumentLinkInput,
   DocumentEntityType,
 } from './types'
-
 
 const documentKeys = {
   all: ['documents'],
@@ -83,7 +84,6 @@ export const useEntityDocuments = (
   })
 }
 
-
 export const useCreateDocument = (projectId: number) => {
   const queryClient = useQueryClient()
 
@@ -97,9 +97,6 @@ export const useCreateDocument = (projectId: number) => {
   })
 }
 
-/**
- * Update a document
- */
 export const useUpdateDocument = (projectId: number, documentId: number) => {
   const queryClient = useQueryClient()
 
@@ -118,16 +115,12 @@ export const useUpdateDocument = (projectId: number, documentId: number) => {
   })
 }
 
-/**
- * Delete/Archive a document
- */
 export const useDeleteDocument = (projectId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (documentId: number) => deleteDocument(projectId, documentId),
     onSuccess: () => {
-      // Invalidate documents list
       queryClient.invalidateQueries({
         queryKey: documentKeys.byProject(projectId),
       })
@@ -135,16 +128,12 @@ export const useDeleteDocument = (projectId: number) => {
   })
 }
 
-/**
- * Create a link between document and entity
- */
 export const useCreateDocumentLink = (projectId: number, documentId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (input: CreateDocumentLinkInput) => createDocumentLink(projectId, input),
     onSuccess: () => {
-      // Invalidate document detail and links
       queryClient.invalidateQueries({
         queryKey: documentKeys.detail(projectId, documentId),
       })
@@ -155,16 +144,12 @@ export const useCreateDocumentLink = (projectId: number, documentId: number) => 
   })
 }
 
-/**
- * Unlink a document from an entity
- */
 export const useUnlinkDocument = (projectId: number, documentId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (linkId: number) => unlinkDocument(projectId, linkId),
     onSuccess: () => {
-      // Invalidate document detail and links
       queryClient.invalidateQueries({
         queryKey: documentKeys.detail(projectId, documentId),
       })
@@ -175,9 +160,6 @@ export const useUnlinkDocument = (projectId: number, documentId: number) => {
   })
 }
 
-/**
- * Upload file and create document in one step
- */
 export const useUploadAndCreateDocument = (projectId: number) => {
   const queryClient = useQueryClient()
 
@@ -207,5 +189,31 @@ export const useUploadAndCreateDocument = (projectId: number) => {
         queryKey: documentKeys.byProject(projectId),
       })
     },
+  })
+}
+
+const entityKeys = {
+  all: ['entities'],
+  tasks: (projectId: number) => [...entityKeys.all, 'tasks', projectId],
+  milestones: (projectId: number) => [...entityKeys.all, 'milestones', projectId],
+  meetings: (projectId: number) => [...entityKeys.all, 'meetings', projectId],
+  discussions: (projectId: number) => [...entityKeys.all, 'discussions', projectId],
+}
+
+export const useProjectMilestones = (projectId: number | null) => {
+  return useQuery({
+    queryKey: entityKeys.milestones(projectId || 0),
+    queryFn: () => getProjectMilestones(projectId!),
+    enabled: projectId !== null,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useProjectMeetings = (projectId: number | null) => {
+  return useQuery({
+    queryKey: entityKeys.meetings(projectId || 0),
+    queryFn: () => getProjectMeetings(projectId!),
+    enabled: projectId !== null,
+    staleTime: 5 * 60 * 1000,
   })
 }

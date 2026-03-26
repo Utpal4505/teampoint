@@ -11,6 +11,7 @@ import {
   getSingleDocumentByIdService,
   listDocumentsService,
   updateDocumentService,
+  getDocumentDownloadUrlService,
 } from './document.service.ts'
 
 export const createDocumentController = asyncHandler(async (req, res) => {
@@ -27,7 +28,7 @@ export const createDocumentController = asyncHandler(async (req, res) => {
 export const listDocumentsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
   const userId = req.user.id
-  
+
   const projectId = Number(req.params.projectId)
 
   const documents = await listDocumentsService(projectId, userId)
@@ -81,4 +82,17 @@ export const deleteDocumentController = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, 'Document archived successfully', document))
+})
+
+export const getDocumentDownloadUrlController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+  const userId = req.user.id
+
+  const documentId = Number(req.params.documentId)
+
+  const downloadUrl = await getDocumentDownloadUrlService(documentId, userId)
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Download URL generated successfully', downloadUrl))
 })

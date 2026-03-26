@@ -1,10 +1,17 @@
 'use client'
 
-import { useState } from 'react'
-import { X, Plus, ExternalLink, Link2 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { X, Plus, Trash2, Link2, Loader } from 'lucide-react'
 import type { DocumentWithLinks, LinkEntityType } from './documentsTab.types'
 import DocumentLinkModal from './documentLinkModal'
-import { useCreateDocumentLink } from '@/features/projects/document/hooks'
+import {
+  useCreateDocumentLink,
+  useUnlinkDocument,
+  useDocumentLinks,
+  useProjectMilestones,
+  useProjectMeetings,
+} from '@/features/projects/document/hooks'
+import { useProjectTasks } from '@/features/projects/detail/hooks'
 
 const ENTITY_META: Record<
   LinkEntityType,
@@ -37,6 +44,13 @@ const ENTITY_META: Record<
     bg: 'bg-emerald-400/8',
     border: 'border-emerald-400/20',
   },
+  MEETING: {
+    icon: '📅',
+    label: 'Meetings',
+    color: 'text-violet-400',
+    bg: 'bg-violet-400/8',
+    border: 'border-violet-400/20',
+  },
 }
 
 interface DocumentLinksDrawerProps {
@@ -51,19 +65,45 @@ export default function DocumentLinksDrawer({
   onClose,
 }: DocumentLinksDrawerProps) {
   const [linkModalOpen, setLinkModalOpen] = useState(false)
-  const createLinkMutation = useCreateDocumentLink(projectId, doc.id)
 
-  const grouped = doc.links.reduce<Partial<Record<LinkEntityType, typeof doc.links>>>(
-    (acc, l) => {
-      if (!acc[l.entityType]) acc[l.entityType] = []
-      acc[l.entityType]!.push(l)
-      return acc
-    },
-    {},
+  const { data: links = [], isLoading: linksLoading } = useDocumentLinks(
+    projectId,
+    doc.id,
   )
 
+  const { data: tasks = [] } = useProjectTasks(projectId)
+  const { data: milestones = [] } = useProjectMilestones(projectId)
+  const { data: meetings = [] } = useProjectMeetings(projectId)
+
+  const createLinkMutation = useCreateDocumentLink(projectId, doc.id)
+  const unlinkMutation = useUnlinkDocument(projectId, doc.id)
+
+  const grouped = useMemo(() => {
+    return (links ?? []).reduce<Partial<Record<LinkEntityType, typeof links>>>(
+      (acc, l) => {
+        if (!acc[l.entityType]) acc[l.entityType] = []
+        acc[l.entityType]!.push(l)
+        return acc
+      },
+      {},
+    )
+  }, [links])
+
+  const getEntityName = (entityType: LinkEntityType, entityId: number): string => {
+    switch (entityType) {
+      case 'TASK':
+        return tasks.find(t => t.id === entityId)?.title ?? `Task #${entityId}`
+      case 'MILESTONE':
+        return milestones.find(m => m.id === entityId)?.title ?? `Milestone #${entityId}`
+      case 'MEETING':
+        return meetings.find(m => m.id === entityId)?.title ?? `Meeting #${entityId}`
+      default:
+        return `Entity #${entityId}`
+    }
+  }
+
   const entityTypes = Object.keys(grouped) as LinkEntityType[]
-  const totalLinks = doc.links.length
+  const totalLinks = links.length
 
   return (
     <>
@@ -116,7 +156,12 @@ export default function DocumentLinksDrawer({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto py-4 px-4 flex flex-col gap-3">
-          {entityTypes.length === 0 ? (
+          {linksLoading ? (
+            <div className="flex flex-col items-center justify-center py-16 gap-3">
+              <Loader size={20} className="text-muted-foreground/40 animate-spin" />
+              <p className="text-xs text-muted-foreground/50">Loading links...</p>
+            </div>
+          ) : entityTypes.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <div
                 className="flex h-12 w-12 items-center justify-center rounded-2xl
@@ -166,13 +211,23 @@ export default function DocumentLinksDrawer({
                           hover:bg-black/5 dark:hover:bg-white/5 transition-colors group/item"
                       >
                         <span className="flex-1 text-[12px] font-medium text-foreground/80 truncate">
-                          {link.entityTitle}
+                          {getEntityName(type, link.entityId)}
                         </span>
-                        <ExternalLink
-                          size={11}
-                          className="text-muted-foreground/25 group-hover/item:text-muted-foreground/60
-                            shrink-0 transition-colors"
-                        />
+                        <button
+                          onClick={async () => {
+                            try {
+                              await unlinkMutation.mutateAsync(link.id)
+                            } catch (error) {
+                              console.error('Failed to unlink', error)
+                            }
+                          }}
+                          disabled={unlinkMutation.isPending}
+                          className="text-muted-foreground/25 hover:text-destructive
+                            shrink-0 transition-colors disabled:opacity-50"
+                          title="Remove link"
+                        >
+                          <Trash2 size={11} />
+                        </button>
                       </div>
                     ))}
                   </div>

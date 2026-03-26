@@ -12,7 +12,7 @@ import {
   useProjectDocuments,
   useDeleteDocument,
 } from '@/features/projects/document/hooks'
-import { updateDocument } from '@/features/projects/document/api'
+import { updateDocument, getDocumentDownloadUrl } from '@/features/projects/document/api'
 import { useQueryClient } from '@tanstack/react-query'
 import type { DocumentFilter, DocumentWithLinks } from './documentsTab.types'
 
@@ -192,6 +192,17 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
                       })
                     } catch (error) {
                       console.error('Failed to archive document:', error)
+                    }
+                  }}
+                  onOpen={async document => {
+                    try {
+                      const { presignedUrl } = await getDocumentDownloadUrl(
+                        projectId,
+                        document.id,
+                      )
+                      window.open(presignedUrl, '_blank')
+                    } catch (error) {
+                      console.error('Failed to get download URL:', error)
                     }
                   }}
                 />

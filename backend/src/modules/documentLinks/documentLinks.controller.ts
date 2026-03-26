@@ -54,7 +54,7 @@ export const unlinkDocumentController = asyncHandler(async (req, res) => {
 
   const linkId = Number(req.params.linkId)
 
-  const result = await unlinkDocumentService(linkId)
+  const result = await unlinkDocumentService(linkId, req.user.id)
 
   return res
     .status(200)

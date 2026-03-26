@@ -1,26 +1,23 @@
 'use client'
 
 import { useState } from 'react'
-import { X, CheckCircle2, LayoutGrid, Calendar, Search, Link2 } from 'lucide-react'
+import {
+  X,
+  CheckCircle2,
+  LayoutGrid,
+  Calendar,
+  Search,
+  Link2,
+  MessageSquare,
+  Target,
+} from 'lucide-react'
+import {
+  useProjectMilestones,
+  useProjectMeetings,
+  useDocumentLinks,
+} from '@/features/projects/document/hooks'
 import type { DocumentWithLinks } from './documentsTab.types'
-
-// ── Fake entities per type — swap with real data later ────────
-const FAKE_ENTITIES: Record<string, { id: number; title: string; meta?: string }[]> = {
-  TASK: [
-    { id: 1, title: 'Setup CI Pipeline', meta: 'In Progress' },
-    { id: 2, title: 'Fix navbar bug', meta: 'Todo' },
-    { id: 3, title: 'Write API documentation', meta: 'In Progress' },
-    { id: 4, title: 'Design system review', meta: 'Done' },
-    { id: 5, title: 'Database migration script', meta: 'Todo' },
-    { id: 6, title: 'Deploy to staging', meta: 'Todo' },
-  ],
-  MEETING: [
-    { id: 10, title: 'Backend Planning', meta: 'Jan 20' },
-    { id: 11, title: 'Sprint Kickoff', meta: 'Jan 15' },
-    { id: 12, title: 'API Design Review', meta: 'Jan 18' },
-    { id: 13, title: 'Q1 Retrospective', meta: 'Feb 1' },
-  ],
-}
+import { useProjectTasks } from '@/features/projects/detail/hooks'
 
 const ENTITY_TYPES: {
   key: string
@@ -39,6 +36,24 @@ const ENTITY_TYPES: {
     bg: 'bg-amber-400/8',
     border: 'border-amber-400/25',
     activeBg: 'bg-amber-400/15',
+  },
+  {
+    key: 'DISCUSSION',
+    label: 'Discussion',
+    Icon: MessageSquare,
+    color: 'text-sky-400',
+    bg: 'bg-sky-400/8',
+    border: 'border-sky-400/25',
+    activeBg: 'bg-sky-400/15',
+  },
+  {
+    key: 'MILESTONE',
+    label: 'Milestone',
+    Icon: Target,
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-400/8',
+    border: 'border-emerald-400/25',
+    activeBg: 'bg-emerald-400/15',
   },
   {
     key: 'MEETING',
@@ -69,12 +84,44 @@ export default function DocumentLinkModal({
   const [selected, setSelected] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState(false)
 
+  const tasksQuery = useProjectTasks(projectId)
+  const milestonesQuery = useProjectMilestones(projectId)
+  const meetingsQuery = useProjectMeetings(projectId)
+  const { data: existingLinks = [] } = useDocumentLinks(projectId, doc.id)
+
+  // Get entities for current type
+  const getEntities = () => {
+    switch (entityType) {
+      case 'TASK':
+        return tasksQuery.data ?? []
+      case 'MILESTONE':
+        return milestonesQuery.data ?? []
+      case 'MEETING':
+        return meetingsQuery.data ?? []
+      default:
+        return []
+    }
+  }
+
+  const isLoadingEntities = (() => {
+    switch (entityType) {
+      case 'TASK':
+        return tasksQuery.isLoading
+      case 'MILESTONE':
+        return milestonesQuery.isLoading
+      case 'MEETING':
+        return meetingsQuery.isLoading
+      default:
+        return false
+    }
+  })()
+
   // Already linked entity IDs for this type — prevent duplicates
   const alreadyLinked = new Set(
-    doc.links.filter(l => l.entityType === entityType).map(l => l.entityId),
+    existingLinks.filter(l => l.entityType === entityType).map(l => l.entityId),
   )
 
-  const entities = FAKE_ENTITIES[entityType] ?? []
+  const entities = getEntities()
   const filtered = entities.filter(e =>
     e.title.toLowerCase().includes(search.toLowerCase()),
   )
@@ -172,7 +219,13 @@ export default function DocumentLinkModal({
 
           {/* Entity list */}
           <div className="flex flex-col gap-1.5 max-h-[240px] overflow-y-auto">
-            {filtered.length === 0 ? (
+            {isLoadingEntities ? (
+              <div className="flex items-center justify-center py-8">
+                <p className="text-[12px] text-muted-foreground/40">
+                  Loading {activeMeta.label.toLowerCase()}s…
+                </p>
+              </div>
+            ) : filtered.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <p className="text-[12px] text-muted-foreground/40">
                   No {activeMeta.label.toLowerCase()}s found
@@ -182,6 +235,7 @@ export default function DocumentLinkModal({
               filtered.map(entity => {
                 const isSelected = selected === entity.id
                 const isLinked = alreadyLinked.has(entity.id)
+                const meta = entity.status || entity.date
 
                 return (
                   <button
@@ -222,9 +276,9 @@ export default function DocumentLinkModal({
                       >
                         {entity.title}
                       </p>
-                      {entity.meta && (
+                      {meta && (
                         <p className="text-[10px] text-muted-foreground/45 mt-0.5">
-                          {entity.meta}
+                          {meta}
                         </p>
                       )}
                     </div>

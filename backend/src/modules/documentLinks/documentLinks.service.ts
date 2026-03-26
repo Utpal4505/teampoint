@@ -10,6 +10,7 @@ import type {
 import { ApiError } from '../../utils/apiError.ts'
 import { assertProjectMember } from '../../utils/assertProjectMember.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
 
 const validateEntityAndProject = async (
   tx: Prisma.TransactionClient,
@@ -49,7 +50,7 @@ const validateEntityAndProject = async (
 
 export const createDocumentLinkService = async (
   input: CreateDocumentLinkInput,
-  userId: number
+  userId: number,
 ): Promise<CreateDocumentLinkResponse> => {
   const { documentId, entityType, entityId } = input
 
@@ -98,7 +99,29 @@ export const createDocumentLinkService = async (
       },
     })
 
-    // add activityLog
+    const workspaceId = await getWorkspaceIdFromProject(document.projectId, userId, tx)
+
+    const user = await tx.user.findUnique({
+      where: { id: userId },
+      select: { fullName: true },
+    })
+
+    const linkedDoc = await tx.document.findUnique({
+      where: { id: documentId },
+      select: { title: true },
+    })
+
+    await tx.activityLog.create({
+      data: {
+        action: 'CREATED',
+        entityType: 'DOCUMENT',
+        entityId: link.id,
+        actorId: userId,
+        workspaceId,
+        projectId: document.projectId,
+        content: `Document "${linkedDoc?.title}" was linked to ${entityType.toLowerCase()} ${entityId} by ${user?.fullName || 'Unknown'}`,
+      },
+    })
 
     return link
   })
@@ -144,38 +167,88 @@ export const listEntityDocumentLinksService = async (
 
 export const unlinkDocumentService = async (
   linkId: number,
+  userId?: number,
 ): Promise<UnlinkDocumentResponse> => {
-  const result = await prisma.documentLink.updateMany({
-    where: {
-      id: linkId,
-      status: 'LINKED',
-    },
-    data: {
-      status: 'UNLINKED',
-      unlinkedAt: new Date(),
-    },
+  return prisma.$transaction(async tx => {
+    const linkData = await tx.documentLink.findUnique({
+      where: { id: linkId },
+      select: {
+        id: true,
+        documentId: true,
+        entityType: true,
+        entityId: true,
+      },
+    })
+
+    if (!linkData) {
+      throw new ApiError(404, 'Link not found')
+    }
+
+    const result = await tx.documentLink.updateMany({
+      where: {
+        id: linkId,
+        status: 'LINKED',
+      },
+      data: {
+        status: 'UNLINKED',
+        unlinkedAt: new Date(),
+      },
+    })
+
+    if (result.count === 0) {
+      throw new ApiError(404, 'Link not found or already unlinked')
+    }
+
+    const updated = await tx.documentLink.findUnique({
+      where: { id: linkId },
+      select: {
+        id: true,
+        status: true,
+        unlinkedAt: true,
+      },
+    })
+
+    if (!updated || !updated.unlinkedAt) {
+      throw new ApiError(500, 'Failed to unlink document')
+    }
+
+    // Add activity log if userId is provided
+    if (userId) {
+      const document = await tx.document.findUnique({
+        where: { id: linkData.documentId },
+        select: { title: true, projectId: true },
+      })
+
+      if (document) {
+        const workspaceId = await getWorkspaceIdFromProject(
+          document.projectId,
+          userId,
+          tx,
+        )
+
+        const user = await tx.user.findUnique({
+          where: { id: userId },
+          select: { fullName: true },
+        })
+
+        await tx.activityLog.create({
+          data: {
+            action: 'DELETED',
+            entityType: 'DOCUMENT',
+            entityId: linkData.id,
+            actorId: userId,
+            workspaceId,
+            projectId: document.projectId,
+            content: `Document "${document.title}" was unlinked from ${linkData.entityType.toLowerCase()} ${linkData.entityId} by ${user?.fullName || 'Unknown'}`,
+          },
+        })
+      }
+    }
+
+    return {
+      id: updated.id,
+      status: updated.status,
+      unlinkedAt: updated.unlinkedAt,
+    }
   })
-
-  if (result.count === 0) {
-    throw new ApiError(404, 'Link not found or already unlinked')
-  }
-
-  const updated = await prisma.documentLink.findUnique({
-    where: { id: linkId },
-    select: {
-      id: true,
-      status: true,
-      unlinkedAt: true,
-    },
-  })
-
-  if (!updated || !updated.unlinkedAt) {
-    throw new ApiError(500, 'Failed to unlink document')
-  }
-
-  return {
-    id: updated.id,
-    status: updated.status,
-    unlinkedAt: updated.unlinkedAt,
-  }
 }

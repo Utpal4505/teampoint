@@ -1,12 +1,12 @@
 export type DocumentFilter = 'ALL' | 'LINKED' | 'UNLINKED' | 'ARCHIVED'
 
-export type LinkEntityType = 'TASK' | 'DISCUSSION' | 'MILESTONE'
+export type LinkEntityType = 'TASK' | 'DISCUSSION' | 'MILESTONE' | 'MEETING'
 
 export interface DocumentLink {
   id: number
   entityType: LinkEntityType
   entityId: number
-  entityTitle: string
+  createdAt: string
 }
 
 export interface DocumentWithLinks {
