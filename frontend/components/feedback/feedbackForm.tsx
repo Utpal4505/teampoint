@@ -1,7 +1,13 @@
 'use client'
 
 import { useImperativeHandle, forwardRef, useState } from 'react'
-import { useForm, useWatch, Controller, UseFormRegister, FieldErrors } from 'react-hook-form'
+import {
+  useForm,
+  useWatch,
+  Controller,
+  UseFormRegister,
+  FieldErrors,
+} from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import {
@@ -18,7 +24,7 @@ import { Label, Textarea, FieldError } from './formElements'
 
 // ─── Types & Schema ──────────────────────────────────────────────────────────
 
-export type FeedbackType = 'general' | 'ui_ux' | 'performance' | 'feature_request'
+export type FeedbackType = 'GENERAL' | 'UI_UX' | 'PERFORMANCE' | 'FEATURE_REQUEST'
 
 export interface FeedbackFormData {
   type: FeedbackType
@@ -37,7 +43,7 @@ export interface FeedbackFormData {
 
 const feedbackSchema = z
   .object({
-    type: z.enum(['general', 'ui_ux', 'performance', 'feature_request']),
+    type: z.enum(['GENERAL', 'UI_UX', 'PERFORMANCE', 'FEATURE_REQUEST']),
     rating: z.number().min(0).max(5),
     message: z.string().optional(),
     problem: z.string().optional(),
@@ -47,17 +53,33 @@ const feedbackSchema = z
     slowArea: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.type === 'general' && !data.message?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Please share your feedback', path: ['message'] })
+    if (data.type === 'GENERAL' && !data.message?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please share your feedback',
+        path: ['message'],
+      })
     }
-    if (data.type === 'feature_request' && !data.problem?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Please describe the problem', path: ['problem'] })
+    if (data.type === 'FEATURE_REQUEST' && !data.problem?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please describe the problem',
+        path: ['problem'],
+      })
     }
-    if (data.type === 'ui_ux' && !data.confusion?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Please describe what felt confusing', path: ['confusion'] })
+    if (data.type === 'UI_UX' && !data.confusion?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please describe what felt confusing',
+        path: ['confusion'],
+      })
     }
-    if (data.type === 'performance' && !data.slowArea?.trim()) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Please describe where it felt slow', path: ['slowArea'] })
+    if (data.type === 'PERFORMANCE' && !data.slowArea?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Please describe where it felt slow',
+        path: ['slowArea'],
+      })
     }
   })
 
@@ -85,7 +107,7 @@ const TYPES: {
   border: string
 }[] = [
   {
-    id: 'general',
+    id: 'GENERAL',
     label: 'General',
     sub: 'Anything on your mind',
     icon: <MessageSquare size={15} />,
@@ -94,7 +116,7 @@ const TYPES: {
     border: 'border-sky-400/25',
   },
   {
-    id: 'ui_ux',
+    id: 'UI_UX',
     label: 'UI / UX',
     sub: 'Design & usability',
     icon: <Layout size={15} />,
@@ -103,7 +125,7 @@ const TYPES: {
     border: 'border-violet-400/25',
   },
   {
-    id: 'performance',
+    id: 'PERFORMANCE',
     label: 'Performance',
     sub: 'Speed & responsiveness',
     icon: <Gauge size={15} />,
@@ -112,7 +134,7 @@ const TYPES: {
     border: 'border-amber-400/25',
   },
   {
-    id: 'feature_request',
+    id: 'FEATURE_REQUEST',
     label: 'Feature Request',
     sub: 'Ideas & suggestions',
     icon: <Lightbulb size={15} />,
@@ -173,11 +195,12 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
         <div key={s} className="flex items-center gap-2">
           <div
             className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300
-            ${s === step
-              ? 'bg-foreground text-background'
-              : s < step
-              ? 'bg-primary/20 text-primary'
-              : 'bg-muted/40 text-muted-foreground/40'
+            ${
+              s === step
+                ? 'bg-foreground text-background'
+                : s < step
+                  ? 'bg-primary/20 text-primary'
+                  : 'bg-muted/40 text-muted-foreground/40'
             }`}
           >
             {s}
@@ -258,7 +281,10 @@ function UIUXFields({ register, errors }: DynamicFieldProps) {
             Optional
           </span>
         </div>
-        <Input placeholder="e.g. Dashboard, Settings, Onboarding…" {...register('page')} />
+        <Input
+          placeholder="e.g. Dashboard, Settings, Onboarding…"
+          {...register('page')}
+        />
       </div>
 
       <div>
@@ -347,11 +373,15 @@ const FeedbackForm = forwardRef<FeedbackFormHandle, FeedbackFormProps>(
                     hover:shadow-sm active:scale-[0.98]
                     ${type.border} ${type.bg} hover:border-opacity-50`}
                 >
-                  <div className={`${type.accent} transition-transform duration-150 group-hover:scale-110`}>
+                  <div
+                    className={`${type.accent} transition-transform duration-150 group-hover:scale-110`}
+                  >
                     {type.icon}
                   </div>
                   <div>
-                    <p className={`text-[13px] font-semibold ${type.accent}`}>{type.label}</p>
+                    <p className={`text-[13px] font-semibold ${type.accent}`}>
+                      {type.label}
+                    </p>
                     <p className="text-[11px] text-muted-foreground/60 leading-tight mt-0.5">
                       {type.sub}
                     </p>
@@ -388,7 +418,9 @@ const FeedbackForm = forwardRef<FeedbackFormHandle, FeedbackFormProps>(
                     ${selectedTypeMeta.border} ${selectedTypeMeta.bg}`}
                 >
                   <span className={selectedTypeMeta.accent}>{selectedTypeMeta.icon}</span>
-                  <span className={`text-[11px] font-semibold ${selectedTypeMeta.accent}`}>
+                  <span
+                    className={`text-[11px] font-semibold ${selectedTypeMeta.accent}`}
+                  >
                     {selectedTypeMeta.label}
                   </span>
                 </div>
@@ -424,7 +456,9 @@ const FeedbackForm = forwardRef<FeedbackFormHandle, FeedbackFormProps>(
                             : 'border-border bg-muted/20 text-muted-foreground/25 hover:border-border hover:bg-muted/50 hover:text-muted-foreground/50'
                         }`}
                       >
-                        <span className="block text-center text-base leading-none select-none">★</span>
+                        <span className="block text-center text-base leading-none select-none">
+                          ★
+                        </span>
                       </button>
                     ))}
                   </div>
@@ -445,16 +479,16 @@ const FeedbackForm = forwardRef<FeedbackFormHandle, FeedbackFormProps>(
             </div>
 
             {/* Dynamic fields */}
-            {selectedType === 'general' && (
+            {selectedType === 'GENERAL' && (
               <GeneralFields register={register} errors={errors} />
             )}
-            {selectedType === 'feature_request' && (
+            {selectedType === 'FEATURE_REQUEST' && (
               <FeatureRequestFields register={register} errors={errors} />
             )}
-            {selectedType === 'ui_ux' && (
+            {selectedType === 'UI_UX' && (
               <UIUXFields register={register} errors={errors} />
             )}
-            {selectedType === 'performance' && (
+            {selectedType === 'PERFORMANCE' && (
               <PerformanceFields register={register} errors={errors} />
             )}
 

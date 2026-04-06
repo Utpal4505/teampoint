@@ -1,15 +1,31 @@
 'use client'
 
+import { useParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { useUnsaved } from '@/components/settings/_components/useUnsaved'
-
-const INITIAL = {
-  name: 'TeamPoint',
-  description: 'Startup workspace for building and shipping fast.',
-}
+import { useFetchWorkspaceById } from '@/features/workspace/hooks'
 
 export default function WorkspaceGeneralPanel() {
-  const { values, set, dirty, saving, saved, discard, save } = useUnsaved(INITIAL)
+  const params = useParams()
+  const workspaceId = Number(params?.workspaceId)
+  const { data: workspace, isLoading } = useFetchWorkspaceById(workspaceId)
+
+  const initialValues = workspace
+    ? {
+        name: workspace.name,
+        description: workspace.description ?? '',
+      }
+    : { name: '', description: '' }
+
+  const { values, set, dirty, saving, saved, discard, save } = useUnsaved(initialValues)
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 size={20} className="animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col">

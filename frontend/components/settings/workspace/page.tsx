@@ -7,6 +7,8 @@ import SettingsRow from '@/components/settings/_components/settingsRow'
 import WorkspaceGeneralPanel from './panels/generalPanel'
 import WorkspaceDangerPanel from './panels/dangerPanel'
 import SettingsModal from '../_components/settingsModal'
+import { useFetchWorkspaceById } from '@/features/workspace/hooks'
+import { Loader2 } from 'lucide-react'
 
 type ModalType = 'general' | 'danger' | null
 
@@ -16,9 +18,19 @@ export default function WorkspaceSettingsPage() {
   const router = useRouter()
   const wsId = params.workspaceId as string
 
-  // TODO: replace with real workspace data from hook
-  const wsName = 'TeamPoint'
-  const wsDesc = 'Startup workspace for building and shipping fast.'
+  const workspaceId = Number(params?.workspaceId)
+  const { data: workspace, isLoading } = useFetchWorkspaceById(workspaceId)
+
+  const wsName = workspace?.name ?? ''
+  const wsDesc = workspace?.description ?? ''
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 size={20} className="animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -40,7 +52,7 @@ export default function WorkspaceSettingsPage() {
             description="Short description for your workspace"
             value={
               wsDesc ? (
-                <span className="max-w-[200px] truncate">{wsDesc}</span>
+                <span className="max-w-50 truncate">{wsDesc}</span>
               ) : (
                 <span className="text-muted-foreground/40 italic">Not set</span>
               )

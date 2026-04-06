@@ -1,6 +1,8 @@
 import { asyncHandler } from '../../utils/asyncHandler.ts'
 import { assertUser } from '../../utils/assertUser.ts'
 import { ApiResponse } from '../../utils/apiResponse.ts'
+import { ApiError } from '../../utils/apiError.ts'
+import { env } from '../../config/env.ts'
 import type { IntegrationProvider } from '../../types/integration.types.ts'
 import {
   listIntegrationsService,
@@ -33,11 +35,17 @@ export const initiateIntegrationController = asyncHandler(async (req, res) => {
 export const handleCallbackController = asyncHandler(async (req, res) => {
   const { code, state } = req.query as { code: string; state: string }
 
+  if (!code || !state) {
+    throw new ApiError(400, 'Missing authorization code or state')
+  }
+
   const result = await handleCallbackService(code, state)
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, 'Integration connected successfully', result))
+  const redirectUrl = new URL(`${env.CLIENT_URL}/settings/personal`)
+  redirectUrl.searchParams.append('integration', result.provider)
+  redirectUrl.searchParams.append('status', 'success')
+
+  return res.redirect(redirectUrl.toString())
 })
 
 export const getIntegrationStatusController = asyncHandler(async (req, res) => {

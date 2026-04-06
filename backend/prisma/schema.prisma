@@ -227,6 +227,8 @@ model User {
   integrations                  Integration[]
   meetingActionItems            MeetingActionItem[]     @relation("MeetingActionAssignedUser")
   bugReports                    BugReport[]
+  feedbacksSubmitted            Feedback[]              @relation("FeedbackSubmitter")
+  feedbacksReviewed             Feedback[]              @relation("FeedbackReviewer")
 }
 
 model AuthProvider {
@@ -375,6 +377,7 @@ model Project {
   milestones     Milestone[]
   activityLog    ActivityLog[]
   bugReports     BugReport[]
+  feedbacks      Feedback[]        @relation("ProjectFeedbacks")
 
   @@index([workspaceId, status])
 }
@@ -744,17 +747,17 @@ enum SeverityLevel {
 }
 
 model BugReport {
-  id         Int @id @default(autoincrement())
+  id         Int  @id @default(autoincrement())
   reportedBy Int?
 
-  projectId   Int?
-  page        String?
-  title       String  @db.VarChar(255)
-  description String?
-  consoleLog  String?
-  apiRoute    String?
-  attachments Json?
-  metadata    Json?
+  projectId       Int?
+  page            String?
+  title           String  @db.VarChar(255)
+  description     String?
+  consoleLog      String?
+  apiRoute        String?
+  attachments     Json?
+  metadata        Json?
   stepToReproduce String?
 
   fingerprint      String          @db.VarChar(255)
@@ -772,11 +775,63 @@ model BugReport {
   updatedAt  DateTime  @updatedAt
   resolvedAt DateTime?
 
-  reporter User?     @relation(fields: [reportedBy], references: [id])
+  reporter User?    @relation(fields: [reportedBy], references: [id])
   project  Project? @relation(fields: [projectId], references: [id])
 
   @@index([status])
   @@index([fingerprint])
   @@index([projectId])
   @@index([severityLevel])
+}
+
+enum FeedbackType {
+  GENERAL
+  UI_UX
+  PERFORMANCE
+  FEATURE_REQUEST
+}
+
+enum FeedbackStatus {
+  NEW
+  REVIEWED
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
+model Feedback {
+  id Int @id @default(autoincrement())
+
+  submittedBy Int?
+  projectId   Int?
+
+  type   FeedbackType
+  rating Int?         @db.SmallInt
+
+  message  String?
+  problem  String?
+  solution String?
+
+  page      String?
+  confusion String?
+
+  slowArea String?
+
+  status        FeedbackStatus @default(NEW)
+  reviewedAt    DateTime?
+  reviewedBy    Int?
+  internalNotes String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  submitter User?    @relation("FeedbackSubmitter", fields: [submittedBy], references: [id])
+  project   Project? @relation("ProjectFeedbacks", fields: [projectId], references: [id])
+  reviewer  User?    @relation("FeedbackReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([type, status])
+  @@index([projectId])
+  @@index([submittedBy])
+  @@index([createdAt])
 }

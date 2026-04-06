@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import { BugFormData, FeedbackFormData } from './types'
+import type { BugFormData } from './types'
+import type { FeedbackFormData } from '@/components/feedback/feedbackForm'
 import { collectMetadata } from '@/lib/feedback-metadata'
 import { clearConsoleErrors, getConsoleErrors } from '@/lib/feedback-consoleError'
 import { submitBugReport, submitFeedback } from './api'
@@ -61,8 +62,14 @@ export const useFeedback = ({ projectId, onSuccess }: UseFeedbackOptions = {}) =
     mutationFn: (formData: FeedbackFormData) =>
       submitFeedback({
         projectId,
+        type: formData.type,
         rating: formData.rating,
         message: formData.message,
+        problem: formData.problem,
+        solution: formData.solution,
+        page: formData.page,
+        confusion: formData.confusion,
+        slowArea: formData.slowArea,
       }),
     onSuccess: () => {
       toast.success('Feedback received', {

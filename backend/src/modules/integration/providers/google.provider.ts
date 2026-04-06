@@ -24,8 +24,8 @@ export class GoogleProvider extends BaseProvider {
   constructor() {
     super()
     this.client = new OAuth2Client(
-      env.GOOGLE_CLIENT_ID,
-      env.GOOGLE_CLIENT_SECRET,
+      env.GOOGLE_INTEGRATION_CLIENT_ID,
+      env.GOOGLE_INTEGRATION_CLIENT_SECRET,
       env.GOOGLE_INTEGRATION_CALLBACK_URL,
     )
   }

@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import type { Metadata } from '@/lib/feedback-metadata'
 
-
 // ─── Zod Schemas ──────────────────────────────────────────────────────────────
 
 export const bugSchema = z.object({
@@ -93,10 +92,29 @@ export interface BugReportResponse {
 
 export interface FeedbackPayload {
   projectId?: number
-  rating: number
-  message: string
+  type: 'GENERAL' | 'UI_UX' | 'PERFORMANCE' | 'FEATURE_REQUEST'
+  rating?: number
+  message?: string
+  problem?: string
+  solution?: string
+  page?: string
+  confusion?: string
+  slowArea?: string
 }
 
 export interface FeedbackResponse {
   id: number
+  submittedBy?: number | null
+  projectId?: number | null
+  type: string
+  rating?: number | null
+  message?: string | null
+  problem?: string | null
+  solution?: string | null
+  page?: string | null
+  confusion?: string | null
+  slowArea?: string | null
+  status: string
+  createdAt: string
+  updatedAt: string
 }

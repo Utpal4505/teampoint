@@ -37,6 +37,7 @@ import workspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.
 import integrationRouter from './modules/integration/integration.routes.ts'
 import meetingRouter from './modules/meeting/meeting.route.ts'
 import bugReportRouter from './modules/bug-report/bug-report.routes.ts'
+import feedbackRouter from './modules/feedback/feedback.routes.ts'
 
 import { env } from './config/env.ts'
 import { registerBugReportEvents } from './modules/bug-report/bug-report.events.ts'
@@ -72,6 +73,7 @@ app.use('/api/v1/auth', authLimiter, devAuthRouter)
 
 app.use('/api/v1/integrations', integrationLimiter, integrationRouter)
 app.use('/api/v1/bug-reports', bugReportRouter)
+app.use('/api/v1/feedback', feedbackRouter)
 
 app.use('/api/v1', hardAuth, restrictNewUserRoutes, apiLimiter)
 app.use('/api/v1/users', userRouter)
