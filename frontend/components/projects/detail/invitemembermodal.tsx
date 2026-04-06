@@ -44,9 +44,15 @@ const ROLES: {
 ]
 
 interface InviteMemberModalProps {
-  currentMembers: ProjectMember[]
+  currentMembers: Array<{
+    userId: number
+    fullName: string
+    role: string
+    joinedAt: string
+    status: string
+  }>
   onClose: () => void
-  onInvite?: (userId: number, role: InviteRole) => void
+  onInvite?: (email: string, role: InviteRole) => void
 }
 
 // ── Small inline role dropdown ────────────────────────────────
@@ -115,11 +121,10 @@ export default function InviteMemberModal({
   onInvite,
 }: InviteMemberModalProps) {
   const [search, setSearch] = useState('')
-  // selected: userId → role
   const [selected, setSelected] = useState<Record<number, InviteRole>>({})
 
   const currentIds = useMemo(
-    () => new Set(currentMembers.map(m => m.user.id)),
+    () => new Set(currentMembers.map(m => m.userId)),
     [currentMembers],
   )
 
@@ -148,7 +153,10 @@ export default function InviteMemberModal({
 
   function handleConfirm() {
     Object.entries(selected).forEach(([userId, role]) => {
-      onInvite?.(Number(userId), role)
+      const user = FAKE_WORKSPACE_MEMBERS.find(u => u.id === Number(userId))
+      if (user) {
+        onInvite?.(user.email, role)
+      }
     })
     onClose()
   }

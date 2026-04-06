@@ -38,10 +38,10 @@ export default function OwnerHeroCard({ member }: { member: MemberWithStats }) {
       <div className="flex items-center gap-6 px-6 py-5">
         {/* Avatar — larger */}
         <div className="relative shrink-0">
-          {member.user.avatarUrl ? (
+          {member.avatarUrl ? (
             <Image
-              src={member.user.avatarUrl}
-              alt={member.user.fullName}
+              src={member.avatarUrl}
+              alt={member.fullName}
               width={60}
               height={60}
               className="rounded-2xl object-cover ring-2 ring-amber-400/30"
@@ -52,7 +52,7 @@ export default function OwnerHeroCard({ member }: { member: MemberWithStats }) {
               bg-amber-400/15 text-[18px] font-bold text-amber-500
               ring-2 ring-amber-400/30"
             >
-              {getInitials(member.user.fullName)}
+              {getInitials(member.fullName)}
             </div>
           )}
           {/* Crown badge */}
@@ -69,7 +69,7 @@ export default function OwnerHeroCard({ member }: { member: MemberWithStats }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2.5 flex-wrap">
             <h3 className="text-[16px] font-bold text-foreground leading-tight">
-              {member.user.fullName}
+              {member.fullName}
             </h3>
             <span
               className="inline-flex items-center gap-1 rounded-full border
@@ -81,9 +81,11 @@ export default function OwnerHeroCard({ member }: { member: MemberWithStats }) {
           </div>
 
           <div className="flex items-center gap-4 mt-1.5 flex-wrap">
-            <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
-              <Mail size={10} /> {member.user.email}
-            </span>
+            {member.email && (
+              <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
+                <Mail size={10} /> {member.email}
+              </span>
+            )}
             <span className="flex items-center gap-1.5 text-[11px] text-muted-foreground/50">
               <CalendarDays size={10} /> Joined {joinedDate(member.joinedAt)}
             </span>

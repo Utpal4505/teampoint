@@ -26,6 +26,12 @@ export type ListDocumentItem = {
   isArchived: boolean
   createdAt: Date
   updatedAt: Date
+  links: Array<{
+    id: number
+    entityType: string
+    entityId: number
+    createdAt: Date
+  }>
 }[]
 
 export type GetSingleDocumentDTO = {

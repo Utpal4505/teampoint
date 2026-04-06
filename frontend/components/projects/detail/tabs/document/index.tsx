@@ -27,6 +27,8 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
   const deleteDocMutation = useDeleteDocument(projectId)
   const queryClient = useQueryClient()
 
+  console.log(docs)
+
   const [filter, setFilter] = useState<DocumentFilter>('ALL')
   const [uploadOpen, setUploadOpen] = useState(false)
   const [drawerDoc, setDrawerDoc] = useState<DocumentWithLinks | null>(null)
@@ -35,8 +37,8 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
   const counts = useMemo<Record<DocumentFilter, number>>(
     () => ({
       ALL: docs.length,
-      LINKED: docs.filter(d => d.links.length > 0).length,
-      UNLINKED: docs.filter(d => d.links.length === 0 && !d.isArchived).length,
+      LINKED: docs.filter(d => (d.links || []).length > 0).length,
+      UNLINKED: docs.filter(d => (d.links || []).length === 0 && !d.isArchived).length,
       ARCHIVED: docs.filter(d => d.isArchived).length,
     }),
     [docs],
@@ -45,9 +47,9 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
   const filtered = useMemo(() => {
     switch (filter) {
       case 'LINKED':
-        return docs.filter(d => d.links.length > 0)
+        return docs.filter(d => (d.links || []).length > 0)
       case 'UNLINKED':
-        return docs.filter(d => d.links.length === 0 && !d.isArchived)
+        return docs.filter(d => (d.links || []).length === 0 && !d.isArchived)
       case 'ARCHIVED':
         return docs.filter(d => d.isArchived)
       default:

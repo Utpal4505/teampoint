@@ -17,6 +17,8 @@ export type ListProjectMemberDTO = {
   projectId: number
   userId: number
   fullName: string
+  email: string
+  avatarUrl: string | null
   role: WorkspaceRole
   joinedAt: Date
   status: WorkspaceMemberStatus

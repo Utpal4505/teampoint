@@ -1,16 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { X, CalendarDays, Plus, Trash2, Users } from 'lucide-react'
+import { X, CalendarDays, Trash2, Users } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
-
-const FAKE_MEMBERS = [
-  { id: 1, name: 'Utpal Kumar' },
-  { id: 2, name: 'Rahul Sharma' },
-  { id: 3, name: 'Aman Verma' },
-  { id: 4, name: 'Neha Singh' },
-  { id: 5, name: 'Dev Patel' },
-]
 
 interface ParticipantEntry {
   userId: number
@@ -19,6 +11,7 @@ interface ParticipantEntry {
 }
 
 interface ScheduleMeetingModalProps {
+  members: Array<{ id: number; name: string }>
   onClose: () => void
   onSchedule: (data: {
     title: string
@@ -30,6 +23,7 @@ interface ScheduleMeetingModalProps {
 }
 
 export default function ScheduleMeetingModal({
+  members,
   onClose,
   onSchedule,
 }: ScheduleMeetingModalProps) {
@@ -38,9 +32,11 @@ export default function ScheduleMeetingModal({
   const [date, setDate] = useState('')
   const [startTime, setStartTime] = useState('10:00')
   const [endTime, setEndTime] = useState('11:00')
-  const [participants, setParticipants] = useState<ParticipantEntry[]>([
-    { userId: 1, name: 'Utpal Kumar', role: 'HOST' },
-  ])
+  const [participants, setParticipants] = useState<ParticipantEntry[]>(
+    members.length > 0
+      ? [{ userId: members[0].id, name: members[0].name, role: 'HOST' }]
+      : [],
+  )
 
   const canSubmit =
     title.trim().length > 0 &&
@@ -48,11 +44,10 @@ export default function ScheduleMeetingModal({
     startTime < endTime &&
     participants.length > 0
 
-  // Members not yet added
-  const available = FAKE_MEMBERS.filter(m => !participants.find(p => p.userId === m.id))
+  const available = members.filter(m => !participants.find(p => p.userId === m.id))
 
   function addParticipant(memberId: number) {
-    const member = FAKE_MEMBERS.find(m => m.id === memberId)
+    const member = members.find(m => m.id === memberId)
     if (!member) return
     setParticipants(prev => [
       ...prev,

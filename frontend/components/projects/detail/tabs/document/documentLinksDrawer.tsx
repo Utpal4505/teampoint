@@ -3,11 +3,11 @@
 import { useState, useMemo } from 'react'
 import { X, Plus, Trash2, Link2, Loader } from 'lucide-react'
 import type { DocumentWithLinks, LinkEntityType } from './documentsTab.types'
+import type { DocumentEntityType } from '@/features/projects/document/types'
 import DocumentLinkModal from './documentLinkModal'
 import {
   useCreateDocumentLink,
   useUnlinkDocument,
-  useDocumentLinks,
   useProjectMilestones,
   useProjectMeetings,
 } from '@/features/projects/document/hooks'
@@ -66,23 +66,21 @@ export default function DocumentLinksDrawer({
 }: DocumentLinksDrawerProps) {
   const [linkModalOpen, setLinkModalOpen] = useState(false)
 
-  const { data: links = [], isLoading: linksLoading } = useDocumentLinks(
-    projectId,
-    doc.id,
-  )
+  const links = useMemo(() => doc.links || [], [doc.links])
+  const linksLoading = false
 
   const { data: tasks = [] } = useProjectTasks(projectId)
   const { data: milestones = [] } = useProjectMilestones(projectId)
   const { data: meetings = [] } = useProjectMeetings(projectId)
 
-  const createLinkMutation = useCreateDocumentLink(projectId, doc.id)
-  const unlinkMutation = useUnlinkDocument(projectId, doc.id)
+  const createLinkMutation = useCreateDocumentLink(projectId)
+  const unlinkMutation = useUnlinkDocument(projectId)
 
   const grouped = useMemo(() => {
     return (links ?? []).reduce<Partial<Record<LinkEntityType, typeof links>>>(
-      (acc, l) => {
-        if (!acc[l.entityType]) acc[l.entityType] = []
-        acc[l.entityType]!.push(l)
+      (acc: Partial<Record<LinkEntityType, typeof links>>, l) => {
+        if (!acc[l.entityType as LinkEntityType]) acc[l.entityType as LinkEntityType] = []
+        acc[l.entityType as LinkEntityType]!.push(l)
         return acc
       },
       {},
@@ -115,7 +113,7 @@ export default function DocumentLinksDrawer({
 
       {/* Panel */}
       <div
-        className="fixed right-0 top-0 z-50 h-full w-[300px] border-l border-border
+        className="fixed right-0 top-0 z-50 h-full w-75 border-l border-border
         bg-background flex flex-col shadow-2xl"
       >
         {/* Header */}
@@ -173,7 +171,7 @@ export default function DocumentLinksDrawer({
                 <p className="text-[13px] font-medium text-muted-foreground/50">
                   No links yet
                 </p>
-                <p className="text-[11px] text-muted-foreground/35 mt-1 max-w-[180px] leading-relaxed">
+                <p className="text-[11px] text-muted-foreground/35 mt-1 max-w-45 leading-relaxed">
                   Link this document to tasks, discussions, or milestones.
                 </p>
               </div>
@@ -261,7 +259,7 @@ export default function DocumentLinksDrawer({
             try {
               await createLinkMutation.mutateAsync({
                 documentId: doc.id,
-                entityType,
+                entityType: entityType as DocumentEntityType,
                 entityId,
               })
               setLinkModalOpen(false)

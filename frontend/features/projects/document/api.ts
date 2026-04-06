@@ -69,16 +69,6 @@ export const deleteDocument = async (
   return data.data
 }
 
-export const getDocumentLinks = async (
-  projectId: number,
-  documentId: number,
-): Promise<DocumentLink[]> => {
-  const { data } = await api.get(
-    `/projects/${projectId}/documents/${documentId}/document-links`,
-  )
-  return data.data.data
-}
-
 export const createDocumentLink = async (
   projectId: number,
   input: CreateDocumentLinkInput,
@@ -137,13 +127,6 @@ interface MeetingResponse {
   id: number
   title: string
   dateTime?: string
-}
-
-interface TaskResponse {
-  id: number
-  title: string
-  status?: string
-  dueDate?: string
 }
 
 interface DiscussionResponse {

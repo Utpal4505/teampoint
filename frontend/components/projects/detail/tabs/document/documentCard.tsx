@@ -119,14 +119,14 @@ export default function DocumentCard({
   onOpen,
 }: DocumentCardProps) {
   const cfg = getFileCfg(doc.fileType)
-  const linkCount = doc.links.length
+  const linkCount = (doc.links || []).length
   const { Icon } = cfg
 
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null!)
   useOutsideClick(menuRef, () => setMenuOpen(false))
 
-  const grouped = doc.links.reduce<Record<string, number>>((acc, l) => {
+  const grouped = (doc.links || []).reduce<Record<string, number>>((acc, l) => {
     acc[l.entityType] = (acc[l.entityType] ?? 0) + 1
     return acc
   }, {})

@@ -1,25 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { UserPlus, Shield, Users, User } from 'lucide-react'
-import { FAKE_MEMBERS } from './fakeData'
 import OwnerHeroCard from './ownerHeroCard'
 import MemberRow from './memberRow'
-import type { ProjectMember } from '@/features/projects/detail/types'
+import type { ProjectRole } from '@/features/projects/detail/types'
 import type { MemberWithStats } from './memberTab.types'
 import InviteMemberModal from '../../invitemembermodal'
-
-function toProjectMember(m: MemberWithStats): ProjectMember {
-  return {
-    role: m.role,
-    joinedAt: m.joinedAt,
-    user: { id: m.user.id, fullName: m.user.fullName, avatarUrl: m.user.avatarUrl },
-  }
-}
+import {
+  useProjectMembers,
+  useUpdateProjectMember,
+  useRemoveProjectMember,
+  useAddProjectMember,
+} from '@/features/projects/detail/hooks'
+import { useParams } from 'next/navigation'
 
 export default function MembersTab() {
-  const [members, setMembers] = useState(FAKE_MEMBERS)
+  const params = useParams()
+  const projectId = Number(params.projectId)
   const [inviteOpen, setInviteOpen] = useState(false)
+
+  const { data: membersData = [] } = useProjectMembers(projectId)
+  const updateMemberMutation = useUpdateProjectMember(projectId)
+  const removeMemberMutation = useRemoveProjectMember(projectId)
+  const addMemberMutation = useAddProjectMember(projectId)
+
+  const members: MemberWithStats[] = useMemo(
+    () =>
+      membersData.map(m => ({
+        ...m,
+        id: m.userId,
+        taskTotal: 0,
+        taskDone: 0,
+      })),
+    [membersData],
+  )
 
   const owner = members.find(m => m.role === 'OWNER')
   const rest = members
@@ -32,12 +47,21 @@ export default function MembersTab() {
   const adminCount = members.filter(m => m.role === 'ADMIN').length
   const memberCount = members.filter(m => m.role === 'MEMBER').length
 
-  function handleChangeRole(id: number, role: 'ADMIN' | 'MEMBER') {
-    setMembers(prev => prev.map(m => (m.id === id ? { ...m, role } : m)))
+  const handleChangeRole = async (userId: number, newRole: ProjectRole) => {
+    await updateMemberMutation.mutateAsync({
+      userId,
+      role: newRole,
+      status: null,
+    })
   }
 
-  function handleRemove(id: number) {
-    setMembers(prev => prev.filter(m => m.id !== id))
+  const handleRemove = async (userId: number) => {
+    await removeMemberMutation.mutateAsync(userId)
+  }
+
+  const handleInvite = async (email: string, role?: string) => {
+    await addMemberMutation.mutateAsync({ email, role })
+    setInviteOpen(false)
   }
 
   return (
@@ -156,8 +180,11 @@ export default function MembersTab() {
                   isFirst={i === 0}
                   isLast={i === rest.length - 1}
                   onChangeRole={handleChangeRole}
-                  onRemove={handleRemove}
+                  onRemove={() => handleRemove(member.userId)}
                   onViewTasks={id => console.log('View tasks', id)}
+                  isLoading={
+                    updateMemberMutation.isPending || removeMemberMutation.isPending
+                  }
                 />
               ))}
             </div>
@@ -168,11 +195,16 @@ export default function MembersTab() {
       {/* ── Invite modal ──────────────────────────────────────── */}
       {inviteOpen && (
         <InviteMemberModal
-          currentMembers={members.map(toProjectMember)}
+          currentMembers={members.map(m => ({
+            userId: m.userId,
+            fullName: m.fullName,
+            role: m.role,
+            joinedAt: m.joinedAt,
+            status: m.status,
+          }))}
           onClose={() => setInviteOpen(false)}
-          onInvite={(userId, role) => {
-            console.log('Invite', userId, 'as', role)
-            setInviteOpen(false)
+          onInvite={(email, role) => {
+            handleInvite(email, role)
           }}
         />
       )}

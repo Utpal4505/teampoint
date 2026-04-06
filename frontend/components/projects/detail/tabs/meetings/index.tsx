@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import { CalendarDays, Clock } from 'lucide-react'
-import { FAKE_MEETINGS } from './fakeData'
+import { useParams } from 'next/navigation'
 import MeetingsFilterBar from './meetingsFilterBar'
 import MeetingCard from './meetingCard'
 import MeetingDetail from './meetingDetail'
@@ -10,14 +10,48 @@ import ScheduleMeetingModal from './scheduleMeetingModal'
 import CompleteMeetingModal from './completeMeetingModal'
 import CancelConfirmModal from './cancelConfirmModal'
 import type { Meeting, MeetingFilter } from './meetings.types'
+import {
+  useProjectMeetings,
+  useCreateMeeting,
+  useCompleteMeeting,
+  useCancelMeeting,
+  useProjectMembers,
+} from '@/features/projects/detail/hooks'
 
 export default function MeetingsTab() {
-  const [meetings, setMeetings] = useState<Meeting[]>(FAKE_MEETINGS)
+  const params = useParams()
+  const projectId = Number(params.projectId)
+
   const [filter, setFilter] = useState<MeetingFilter>('ALL')
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [completeTarget, setCompleteTarget] = useState<Meeting | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Meeting | null>(null)
+
+  const { data: meetingsData = [] } = useProjectMeetings(projectId)
+  const { data: membersData = [] } = useProjectMembers(projectId)
+  const createMeetingMutation = useCreateMeeting(projectId)
+  const completeMeetingMutation = useCompleteMeeting(projectId)
+  const cancelMeetingMutation = useCancelMeeting(projectId)
+
+  const meetings: Meeting[] = useMemo(
+    () =>
+      meetingsData.map(m => ({
+        id: m.id,
+        title: m.title,
+        description: null,
+        status: m.status,
+        startTime: m.startTime,
+        endTime: m.endTime,
+        meetingLink: m.meetingLink,
+        participantCount: m.participantCount,
+        participants: [],
+        keyDecisions: null,
+        actionItems: [],
+        createdAt: new Date().toISOString(),
+      })),
+    [meetingsData],
+  )
 
   // ── Derived ───────────────────────────────────────────────
   const counts = useMemo(
@@ -38,39 +72,43 @@ export default function MeetingsTab() {
   const selectedMeeting = meetings.find(m => m.id === selectedId) ?? null
 
   // ── Handlers ──────────────────────────────────────────────
-  function handleComplete(data: {
+  const handleComplete = async (data: {
     keyDecisions: string
     actionItems: { title: string; assignedTo: number; dueDate?: string }[]
-  }) {
+  }) => {
     if (!completeTarget) return
-    setMeetings(prev =>
-      prev.map(m =>
-        m.id === completeTarget.id
-          ? {
-              ...m,
-              status: 'COMPLETED',
-              keyDecisions: data.keyDecisions || null,
-              actionItems: data.actionItems.map((item, i) => ({
-                id: i + 1,
-                title: item.title,
-                assignedToName: `User ${item.assignedTo}`,
-                dueDate: item.dueDate ?? null,
-                taskId: i + 100,
-              })),
-            }
-          : m,
-      ),
-    )
+    await completeMeetingMutation.mutateAsync({
+      meetingId: completeTarget.id,
+      input: {
+        keyDecisions: data.keyDecisions || undefined,
+        actionItems: data.actionItems,
+      },
+    })
     setCompleteTarget(null)
   }
 
-  function handleCancel() {
+  const handleCancel = async () => {
     if (!cancelTarget) return
-    setMeetings(prev =>
-      prev.map(m => (m.id === cancelTarget.id ? { ...m, status: 'CANCELLED' } : m)),
-    )
+    await cancelMeetingMutation.mutateAsync(cancelTarget.id)
     setCancelTarget(null)
     if (selectedId === cancelTarget.id) setSelectedId(null)
+  }
+
+  const handleSchedule = async (data: {
+    title: string
+    description?: string
+    startTime: string
+    endTime: string
+    participants: Array<{ userId: number; role: 'HOST' | 'PARTICIPANT' }>
+  }) => {
+    await createMeetingMutation.mutateAsync({
+      title: data.title,
+      description: data.description,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      participants: data.participants,
+    })
+    setScheduleOpen(false)
   }
 
   // ── Detail view ───────────────────────────────────────────
@@ -191,30 +229,12 @@ export default function MeetingsTab() {
 
       {scheduleOpen && (
         <ScheduleMeetingModal
+          members={membersData.map(m => ({
+            id: m.userId,
+            name: m.fullName,
+          }))}
           onClose={() => setScheduleOpen(false)}
-          onSchedule={data => {
-            const newMeeting: Meeting = {
-              id: Date.now(),
-              title: data.title,
-              description: data.description || null,
-              status: 'SCHEDULED',
-              startTime: data.startTime,
-              endTime: data.endTime,
-              meetingLink: 'https://meet.google.com/new-abc-xyz',
-              participantCount: data.participants.length,
-              participants: data.participants.map(p => ({
-                userId: p.userId,
-                name: `User ${p.userId}`,
-                avatarUrl: null,
-                role: p.role,
-              })),
-              keyDecisions: null,
-              actionItems: [],
-              createdAt: new Date().toISOString(),
-            }
-            setMeetings(prev => [newMeeting, ...prev])
-            setScheduleOpen(false)
-          }}
+          onSchedule={handleSchedule}
         />
       )}
 

@@ -167,6 +167,8 @@ export const listProjectMembersService = async (
       user: {
         select: {
           fullName: true,
+          email: true,
+          avatarUrl: true,
         },
       },
     },
@@ -179,6 +181,8 @@ export const listProjectMembersService = async (
     projectId: member.projectId,
     userId: member.userId,
     fullName: member.user.fullName,
+    email: member.user.email,
+    avatarUrl: member.user.avatarUrl,
     role: member.role,
     joinedAt: member.joinedAt,
     status: member.status,

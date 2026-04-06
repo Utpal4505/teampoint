@@ -4,7 +4,7 @@ import { WorkspaceMemberStatus } from '../../generated/prisma/enums.ts'
 export const PROJECT_MEMBER_ROLES = ['OWNER', 'ADMIN', 'MEMBER'] as const
 export type ProjectMemberRole = (typeof PROJECT_MEMBER_ROLES)[number]
 
-const idParam = z.number().int().positive().transform(Number)
+const idParam = z.coerce.number().int().positive().transform(Number)
 
 export const projectIdParamSchema = z.object({ projectId: idParam })
 export const projectIdAndUserIdParamSchema = z.object({

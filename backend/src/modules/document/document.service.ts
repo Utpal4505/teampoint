@@ -107,6 +107,17 @@ export const listDocumentsService = async (
       isArchived: true,
       createdAt: true,
       updatedAt: true,
+      links: {
+        where: {
+          status: 'LINKED',
+        },
+        select: {
+          id: true,
+          entityType: true,
+          entityId: true,
+          createdAt: true,
+        },
+      },
     },
   })
 
@@ -120,6 +131,12 @@ export const listDocumentsService = async (
     title: doc.title,
     updatedAt: doc.updatedAt,
     uploadedBy: doc.uploadedBy,
+    links: (doc.links || []).map(link => ({
+      id: link.id,
+      entityId: link.entityId,
+      entityType: link.entityType,
+      createdAt: link.createdAt,
+    })),
   }))
 }
 

@@ -5,7 +5,6 @@ import {
   createDocument,
   updateDocument,
   deleteDocument,
-  getDocumentLinks,
   createDocumentLink,
   getEntityDocuments,
   unlinkDocument,
@@ -26,10 +25,6 @@ const documentKeys = {
   detail: (projectId: number, documentId: number) => [
     ...documentKeys.byProject(projectId),
     documentId,
-  ],
-  links: (projectId: number, documentId: number) => [
-    ...documentKeys.detail(projectId, documentId),
-    'links',
   ],
   entityDocuments: (projectId: number, entityType: string, entityId: number) => [
     ...documentKeys.all,
@@ -53,15 +48,6 @@ export const useDocument = (projectId: number | null, documentId: number | null)
   return useQuery({
     queryKey: documentKeys.detail(projectId || 0, documentId || 0),
     queryFn: () => getDocument(projectId!, documentId!),
-    enabled: projectId !== null && documentId !== null,
-    staleTime: 5 * 60 * 1000,
-  })
-}
-
-export const useDocumentLinks = (projectId: number | null, documentId: number | null) => {
-  return useQuery({
-    queryKey: documentKeys.links(projectId || 0, documentId || 0),
-    queryFn: () => getDocumentLinks(projectId!, documentId!),
     enabled: projectId !== null && documentId !== null,
     staleTime: 5 * 60 * 1000,
   })
@@ -128,33 +114,27 @@ export const useDeleteDocument = (projectId: number) => {
   })
 }
 
-export const useCreateDocumentLink = (projectId: number, documentId: number) => {
+export const useCreateDocumentLink = (projectId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (input: CreateDocumentLinkInput) => createDocumentLink(projectId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: documentKeys.detail(projectId, documentId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.links(projectId, documentId),
+        queryKey: documentKeys.byProject(projectId),
       })
     },
   })
 }
 
-export const useUnlinkDocument = (projectId: number, documentId: number) => {
+export const useUnlinkDocument = (projectId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (linkId: number) => unlinkDocument(projectId, linkId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: documentKeys.detail(projectId, documentId),
-      })
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.links(projectId, documentId),
+        queryKey: documentKeys.byProject(projectId),
       })
     },
   })

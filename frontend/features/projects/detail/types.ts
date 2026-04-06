@@ -1,17 +1,27 @@
 import { WorkspaceRole } from '@/features/workspace/types'
 
-// ── Project Detail ─────────────────────────────────────────
 export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
+export type MemberStatus = 'ACTIVE' | 'INVITED' | 'REMOVED' | 'LEFT' | 'BLOCKED'
 
 export interface ProjectMember {
+  userId: number
+  fullName: string
   role: ProjectRole
   joinedAt: string
-  user: {
-    id: number
-    fullName: string
-    avatarUrl: string | null
-  }
+  status: MemberStatus
+  projectId?: number
+}
+
+export interface ProjectMemberDTO {
+  projectId: number
+  userId: number
+  fullName: string
+  email?: string
+  avatarUrl?: string | null
+  role: ProjectRole
+  joinedAt: string
+  status: MemberStatus
 }
 
 export interface ProjectDetail {
@@ -25,7 +35,6 @@ export interface ProjectDetail {
   createdAt: string
 }
 
-// ── Project Tasks ──────────────────────────────────────────
 export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
 export type TaskPriority = 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW'
 export type TaskType = 'PERSONAL' | 'PROJECT'
@@ -47,7 +56,6 @@ export interface ProjectTask {
   } | null
 }
 
-// ── Documents ─────────────────────────────────────────────
 export interface ProjectDocument {
   id: number
   title: string
@@ -60,7 +68,6 @@ export interface ProjectDocument {
   updatedAt: string
 }
 
-// ── Overview Stats ────────────────────────────────────────
 export interface ProjectStats {
   totalTasks: number
   todoTasks: number
@@ -73,6 +80,51 @@ export interface ProjectStats {
 export interface UpdateProjectMemberRoleInput {
   projectId: number
   userId: number
-  role: WorkspaceRole | null
-  status: 'ACTIVE' | 'INVITED' | 'REMOVED' | 'LEFT' | 'BLOCKED' | null
+  role: ProjectRole | null
+  status: MemberStatus | null
+}
+
+export type MeetingStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+export type MeetingRole = 'HOST' | 'PARTICIPANT'
+
+export interface MeetingParticipant {
+  userId: number
+  name: string
+  role: MeetingRole
+}
+
+export interface MeetingListItem {
+  id: number
+  title: string
+  status: MeetingStatus
+  startTime: string
+  endTime: string
+  meetingLink: string
+  participantCount: number
+}
+
+export interface ProjectMeeting extends MeetingListItem {
+  projectId: number
+  description: string | null
+  createdAt: string
+}
+
+export interface CreateMeetingInput {
+  title: string
+  description?: string
+  startTime: string | Date
+  endTime: string | Date
+  participants: Array<{
+    userId: number
+    role: MeetingRole
+  }>
+}
+
+export interface CompleteMeetingInput {
+  keyDecisions?: string
+  actionItems?: Array<{
+    title: string
+    assignedTo: number
+    dueDate?: string
+  }>
 }

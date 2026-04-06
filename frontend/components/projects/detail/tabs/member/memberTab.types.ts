@@ -1,17 +1,7 @@
-export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
+import type { ProjectMemberDTO } from '@/features/projects/detail/types'
 
-export interface MemberUser {
+export type MemberWithStats = ProjectMemberDTO & {
   id: number
-  fullName: string
-  email: string
-  avatarUrl: string | null
-}
-
-export interface MemberWithStats {
-  id: number
-  user: MemberUser
-  role: ProjectRole
-  joinedAt: string
   taskTotal: number
   taskDone: number
 }

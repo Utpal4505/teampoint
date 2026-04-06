@@ -9,8 +9,20 @@ import {
   updateProjectMember,
   removeProjectMember,
   exitProject,
+  getProjectMeetings,
+  createMeeting,
+  getMeeting,
+  updateMeeting,
+  completeMeeting,
+  cancelMeeting,
 } from './api'
-import { ProjectTask, TaskStatus, UpdateProjectMemberRoleInput } from './types'
+import type {
+  ProjectTask,
+  TaskStatus,
+  MeetingListItem,
+  CreateMeetingInput,
+  CompleteMeetingInput,
+} from './types'
 import { handleApiError } from '@/lib/handle-api-error'
 
 const projectKeys = {
@@ -18,6 +30,7 @@ const projectKeys = {
   tasks: (id: number) => ['project', id, 'tasks'] as const,
   documents: (id: number) => ['project', id, 'documents'] as const,
   members: (id: number) => ['project', id, 'members'] as const,
+  meetings: (id: number) => ['project', id, 'meetings'] as const,
 }
 
 export const useProjectDetail = (projectId: number) =>
@@ -101,11 +114,22 @@ export const useUpdateProjectMember = (projectId: number) => {
   return useMutation({
     mutationFn: ({
       userId,
-      input,
+      role,
+      status,
     }: {
       userId: number
-      input: UpdateProjectMemberRoleInput
-    }) => updateProjectMember(projectId, userId, input),
+      role?: string | null
+      status?: string | null
+    }) => {
+      const input: {
+        role?: string | null
+        status?: string | null
+      } = {}
+      if (role !== undefined) input.role = role
+      if (status !== undefined) input.status = status
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return updateProjectMember(projectId, userId, input as any)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
     },
@@ -136,8 +160,90 @@ export const useExitProject = () => {
     mutationFn: (projectId: number) => exitProject(projectId),
     onSuccess: (data, projectId) => {
       queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })
-      // Also invalidate the projects list since user is no longer a member
       queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useProjectMeetings = (projectId: number) =>
+  useQuery({
+    queryKey: projectKeys.meetings(projectId),
+    queryFn: () => getProjectMeetings(projectId),
+    enabled: !!projectId,
+    staleTime: 1000 * 60 * 2,
+  })
+
+export const useCreateMeeting = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (input: CreateMeetingInput) => createMeeting(projectId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.meetings(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useGetMeeting = (projectId: number, meetingId: number) =>
+  useQuery({
+    queryKey: ['meeting', meetingId],
+    queryFn: () => getMeeting(projectId, meetingId),
+    enabled: !!projectId && !!meetingId,
+  })
+
+export const useUpdateMeeting = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      meetingId,
+      input,
+    }: {
+      meetingId: number
+      input: Partial<CreateMeetingInput>
+    }) => updateMeeting(projectId, meetingId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.meetings(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useCompleteMeeting = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      meetingId,
+      input,
+    }: {
+      meetingId: number
+      input: CompleteMeetingInput
+    }) => completeMeeting(projectId, meetingId, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.meetings(projectId) })
+    },
+    onError: error => {
+      handleApiError(error)
+    },
+  })
+}
+
+export const useCancelMeeting = (projectId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (meetingId: number) => cancelMeeting(projectId, meetingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.meetings(projectId) })
     },
     onError: error => {
       handleApiError(error)

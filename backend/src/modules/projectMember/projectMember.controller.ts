@@ -18,6 +18,7 @@ import {
 } from './projectMember.service.ts'
 import type { UpdateProjectMemberRoleInput } from '../../types/projectMember.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import type { WorkspaceMemberStatus } from '../../generated/prisma/enums.ts'
 
 export const addProjectMemberController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -70,7 +71,7 @@ export const updateProjectMemberController = asyncHandler(async (req, res) => {
     projectId,
     userId,
     role,
-    status,
+    status: status as WorkspaceMemberStatus | null | undefined,
   }
 
   const updatedMember = await updateProjectMemberService(input)

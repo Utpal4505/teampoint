@@ -14,7 +14,6 @@ import {
 import {
   useProjectMilestones,
   useProjectMeetings,
-  useDocumentLinks,
 } from '@/features/projects/document/hooks'
 import type { DocumentWithLinks } from './documentsTab.types'
 import { useProjectTasks } from '@/features/projects/detail/hooks'
@@ -87,7 +86,6 @@ export default function DocumentLinkModal({
   const tasksQuery = useProjectTasks(projectId)
   const milestonesQuery = useProjectMilestones(projectId)
   const meetingsQuery = useProjectMeetings(projectId)
-  const { data: existingLinks = [] } = useDocumentLinks(projectId, doc.id)
 
   // Get entities for current type
   const getEntities = () => {
@@ -118,7 +116,7 @@ export default function DocumentLinkModal({
 
   // Already linked entity IDs for this type — prevent duplicates
   const alreadyLinked = new Set(
-    existingLinks.filter(l => l.entityType === entityType).map(l => l.entityId),
+    (doc.links || []).filter(l => l.entityType === entityType).map(l => l.entityId),
   )
 
   const entities = getEntities()
@@ -146,7 +144,7 @@ export default function DocumentLinkModal({
 
       <div
         className="fixed left-1/2 top-1/2 z-60 -translate-x-1/2 -translate-y-1/2
-        w-full max-w-[420px] rounded-2xl border border-border bg-background
+        w-full max-w-105 rounded-2xl border border-border bg-background
         shadow-2xl shadow-black/30 overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header */}
@@ -157,7 +155,7 @@ export default function DocumentLinkModal({
             </div>
             <div>
               <h2 className="text-sm font-semibold text-foreground">Link to Entity</h2>
-              <p className="text-[10px] text-muted-foreground/50 truncate max-w-[220px]">
+              <p className="text-[10px] text-muted-foreground/50 truncate max-w-55">
                 {doc.title}
               </p>
             </div>
@@ -218,7 +216,7 @@ export default function DocumentLinkModal({
           </div>
 
           {/* Entity list */}
-          <div className="flex flex-col gap-1.5 max-h-[240px] overflow-y-auto">
+          <div className="flex flex-col gap-1.5 max-h-60 overflow-y-auto">
             {isLoadingEntities ? (
               <div className="flex items-center justify-center py-8">
                 <p className="text-[12px] text-muted-foreground/40">
@@ -235,7 +233,15 @@ export default function DocumentLinkModal({
               filtered.map(entity => {
                 const isSelected = selected === entity.id
                 const isLinked = alreadyLinked.has(entity.id)
-                const meta = entity.status || entity.date
+                const meta = (
+                  'status' in entity
+                    ? entity.status
+                    : 'date' in entity
+                      ? entity.date
+                      : 'dateTime' in entity
+                        ? entity.dateTime
+                        : undefined
+                ) as string | undefined
 
                 return (
                   <button

@@ -52,6 +52,7 @@ interface MemberRowProps {
   onChangeRole: (id: number, role: 'ADMIN' | 'MEMBER') => void
   onRemove: (id: number) => void
   onViewTasks: (id: number) => void
+  isLoading?: boolean
 }
 
 export default function MemberRow({
@@ -61,6 +62,7 @@ export default function MemberRow({
   onChangeRole,
   onRemove,
   onViewTasks,
+  isLoading = false,
 }: MemberRowProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [roleSubOpen, setRoleSubOpen] = useState(false)
@@ -86,10 +88,10 @@ export default function MemberRow({
     >
       {/* Avatar — smaller */}
       <div className="shrink-0">
-        {member.user.avatarUrl ? (
+        {member.avatarUrl ? (
           <Image
-            src={member.user.avatarUrl}
-            alt={member.user.fullName}
+            src={member.avatarUrl}
+            alt={member.fullName}
             width={36}
             height={36}
             className="rounded-xl object-cover ring-1 ring-border/40"
@@ -100,7 +102,7 @@ export default function MemberRow({
             text-[11px] font-bold ring-1 ring-border/40
             ${role === 'ADMIN' ? 'bg-blue-400/10 text-blue-400' : 'bg-primary/10 text-primary'}`}
           >
-            {getInitials(member.user.fullName)}
+            {getInitials(member.fullName)}
           </div>
         )}
       </div>
@@ -108,10 +110,10 @@ export default function MemberRow({
       {/* Name + email */}
       <div className="min-w-0">
         <p className="text-[13px] font-semibold text-foreground truncate leading-tight">
-          {member.user.fullName}
+          {member.fullName}
         </p>
         <p className="text-[10px] text-muted-foreground/45 truncate mt-0.5">
-          {member.user.email}
+          {member.email}
         </p>
       </div>
 
