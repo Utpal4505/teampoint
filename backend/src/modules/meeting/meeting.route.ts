@@ -5,6 +5,7 @@ import {
   CreateMeetingSchema,
   UpdateMeetingSchema,
   ListMeetingsQuerySchema,
+  ListWorkspaceMeetingsQuerySchema,
   MeetingIdParamSchema,
   GetParticipantsQuerySchema,
   ManageParticipantsSchema,
@@ -13,6 +14,7 @@ import {
 import {
   createMeetingController,
   listMeetingsController,
+  listWorkspaceMeetingsController,
   getMeetingController,
   updateMeetingController,
   getParticipantsController,
@@ -67,6 +69,15 @@ router.post(
   '/:meetingId/cancel',
   validateRequest(MeetingIdParamSchema, 'params'),
   cancelMeetingController,
+)
+
+// Export workspace-specific router
+export const workspaceMeetingRouter = Router({ mergeParams: true })
+workspaceMeetingRouter.use(hardAuth)
+workspaceMeetingRouter.get(
+  '/',
+  validateRequest(ListWorkspaceMeetingsQuerySchema, 'query'),
+  listWorkspaceMeetingsController,
 )
 
 export default router

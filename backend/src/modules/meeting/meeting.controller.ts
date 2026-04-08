@@ -4,6 +4,7 @@ import { ApiResponse } from '../../utils/apiResponse.ts'
 import type {
   CreateMeetingServiceInput,
   ListMeetingsServiceQuery,
+  ListWorkspaceMeetingsQuery,
   ManageParticipantsInput,
   CompleteMeetingInput,
   CancelMeetingInput,
@@ -19,6 +20,7 @@ import {
   manageParticipantsService,
   completeMeetingService,
   cancelMeetingService,
+  listWorkspaceMeetingsService,
 } from './meeting.service.ts'
 
 export const createMeetingController = asyncHandler(async (req, res) => {
@@ -49,6 +51,20 @@ export const listMeetingsController = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, 'Meetings fetched successfully', result))
+})
+
+export const listWorkspaceMeetingsController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const workspaceId = Number(req.params.workspaceId)
+  const query: ListWorkspaceMeetingsQuery =
+    req.query as unknown as ListWorkspaceMeetingsQuery
+
+  const result = await listWorkspaceMeetingsService(workspaceId, req.user.id, query)
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Workspace meetings fetched successfully', result))
 })
 
 export const getMeetingController = asyncHandler(async (req, res) => {

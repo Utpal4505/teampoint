@@ -15,7 +15,13 @@ export const useInitiateIntegration = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (provider: IntegrationProvider) => initiateIntegration(provider),
+    mutationFn: ({
+      provider,
+      workspaceId,
+    }: {
+      provider: IntegrationProvider
+      workspaceId: number
+    }) => initiateIntegration(provider, workspaceId),
     onSuccess: data => {
       if (data.authorizationUrl) {
         window.location.href = data.authorizationUrl

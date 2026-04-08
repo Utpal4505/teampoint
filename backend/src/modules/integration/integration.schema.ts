@@ -18,6 +18,7 @@ export const OAuthCallbackQuerySchema = z.object({
 export const OAuthCallbackResponseSchema = z.object({
   provider: IntegrationProviderSchema,
   status: z.literal('CONNECTED'),
+  workspaceId: z.number().int(),
 })
 
 export const IntegrationStatusSchema = z.enum(['CONNECTED', 'DISCONNECTED', 'EXPIRED'])

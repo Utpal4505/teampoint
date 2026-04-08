@@ -35,7 +35,7 @@ import goalRouter from './modules/goal/goal.route.ts'
 import milestoneRouter from './modules/milestone/milestone.route.ts'
 import workspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.ts'
 import integrationRouter from './modules/integration/integration.routes.ts'
-import meetingRouter from './modules/meeting/meeting.route.ts'
+import meetingRouter, { workspaceMeetingRouter } from './modules/meeting/meeting.route.ts'
 import bugReportRouter from './modules/bug-report/bug-report.routes.ts'
 import feedbackRouter from './modules/feedback/feedback.routes.ts'
 
@@ -88,6 +88,7 @@ app.use('/api/v1/projects/tasks', taskRouter)
 app.use('/api/v1/projects', projectRouter)
 app.use('/api/v1/projects', projectMemberRouter)
 
+app.use('/api/v1/workspaces/:workspaceId/meetings', workspaceMeetingRouter)
 app.use('/api/v1/workspaces/:workspaceId/leave-requests', workspaceLeaveRouter)
 app.use('/api/v1/workspaces', workspaceRouter)
 app.use('/api/v1/workspaces', workspaceInviteRouter)

@@ -1,14 +1,14 @@
 'use client'
 
-import { useParams } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { useUnsaved } from '@/components/settings/_components/useUnsaved'
-import { useFetchWorkspaceById } from '@/features/workspace/hooks'
+import { useFetchWorkspaceById, useUpdateWorkspace } from '@/features/workspace/hooks'
+import { useWorkspaceId } from '@/hooks/useworkspaceid'
 
 export default function WorkspaceGeneralPanel() {
-  const params = useParams()
-  const workspaceId = Number(params?.workspaceId)
+  const workspaceId = useWorkspaceId()
   const { data: workspace, isLoading } = useFetchWorkspaceById(workspaceId)
+  const updateWorkspace = useUpdateWorkspace()
 
   const initialValues = workspace
     ? {
@@ -82,7 +82,11 @@ export default function WorkspaceGeneralPanel() {
         <button
           onClick={() =>
             save(async () => {
-              await new Promise(r => setTimeout(r, 800))
+              await updateWorkspace.mutateAsync({
+                workspaceId,
+                name: values.name,
+                description: values.description,
+              })
             })
           }
           disabled={!dirty || saving}

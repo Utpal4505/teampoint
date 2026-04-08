@@ -38,3 +38,14 @@ export const createWorkspace = async (name: string, description?: string) => {
   return data.data
 }
 
+export const updateWorkspace = async (
+  workspaceId: number,
+  { name, description }: { name: string; description?: string },
+) => {
+  const { data } = await api.patch(`/workspaces/${workspaceId}`, {
+    name,
+    description,
+  })
+
+  return data.data
+}

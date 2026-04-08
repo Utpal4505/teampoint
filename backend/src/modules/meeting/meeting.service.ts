@@ -23,6 +23,7 @@ import type {
   CancelMeetingResponse,
   CreateMeetingServiceInput,
   ListMeetingsServiceQuery,
+  ListWorkspaceMeetingsQuery,
 } from '../../types/meeting.type.ts'
 
 export const createMeetingService = async (
@@ -109,11 +110,11 @@ export const listMeetingsService = async (
 ): Promise<ListMeetingsResponse> => {
   const { projectId, status, from, to } = query
 
-  await assertProjectMember(projectId, userId)
+  await assertProjectMember(Number(projectId), userId)
 
   const meetings = await prisma.meeting.findMany({
     where: {
-      projectId,
+      projectId: Number(projectId),
       ...(status && { status }),
       ...(from && { startTime: { gte: from } }),
       ...(to && { startTime: { lte: to } }),
@@ -126,6 +127,19 @@ export const listMeetingsService = async (
       endTime: true,
       meetingLink: true,
       _count: { select: { participants: true } },
+      participants: {
+        where: { userId },
+        select: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              avatarUrl: true,
+            },
+          },
+          role: true,
+        },
+      },
     },
     orderBy: { startTime: 'asc' },
   })
@@ -139,6 +153,12 @@ export const listMeetingsService = async (
       endTime: m.endTime,
       meetingLink: m.meetingLink,
       participantCount: m._count.participants,
+      participants: m.participants.map(p => ({
+        userId: p.user.id,
+        name: p.user.fullName,
+        avatarUrl: p.user.avatarUrl,
+        role: p.role,
+      })),
     })),
   }
 }
@@ -422,6 +442,59 @@ export const cancelMeetingService = async (
       cancelledAt: cancelled.cancelledAt!,
     }
   })
+}
+
+export const listWorkspaceMeetingsService = async (
+  workspaceId: number,
+  userId: number,
+  query?: ListWorkspaceMeetingsQuery,
+): Promise<ListMeetingsResponse> => {
+  const projects = await prisma.project.findMany({
+    where: { workspaceId },
+    select: { id: true },
+  })
+
+  const projectIds = projects.map(p => p.id)
+
+  if (projectIds.length === 0) {
+    return { data: [] }
+  }
+
+  const meetings = await prisma.meeting.findMany({
+    where: {
+      projectId: { in: projectIds },
+      ...(query?.status && { status: query.status }),
+      ...(query?.from && { startTime: { gte: query.from } }),
+      ...(query?.to && { startTime: { lte: query.to } }),
+      participants: {
+        some: { userId },
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      startTime: true,
+      endTime: true,
+      meetingLink: true,
+      projectId: true,
+      _count: { select: { participants: true } },
+    },
+    orderBy: { startTime: 'asc' },
+  })
+
+  return {
+    data: meetings.map(m => ({
+      id: m.id,
+      title: m.title,
+      status: m.status,
+      startTime: m.startTime,
+      endTime: m.endTime,
+      meetingLink: m.meetingLink,
+      projectId: m.projectId,
+      participantCount: m._count.participants,
+    })),
+  }
 }
 
 const assertCanManageMeeting = async (

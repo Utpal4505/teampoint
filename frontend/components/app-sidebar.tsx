@@ -15,7 +15,12 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from '@/components/ui/sidebar'
-import { CheckSquareIcon, LayoutDashboardIcon, MessageSquareIcon } from 'lucide-react'
+import {
+  CheckSquareIcon,
+  LayoutDashboardIcon,
+  MessageSquareIcon,
+  Video,
+} from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
@@ -46,6 +51,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: 'My Tasks',
       url: `/workspace/${activeWorkspaceId}/tasks`,
       icon: <CheckSquareIcon />,
+    },
+    {
+      title: 'Meetings',
+      url: `/workspace/${activeWorkspaceId}/meetings`,
+      icon: <Video />,
     },
   ]
 

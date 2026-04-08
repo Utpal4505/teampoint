@@ -29,6 +29,7 @@ export type IntegrationDisconnectResponse = z.infer<
 
 export interface OAuthState {
   userId: number
+  workspaceId: number
   provider: IntegrationProvider
   nonce: string
 }
@@ -78,5 +79,5 @@ export interface IntegrationProviderAdapter {
   exchangeCodeForToken(code: string): Promise<ProviderTokens>
   fetchProfile(accessToken: string): Promise<BaseProviderProfile>
   refreshAccessToken(refreshToken: string): Promise<RefreshedTokens>
-  revokeTokens?(accessToken: string): Promise<void> 
+  revokeTokens?(accessToken: string): Promise<void>
 }

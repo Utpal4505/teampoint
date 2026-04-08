@@ -4,6 +4,7 @@ import {
   fetchUserWorkspaces,
   fetchWorkspaceById,
   sendWorkspaceInvite,
+  updateWorkspace,
 } from './api'
 
 export const useSendWorkspaceInvite = () => {
@@ -39,6 +40,27 @@ export const useCreateWorkspace = () => {
     mutationFn: (payload: { name: string; description?: string }) =>
       createWorkspace(payload.name, payload.description),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+    },
+  })
+}
+
+export const useUpdateWorkspace = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      workspaceId,
+      name,
+      description,
+    }: {
+      workspaceId: number
+      name: string
+      description?: string
+    }) => updateWorkspace(workspaceId, { name, description }),
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ['workspace', 'detail', variables.workspaceId],
+      })
       queryClient.invalidateQueries({ queryKey: ['workspaces'] })
     },
   })

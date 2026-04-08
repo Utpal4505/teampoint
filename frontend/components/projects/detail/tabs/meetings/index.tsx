@@ -45,7 +45,12 @@ export default function MeetingsTab() {
         endTime: m.endTime,
         meetingLink: m.meetingLink,
         participantCount: m.participantCount,
-        participants: [],
+        participants: m.participants.map(p => ({
+          userId: p.userId,
+          name: p.name,
+          avatarUrl: p.avatarUrl,
+          role: p.role,
+        })),
         keyDecisions: null,
         actionItems: [],
         createdAt: new Date().toISOString(),
@@ -80,6 +85,7 @@ export default function MeetingsTab() {
     await completeMeetingMutation.mutateAsync({
       meetingId: completeTarget.id,
       input: {
+        meetingId: completeTarget.id,
         keyDecisions: data.keyDecisions || undefined,
         actionItems: data.actionItems,
       },

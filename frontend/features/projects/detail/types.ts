@@ -90,6 +90,7 @@ export type MeetingRole = 'HOST' | 'PARTICIPANT'
 export interface MeetingParticipant {
   userId: number
   name: string
+  avatarUrl: string | null
   role: MeetingRole
 }
 
@@ -101,6 +102,7 @@ export interface MeetingListItem {
   endTime: string
   meetingLink: string
   participantCount: number
+  participants: MeetingParticipant[]
 }
 
 export interface ProjectMeeting extends MeetingListItem {
@@ -121,6 +123,7 @@ export interface CreateMeetingInput {
 }
 
 export interface CompleteMeetingInput {
+  meetingId: number
   keyDecisions?: string
   actionItems?: Array<{
     title: string

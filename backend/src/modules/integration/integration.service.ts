@@ -52,6 +52,7 @@ export const listIntegrationsService = async (
 export const initiateIntegrationService = async (
   userId: number,
   provider: IntegrationProvider,
+  workspaceId: number,
 ): Promise<IntegrationConnectResponse> => {
   const existing = await prisma.integration.findUnique({
     where: { userId_provider: { userId, provider } },
@@ -61,10 +62,19 @@ export const initiateIntegrationService = async (
     throw new ApiError(409, `${provider} integration is already connected`)
   }
 
+  const membership = await prisma.workspace_Members.findUnique({
+    where: { workspaceId_userId: { workspaceId, userId } },
+  })
+
+  if (!membership || membership.status !== 'ACTIVE') {
+    throw new ApiError(403, 'User is not an active member of this workspace')
+  }
+
   const adapter = getProvider(provider)
 
   const state: OAuthState = {
     userId,
+    workspaceId,
     provider,
     nonce: '',
   }
@@ -79,7 +89,7 @@ export const handleCallbackService = async (
   rawState: string,
 ): Promise<OAuthCallbackResponse> => {
   const state = decodeState(rawState)
-  const { userId, provider } = state
+  const { userId, workspaceId, provider } = state
 
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -117,6 +127,7 @@ export const handleCallbackService = async (
   return {
     provider,
     status: 'CONNECTED',
+    workspaceId,
   }
 }
 

@@ -26,8 +26,13 @@ export const initiateIntegrationController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const provider = req.params.provider as IntegrationProvider
+  const { workspaceId } = req.body as { workspaceId: number }
 
-  const result = await initiateIntegrationService(req.user.id, provider)
+  if (!workspaceId) {
+    throw new ApiError(400, 'Workspace ID is required')
+  }
+
+  const result = await initiateIntegrationService(req.user.id, provider, workspaceId)
 
   return res.status(200).json(new ApiResponse(200, 'Authorization URL generated', result))
 })
@@ -41,9 +46,9 @@ export const handleCallbackController = asyncHandler(async (req, res) => {
 
   const result = await handleCallbackService(code, state)
 
-  const redirectUrl = new URL(`${env.CLIENT_URL}/settings/personal`)
-  redirectUrl.searchParams.append('integration', result.provider)
-  redirectUrl.searchParams.append('status', 'success')
+  const redirectUrl = new URL(
+    `${env.CLIENT_URL}/workspace/${result.workspaceId}/settings/personal`,
+  )
 
   return res.redirect(redirectUrl.toString())
 })

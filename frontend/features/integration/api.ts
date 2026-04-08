@@ -14,9 +14,11 @@ export const listIntegrations = async (): Promise<ListIntegrationsResponse> => {
 
 export const initiateIntegration = async (
   provider: IntegrationProvider,
+  workspaceId: number,
 ): Promise<IntegrationConnectResponse> => {
   const res = await api.post<{ data: IntegrationConnectResponse }>(
     `/integrations/${provider}/connect`,
+    { workspaceId },
   )
   return res.data.data
 }
@@ -33,8 +35,8 @@ export const getIntegrationStatus = async (
 export const disconnectIntegration = async (
   provider: IntegrationProvider,
 ): Promise<IntegrationDisconnectResponse> => {
-  const res = await api.post<{ data: IntegrationDisconnectResponse }>(
-    `/integrations/${provider}/disconnect`,
+  const res = await api.delete<{ data: IntegrationDisconnectResponse }>(
+    `/integrations/${provider}`,
   )
   return res.data.data
 }

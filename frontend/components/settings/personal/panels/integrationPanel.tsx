@@ -1,6 +1,7 @@
 'use client'
 
 import { CheckCircle2, Loader2, Plug, Unplug } from 'lucide-react'
+import { useWorkspaceId } from '@/hooks/useworkspaceid'
 import {
   useListIntegrations,
   useInitiateIntegration,
@@ -73,16 +74,18 @@ function IntegrationCard({
   config,
   connected,
   connectedAt,
+  workspaceId,
 }: {
   config: IntegrationConfig
   connected: boolean
   connectedAt: Date | null
+  workspaceId: number
 }) {
   const initiate = useInitiateIntegration()
   const disconnect = useDisconnectIntegration()
 
   async function handleConnect() {
-    initiate.mutate(config.provider)
+    initiate.mutate({ provider: config.provider, workspaceId })
   }
 
   async function handleDisconnect() {
@@ -161,6 +164,7 @@ function IntegrationCard({
 
 // ── Page ───────────────────────────────────────────────────
 export default function IntegrationPanel() {
+  const workspaceId = useWorkspaceId()
   const { data, isLoading } = useListIntegrations()
 
   if (isLoading) {
@@ -183,6 +187,7 @@ export default function IntegrationPanel() {
           connectedAt={
             data?.data?.find(i => i.provider === config.provider)?.connectedAt ?? null
           }
+          workspaceId={workspaceId}
         />
       ))}
     </div>

@@ -79,6 +79,7 @@ export const getProjectMeetings = async (
 ): Promise<MeetingListItem[]> => {
   const params = new URLSearchParams()
   if (status) params.append('status', status)
+  if (projectId) params.append('projectId', projectId.toString())
   const { data } = await api.get(`/projects/${projectId}/meetings?${params.toString()}`)
   return data.data.data ?? []
 }
