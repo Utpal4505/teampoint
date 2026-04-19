@@ -1,6 +1,6 @@
 'use client'
 
-import { Clock, Users, Video, CheckCircle2, Ban, ArrowRight } from 'lucide-react'
+import { Clock, Users, Video, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import type { MeetingListItem } from '@/features/meetings/types'
 import { useWorkspaceId } from '@/hooks/useworkspaceid'
@@ -69,7 +69,7 @@ export default function MeetingsGrid({ meetings }: MeetingsGridProps) {
   const workspaceId = useWorkspaceId()
 
   const handleViewDetails = (projectId: number) => {
-    router.push(`/workspace/${workspaceId}/projects/${projectId}/meetings`)
+    router.push(`/workspace/${workspaceId}/projects/${projectId}`)
   }
 
   return (
@@ -84,7 +84,7 @@ export default function MeetingsGrid({ meetings }: MeetingsGridProps) {
             className="flex items-center gap-4 rounded-lg border border-border/60 bg-card/50 p-4 hover:bg-card transition-colors group"
           >
             {/* Time Column */}
-            <div className="flex-shrink-0 w-24">
+            <div className="shrink-0 w-24">
               <div className="text-[13px] font-semibold text-foreground">
                 {formatTime(meeting.startTime)}
               </div>

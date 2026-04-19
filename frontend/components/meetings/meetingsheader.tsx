@@ -9,7 +9,7 @@ export default function MeetingsHeader() {
           <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
           <div className="h-6 w-px shrink-0 bg-border" />
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/15">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-br from-primary/20 to-primary/10 border border-primary/15">
               <Video size={18} className="text-primary" strokeWidth={1.5} />
             </div>
             <div>

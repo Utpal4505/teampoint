@@ -53,7 +53,7 @@ export default function MeetingsListView({ meetings }: MeetingsListViewProps) {
   const workspaceId = useWorkspaceId()
 
   const handleViewDetails = (projectId: number) => {
-    router.push(`/workspace/${workspaceId}/projects/${projectId}/meetings`)
+    router.push(`/workspace/${workspaceId}/projects/${projectId}`)
   }
 
   return (
