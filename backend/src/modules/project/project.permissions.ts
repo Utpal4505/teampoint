@@ -17,14 +17,17 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canEditAnyDocs: true,
     canDeleteAnyDocs: true,
 
+    canViewDiscussions: true,
     canCreateDiscussions: true,
     canEditAnyDiscussion: true,
-    canResolveDiscussions: true,
-    canReopenDiscussions: true,
     canDeleteDiscussions: true,
+    canCloseDiscussions: true,
+    canReopenDiscussions: true,
 
     canComment: true,
     canDeleteAnyComment: true,
+    canEditAnyComment: true,
+
 
     canViewGoals: true,
     canCreateGoals: true,
@@ -57,13 +60,15 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canEditAnyDocs: true,
     canDeleteAnyDocs: true,
 
+    canViewDiscussions: true,
     canCreateDiscussions: true,
     canEditAnyDiscussion: true,
-    canResolveDiscussions: true,
-    canReopenDiscussions: true,
+    canCloseDiscussions: true,
     canDeleteDiscussions: false,
+    canReopenDiscussions: true,
 
     canComment: true,
+    canEditAnyComment: true,
     canDeleteAnyComment: true,
 
     canViewGoals: true,
@@ -97,14 +102,16 @@ export const PROJECT_ROLE_PERMISSIONS = {
     canEditAnyDocs: false,
     canDeleteAnyDocs: false,
 
+    canViewDiscussions: true,
     canCreateDiscussions: true,
     canEditAnyDiscussion: false,
-    canResolveDiscussions: false,
-    canReopenDiscussions: false,
+    canCloseDiscussions: false,
     canDeleteDiscussions: false,
+    canReopenDiscussions: false,
 
     canComment: true,
     canDeleteAnyComment: false,
+    canEditAnyComment: true,
 
     canViewGoals: true,
     canCreateGoals: false,

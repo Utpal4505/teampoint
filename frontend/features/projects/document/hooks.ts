@@ -9,6 +9,7 @@ import {
   getEntityDocuments,
   unlinkDocument,
   uploadDocumentFile,
+  getProjectDiscussions,
   getProjectMilestones,
   getProjectMeetings,
 } from './api'
@@ -184,6 +185,15 @@ export const useProjectMilestones = (projectId: number | null) => {
   return useQuery({
     queryKey: entityKeys.milestones(projectId || 0),
     queryFn: () => getProjectMilestones(projectId!),
+    enabled: projectId !== null,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useProjectDiscussions = (projectId: number | null) => {
+  return useQuery({
+    queryKey: entityKeys.discussions(projectId || 0),
+    queryFn: () => getProjectDiscussions(projectId!),
     enabled: projectId !== null,
     staleTime: 5 * 60 * 1000,
   })

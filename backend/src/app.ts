@@ -31,8 +31,10 @@ import projectMemberRouter from './modules/projectMember/projectMember.route.ts'
 import taskRouter from './modules/tasks/task.route.ts'
 import documentRouter from './modules/document/document.route.ts'
 import documentLinkRouter from './modules/documentLinks/documentLinks.route.ts'
+import discussionRouter from './modules/discussion/discussion.route.ts'
 import goalRouter from './modules/goal/goal.route.ts'
 import milestoneRouter from './modules/milestone/milestone.route.ts'
+import messageRouter from './modules/message/message.route.ts'
 import workspaceLeaveRouter from './modules/workspaceLeave/workspaceLeave.route.ts'
 import integrationRouter from './modules/integration/integration.routes.ts'
 import meetingRouter, { workspaceMeetingRouter } from './modules/meeting/meeting.route.ts'
@@ -81,6 +83,11 @@ app.use('/api/v1/uploads', uploadLimiter, uploadRouter)
 
 app.use('/api/v1/projects/:projectId/documents', documentRouter)
 app.use('/api/v1/projects/:projectId/document-links', documentLinkRouter)
+app.use('/api/v1/projects/:projectId/discussions', discussionRouter)
+app.use(
+  '/api/v1/projects/:projectId/discussions/:discussionId/messages',
+  messageRouter,
+)
 app.use('/api/v1/projects/:projectId/goals', goalRouter)
 app.use('/api/v1/projects/:projectId/milestones', milestoneRouter)
 app.use('/api/v1/projects/:projectId/meetings', meetingRouter)

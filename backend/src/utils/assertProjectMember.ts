@@ -10,6 +10,7 @@ export const assertProjectMember = async (
 ): Promise<{
   id: number
   role: WorkspaceRole
+  permissions: Prisma.JsonValue | null
 }> => {
   const db = tx ?? prisma
   const member = await db.project_Members.findFirst({
@@ -22,6 +23,7 @@ export const assertProjectMember = async (
       id: true,
       role: true,
       status: true,
+      permissions: true,
     },
   })
 

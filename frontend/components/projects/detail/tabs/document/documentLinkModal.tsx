@@ -12,6 +12,7 @@ import {
   Target,
 } from 'lucide-react'
 import {
+  useProjectDiscussions,
   useProjectMilestones,
   useProjectMeetings,
 } from '@/features/projects/document/hooks'
@@ -84,6 +85,7 @@ export default function DocumentLinkModal({
   const [isLoading, setIsLoading] = useState(false)
 
   const tasksQuery = useProjectTasks(projectId)
+  const discussionsQuery = useProjectDiscussions(projectId)
   const milestonesQuery = useProjectMilestones(projectId)
   const meetingsQuery = useProjectMeetings(projectId)
 
@@ -92,6 +94,8 @@ export default function DocumentLinkModal({
     switch (entityType) {
       case 'TASK':
         return tasksQuery.data ?? []
+      case 'DISCUSSION':
+        return discussionsQuery.data ?? []
       case 'MILESTONE':
         return milestonesQuery.data ?? []
       case 'MEETING':
@@ -105,6 +109,8 @@ export default function DocumentLinkModal({
     switch (entityType) {
       case 'TASK':
         return tasksQuery.isLoading
+      case 'DISCUSSION':
+        return discussionsQuery.isLoading
       case 'MILESTONE':
         return milestonesQuery.isLoading
       case 'MEETING':
