@@ -10,7 +10,7 @@
   --font-display-tracking: -0.01em;
   --font-body-family: var(--body-family);
   --font-body-weight: 400;
-  --font-body-tracking: 0em;
+  --font-body-tracking: 0.01em;
 }
 
 @utility font-display {
@@ -98,22 +98,22 @@
 }
 
 .dark {
-  --background: oklch(0.16 0.005 260);
-  --foreground: oklch(0.92 0 0);
+  --background: oklch(0.14 0.005 260);
+  --foreground: oklch(0.88 0 0);
 
-  --card: oklch(0.2 0.01 250);
-  --card-foreground: oklch(0.92 0 0);
+  --card: oklch(0.19 0.01 250);
+  --card-foreground: oklch(0.88 0 0);
 
-  --popover: oklch(0.2 0.01 250);
-  --popover-foreground: oklch(0.92 0 0);
+  --popover: oklch(0.23 0.015 250);
+  --popover-foreground: oklch(0.88 0 0);
 
-  --primary: oklch(0.6 0.16 262);
+  --primary: oklch(0.6 0.17 255);
   --primary-foreground: oklch(0.98 0 0);
 
   --secondary: oklch(0.25 0.01 250);
   --secondary-foreground: oklch(0.9 0 0);
 
-  --muted: oklch(0.23 0.01 250);
+  --muted: oklch(0.2 0.01 250);
   --muted-foreground: oklch(0.65 0 0);
 
   --accent: oklch(0.27 0.015 250);
@@ -126,11 +126,11 @@
   --input: oklch(0.28 0.01 250);
   --ring: oklch(0.6 0.16 262);
 
-  --sidebar: oklch(0.19 0.01 250);
+  --sidebar: oklch(0.16 0.01 250);
   --sidebar-foreground: oklch(0.92 0 0);
   --sidebar-primary: oklch(0.6 0.16 262);
   --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.25 0.01 250);
+  --sidebar-accent: oklch(0.24 0.015 250);
   --sidebar-accent-foreground: oklch(0.92 0 0);
   --sidebar-border: oklch(0.28 0.01 250);
   --sidebar-ring: oklch(0.6 0.16 262);
@@ -146,6 +146,14 @@
   --code-number: oklch(0.7 0.12 262);
   --code-selection: oklch(0.3 0.02 250);
   --code-border: oklch(0.28 0.01 250);
+
+  --hover: oklch(0.26 0.02 250);
+  --active: oklch(0.3 0.02 250);
+  --focus: oklch(0.6 0.16 262);
+
+  --success: oklch(0.65 0.14 145);
+  --warning: oklch(0.75 0.14 85);
+  --info: oklch(0.65 0.14 220);
 }
 
 @layer base {
@@ -156,13 +164,36 @@
     @apply bg-background text-foreground;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-display;
+  h1 {
+    @apply text-3xl font-display font-semibold leading-tight;
+  }
+
+  h2 {
+    @apply text-2xl font-display font-semibold leading-tight;
+  }
+
+  h3 {
+    @apply text-xl font-display font-medium leading-snug;
+  }
+
+  p {
+    @apply text-sm font-sans font-normal leading-relaxed;
+  }
+
+  label {
+    @apply text-sm font-sans font-medium leading-normal;
+  }
+
+  .small-text {
+    @apply text-xs font-sans text-muted-foreground leading-normal;
+  }
+
+  .ui-text {
+    @apply text-sm font-sans font-medium leading-normal;
+  }
+
+  .card-title {
+    @apply text-base font-sans font-semibold leading-snug;
   }
 }
 

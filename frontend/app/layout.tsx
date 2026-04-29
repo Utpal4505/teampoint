@@ -5,12 +5,13 @@ import Providers from './providers'
 
 const poppins = Poppins({
   subsets: ['latin'],
-  weight: ['700'],
+  weight: ['600', '700'],
   variable: '--display-family',
 })
+
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400'],
+  weight: ['400', '500', '600'],
   variable: '--body-family',
 })
 

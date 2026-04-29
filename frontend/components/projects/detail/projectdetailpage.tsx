@@ -40,7 +40,7 @@ export default function ProjectDetailPage({
   projectId,
 }: ProjectDetailPageProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<TabKey>('tasks')
+  const [activeTab, setActiveTab] = useState<TabKey>('overview')
   const [modal, setModal] = useState<ModalState>({ type: 'none' })
 
   const { data: project, isLoading: projectLoading } = useProjectDetail(projectId)

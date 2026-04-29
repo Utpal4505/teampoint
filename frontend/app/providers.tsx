@@ -8,6 +8,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { useEffect } from 'react'
 import { initConsoleCapture } from '@/lib/feedback-consoleError'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { PostHogProvider } from './posthog-provider'
 
 function ConsoleCaptureInit() {
   useEffect(() => {
@@ -18,17 +19,19 @@ function ConsoleCaptureInit() {
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="system">
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <ConsoleCaptureInit />
-          {children}
-        </TooltipProvider>
-        <Toaster richColors />
-        {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-      </QueryClientProvider>
-    </ThemeProvider>
+    <PostHogProvider>
+      <ThemeProvider attribute="class" defaultTheme="system">
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <ConsoleCaptureInit />
+            {children}
+          </TooltipProvider>
+          <Toaster richColors />
+          {process.env.NODE_ENV === 'development' && (
+            <ReactQueryDevtools initialIsOpen={false} />
+          )}
+        </QueryClientProvider>
+      </ThemeProvider>
+    </PostHogProvider>
   )
 }
