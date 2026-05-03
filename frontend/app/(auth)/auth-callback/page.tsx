@@ -33,7 +33,7 @@ export default function AuthCallbackPage() {
 
     setCurrentWorkspace(firstWorkspace.id)
 
-    router.replace(`/workspace/${firstWorkspace.id}/dashboard`)
+    router.replace(`/workspace/${firstWorkspace.id}/projects`)
   }, [user, workspaces, userLoading, workspaceLoading, router, setCurrentWorkspace])
 
   return (

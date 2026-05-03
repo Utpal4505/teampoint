@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
+import { SidebarInset } from '@/components/ui/sidebar'
 import {
   useProjectDetail,
   useProjectTasks,
@@ -80,8 +80,8 @@ export default function ProjectDetailPage({
     <SidebarInset>
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex h-14 items-center gap-3 px-6">
-          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
-          <div className="h-4 w-px shrink-0 bg-border" />
+          {/* <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" /> */}
+          {/* <div className="h-4 w-px shrink-0 bg-border" /> */}
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <span
               className="cursor-pointer hover:text-foreground transition-colors"

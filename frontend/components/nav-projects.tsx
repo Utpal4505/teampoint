@@ -51,7 +51,7 @@ export function NavProjects({
 
   return (
     <>
-      <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroup>
         <div className="flex items-center justify-between mb-0.5">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <button
@@ -68,7 +68,7 @@ export function NavProjects({
         <SidebarMenu>
           {visibleProjects.map(project => (
             <SidebarMenuItem key={project.name}>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild tooltip={project.name}>
                 <Link href={project.url}>
                   <FolderKanban />
                   <span>{project.name}</span>

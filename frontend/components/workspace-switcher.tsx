@@ -69,7 +69,7 @@ export function WorkspaceSwitcher({
       setCreateOpen(false)
       setInviteOpen(true)
 
-      router.push(`/workspace/${res.id}/dashboard`)
+      router.push(`/workspace/${res.id}/projects`)
     } catch (error) {
       handleApiError(error)
       throw error
@@ -102,7 +102,7 @@ export function WorkspaceSwitcher({
       setInviteOpen(false)
       setNewWsId(null)
 
-      router.push(`/workspace/${newWsId}/dashboard`)
+      router.push(`/workspace/${newWsId}/projects`)
     } catch (error) {
       handleApiError(error)
     } finally {
@@ -114,7 +114,7 @@ export function WorkspaceSwitcher({
     setInviteOpen(false)
 
     if (newWsId) {
-      router.push(`/workspace/${newWsId}/dashboard`)
+      router.push(`/workspace/${newWsId}/projects`)
 
       setNewWsId(null)
       setNewWsName('')
@@ -129,7 +129,7 @@ export function WorkspaceSwitcher({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton
+              <SidebarMenuButton tooltip={activeWorkspace.name}
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
@@ -168,7 +168,7 @@ export function WorkspaceSwitcher({
               {workspaces.map((ws, i) => (
                 <DropdownMenuItem
                   key={ws.workspaceId}
-                  onClick={() => router.push(`/workspace/${ws.workspaceId}/dashboard`)}
+                  onClick={() => router.push(`/workspace/${ws.workspaceId}/projects`)}
                   className="gap-2 p-2"
                 >
                   <div

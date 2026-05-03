@@ -91,7 +91,7 @@ export default function LoginPage() {
           return
         }
 
-        router.replace(`/workspace/${workspaces[0].id}/dashboard`)
+        router.replace(`/workspace/${workspaces[0].id}/projects`)
       } catch (err) {
         console.log('Something went wrong while checking authentication:', err)
         setCheckingAuth(false)

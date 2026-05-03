@@ -86,9 +86,9 @@ export default function OnboardingStep3() {
     return () => clearTimeout(t)
   }, [])
 
-  function goToDashboard() {
+  function goToProjects() {
     if (!workspaceId) return
-    router.push(`/workspace/${workspaceId}/dashboard`)
+    router.push(`/workspace/${workspaceId}/projects`)
   }
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export default function OnboardingStep3() {
 
             {/* CTA */}
             <button
-              onClick={goToDashboard}
+              onClick={goToProjects}
               className="flex w-full items-center justify-center gap-2 rounded-xl
                 bg-[oklch(0.6_0.16_262)] px-6 py-4
                 font-[family-name:var(--body-family)] text-sm font-medium
@@ -183,7 +183,7 @@ export default function OnboardingStep3() {
                 focus-visible:ring-offset-2
                 focus-visible:ring-offset-[oklch(0.2_0.01_250)]"
             >
-              Go to Dashboard
+              Go to Projects
               <ArrowRight size={15} />
             </button>
 

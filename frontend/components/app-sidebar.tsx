@@ -13,20 +13,12 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
 } from '@/components/ui/sidebar'
-import {
-  CheckSquareIcon,
-  LayoutDashboardIcon,
-  MessageSquareIcon,
-  Video,
-} from 'lucide-react'
+import { CheckSquareIcon, FolderKanban, MessageSquareIcon, Video } from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
 import { WorkspaceSwitcher } from './workspace-switcher'
-import { NavProjects } from './nav-projects'
-import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
 import Link from 'next/link'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -43,11 +35,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navMain = [
     {
-      title: 'Dashboard',
-      url: `/workspace/${activeWorkspaceId}/dashboard`,
-      icon: <LayoutDashboardIcon />,
-    },
-    {
       title: 'My Tasks',
       url: `/workspace/${activeWorkspaceId}/tasks`,
       icon: <CheckSquareIcon />,
@@ -59,15 +46,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
   ]
 
-  const { data: projectsData = [] } = useListAllWorkspaceProjects(
-    Number(activeWorkspaceId),
-  )
-
-  const projects = projectsData.map(p => ({
-    name: p.name,
-    url: `/workspace/${activeWorkspaceId}/projects/${p.id}`,
-  }))
-
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -77,13 +55,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         />
       </SidebarHeader>
       <SidebarContent>
+        {/* Projects - single icon linking to projects page */}
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild tooltip="Projects">
+                <Link href={`/workspace/${activeWorkspaceId}/projects`}>
+                  <FolderKanban />
+                  <span>Projects</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
         <NavMain items={navMain} />
-        <NavProjects projects={projects} workspaceId={activeWorkspaceId} />
+
+        {/* Support */}
         <SidebarGroup>
           <SidebarGroupLabel>Support</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild tooltip="Feedback">
                 <Link href={`/feedback`}>
                   <MessageSquareIcon />
                   <span>Feedback</span>
@@ -102,7 +95,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }}
         />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }

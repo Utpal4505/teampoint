@@ -1,4 +1,4 @@
-import { SidebarTrigger } from '@/components/ui/sidebar'
+// import { SidebarTrigger } from '@/components/ui/sidebar'
 
 export default function ProjectsHeader() {
   return (
@@ -8,8 +8,8 @@ export default function ProjectsHeader() {
       group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
     >
       <div className="flex flex-1 items-center gap-3 px-6">
-        <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
-        <div className="h-4 w-px shrink-0 bg-border" />
+        {/* <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" /> */}
+        {/* <div className="h-4 w-px shrink-0 bg-border" /> */}
         <div className="flex-1">
           <h1 className="font-display text-lg font-bold tracking-tight text-foreground leading-none">
             Projects

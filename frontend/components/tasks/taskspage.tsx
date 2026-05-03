@@ -16,7 +16,7 @@ import KanbanColumn from './kanbancolumn'
 import ListView from './listview'
 import TaskDrawer from './taskdrawer'
 import { TaskCreateModal } from './taskcreatemodal'
-import { SidebarInset, SidebarTrigger } from '../ui/sidebar'
+import { SidebarInset,  } from '../ui/sidebar'
 import { useWorkspaceAssignedTasks, useUpdateTaskStatus } from '@/features/tasks/hooks'
 import { useWorkspaceId } from '@/hooks/useworkspaceid'
 
@@ -69,8 +69,8 @@ export default function TasksPage() {
     <SidebarInset>
       <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b border-border bg-background/80 backdrop-blur-sm">
         <div className="flex flex-1 items-center gap-3 px-6">
-          <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" />
-          <div className="h-4 w-px shrink-0 bg-border" />
+          {/* <SidebarTrigger className="-ml-1 text-muted-foreground hover:text-foreground transition-colors" /> */}
+          {/* <div className="h-4 w-px shrink-0 bg-border" /> */}
           <h1 className="flex-1 font-display text-lg font-bold tracking-tight text-foreground">
             Tasks
           </h1>
