@@ -92,21 +92,21 @@ export function CreateWorkspaceModal({ open, onClose, onSubmit }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-200 flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.75)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) handleClose()
       }}
     >
       <div
-        className="relative w-full max-w-[420px] rounded-2xl border border-border bg-card
+        className="relative w-full max-w-105 rounded-2xl border border-border bg-card
         shadow-[0_32px_80px_oklch(0_0_0/0.6)]
         animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Top shimmer */}
         <div className="overflow-hidden rounded-t-2xl">
           <div
-            className="h-[2px] w-full"
+            className="h-0.5 w-full"
             style={{
               background:
                 'linear-gradient(90deg, transparent 5%, oklch(0.6 0.16 262 / 0.8) 50%, transparent 95%)',
@@ -120,7 +120,7 @@ export function CreateWorkspaceModal({ open, onClose, onSubmit }: Props) {
             {/* Live avatar preview */}
             <div
               className={`relative flex h-12 w-12 shrink-0 items-center justify-center
-              rounded-2xl bg-gradient-to-br ${gradient}
+              rounded-2xl bg-linear-to-br ${gradient}
               shadow-[0_4px_16px_oklch(0_0_0/0.3)] transition-all duration-300`}
             >
               <span className="font-display text-base font-bold text-white tracking-wide">
@@ -199,7 +199,7 @@ export function CreateWorkspaceModal({ open, onClose, onSubmit }: Props) {
                 <label className="font-sans text-xs font-semibold text-foreground">
                   Description
                 </label>
-                <span className="rounded-md bg-muted px-[6px] py-[2px] font-sans text-[10px] text-muted-foreground/50">
+                <span className="rounded-md bg-muted px-1.5 py-0.5 font-sans text-[10px] text-muted-foreground/50">
                   optional
                 </span>
               </div>

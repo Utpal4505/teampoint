@@ -205,7 +205,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
         </div>
 
         {/* Description */}
-        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3 min-h-[32px]">
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 mb-3 min-h-8">
           {project.description}
         </p>
 

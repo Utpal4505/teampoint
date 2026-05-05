@@ -15,7 +15,7 @@ import OverviewRecentTasks from './overviewRecentTasks'
 import OverviewTeamWorkload from './overviewTeamWorkload'
 import OverviewAttentionCard from './overviewAttentionCard'
 import OverviewResourcesCard from './overviewResourcesCard'
-import { TabKey } from '../../projectdetailpage'
+import { TabKey } from '../../project-detail-context'
 
 interface OverviewTabProps {
   project: ProjectDetail
@@ -70,7 +70,7 @@ export default function OverviewTab({
   const memberWorkload = project.projectMembers
     .map(m => {
       const assigned = tasks.filter(
-        t => t.assignedTo?.id === m.user.id && t.status !== 'CANCELLED',
+        t => t.assignedTo?.id === m.userId && t.status !== 'CANCELLED',
       )
       const doneCount = assigned.filter(t => t.status === 'DONE').length
       return { member: m, total: assigned.length, done: doneCount }
@@ -116,7 +116,7 @@ export default function OverviewTab({
           onTabChange={onTabChange}
         />
         <OverviewProjectInfoCard
-          ownerName={owner?.user.fullName ?? null}
+          ownerName={owner?.fullName ?? null}
           createdAt={createdAt}
           memberCount={project.projectMembers.length}
           documentCount={documents.length}

@@ -144,21 +144,21 @@ export function InviteMembersModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-200 flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.75)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) handleSkip()
       }}
     >
       <div
-        className="relative w-full max-w-[480px] rounded-2xl border border-border bg-card
+        className="relative w-full max-w-120 rounded-2xl border border-border bg-card
         shadow-[0_32px_80px_oklch(0_0_0/0.6)]
         animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Shimmer */}
         <div className="overflow-hidden rounded-t-2xl">
           <div
-            className="h-[2px] w-full"
+            className="h-0.5 w-full"
             style={{
               background:
                 'linear-gradient(90deg, transparent 5%, oklch(0.6 0.16 262 / 0.8) 50%, transparent 95%)',
@@ -186,7 +186,7 @@ export function InviteMembersModal({
               Invite your team
             </p>
             <span
-              className="rounded-md bg-muted px-[6px] py-[2px] font-sans text-[10px]
+              className="rounded-md bg-muted px-1.5 py-0.5 font-sans text-[10px]
               text-muted-foreground/50"
             >
               optional

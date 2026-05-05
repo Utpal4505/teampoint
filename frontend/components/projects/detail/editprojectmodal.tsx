@@ -41,20 +41,20 @@ export default function EditProjectModal({
 
   return (
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+      className="fixed inset-0 z-200 flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.7)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div
-        className="w-full max-w-[420px] rounded-2xl border border-border bg-card
+        className="w-full max-w-105 rounded-2xl border border-border bg-card
         shadow-[0_32px_80px_oklch(0_0_0/0.7)]
         animate-in fade-in-0 zoom-in-95 duration-200"
       >
         {/* Shimmer */}
         <div
-          className="h-[2px] w-full rounded-t-2xl"
+          className="h-0.5 w-full rounded-t-2xl"
           style={{
             background:
               'linear-gradient(90deg,transparent 10%,oklch(0.6 0.16 262/0.7) 50%,transparent 90%)',
@@ -153,7 +153,7 @@ export default function EditProjectModal({
           <button
             onClick={handleSubmit}
             disabled={loading || !name.trim()}
-            className="flex flex-[2] items-center justify-center gap-2 rounded-xl bg-primary
+            className="flex flex-2 items-center justify-center gap-2 rounded-xl bg-primary
               px-4 py-2.5 text-sm font-medium text-primary-foreground
               shadow-[0_2px_12px_oklch(0.6_0.16_262/0.3)] transition-all
               hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed"

@@ -1,4 +1,4 @@
-import ProjectDetailPage from '@/components/projects/detail/projectdetailpage'
+import { redirect } from 'next/navigation'
 
 export default async function Page({
   params,
@@ -6,7 +6,5 @@ export default async function Page({
   params: Promise<{ workspaceId: string; projectId: string }>
 }) {
   const { workspaceId, projectId } = await params
-  return (
-    <ProjectDetailPage workspaceId={Number(workspaceId)} projectId={Number(projectId)} />
-  )
+  redirect(`/workspace/${workspaceId}/projects/${projectId}/overview`)
 }

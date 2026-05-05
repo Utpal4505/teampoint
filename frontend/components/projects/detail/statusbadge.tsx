@@ -10,7 +10,6 @@ const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
   { value: 'ONHOLD', label: 'Paused' },
   { value: 'COMPLETED', label: 'Completed' },
   { value: 'DELETED', label: 'Archived' },
-  { value: 'INACTIVE', label: 'Inactive' },
 ]
 
 interface StatusBadgeProps {
