@@ -3,7 +3,7 @@
 export default function ProjectsHeader() {
   return (
     <header
-      className="sticky top-0 z-30 flex h-14 shrink-0 items-center border-b border-border
+      className="sticky top-1.5 z-30 flex h-14 shrink-0 items-center border-b border-border
       bg-background/80 backdrop-blur-sm transition-[width,height] ease-linear
       group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
     >
@@ -14,9 +14,9 @@ export default function ProjectsHeader() {
           <h1 className="font-display text-lg font-bold tracking-tight text-foreground leading-none">
             Projects
           </h1>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          {/* <p className="text-[11px] text-muted-foreground mt-0.5">
             Manage all workspace projects
-          </p>
+          </p> */}
         </div>
       </div>
     </header>

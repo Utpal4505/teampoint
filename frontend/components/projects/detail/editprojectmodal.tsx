@@ -16,7 +16,7 @@ interface EditProjectModalProps {
   }) => Promise<void>
 }
 
-const STATUS_OPTIONS: ProjectStatus[] = ['ACTIVE', 'ON_HOLD', 'COMPLETED', 'DELETED']
+const STATUS_OPTIONS: ProjectStatus[] = ['ACTIVE', 'ONHOLD', 'COMPLETED', 'DELETED']
 
 export default function EditProjectModal({
   open,

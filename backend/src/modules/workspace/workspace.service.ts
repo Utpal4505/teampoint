@@ -22,6 +22,16 @@ export const createWorkspaceService = async (
 ): Promise<WorkspaceDTO> => {
   const { name, description, ownerId } = input
 
+  const existingWs = await prisma.workspace.findMany({
+    where: {
+      createdBy: ownerId,
+    },
+  })
+
+  if (existingWs.length >= 3) {
+    throw new ApiError(400, 'You can only create up to 3 workspaces.')
+  }
+
   const workspace = await prisma.$transaction(async tx => {
     const ws = await tx.workspace.create({
       data: {
@@ -159,7 +169,6 @@ export const deleteWorkspaceService = async ({
 }: {
   workspaceId: number
 }): Promise<DeleteWorkspaceDTO> => {
-
   const workspace = await prisma.workspace.findFirst({
     where: {
       id: workspaceId,
@@ -173,7 +182,6 @@ export const deleteWorkspaceService = async ({
     throw new ApiError(404, 'Workspace not found or cannot be deleted')
   }
 
-  
   return handlePrismaNotFound(
     prisma.workspace.update({
       where: {

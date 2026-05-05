@@ -33,7 +33,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-const MAX_AVATARS = 4
+const MAX_AVATARS = 3
 const GRID = '2fr 120px 200px 110px 130px 44px'
 
 function RowMenu({ onStop }: { onStop: (e: React.MouseEvent) => void }) {

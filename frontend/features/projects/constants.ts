@@ -179,6 +179,12 @@ export const MOCK_PROJECTS: Project[] = [
         avatarUrl:
           'https://ui-avatars.com/api/?name=Rahul&background=10b981&color=fff&size=40',
       },
+      {
+        id: 'm5',
+        name: 'Glitcy',
+        avatarUrl:
+          'https://ui-avatars.com/api/?name=Glitcy&background=ec4899&color=fff&size=40',
+      },
     ],
   },
   {

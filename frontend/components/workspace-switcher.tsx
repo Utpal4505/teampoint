@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -21,6 +20,7 @@ import { ChevronsUpDownIcon, PlusIcon, Check } from 'lucide-react'
 import { CreateWorkspacePayload } from '@/features/workspace/schema'
 import { InviteMembersModal, InviteMembersPayload } from './workspaces/invite-members'
 import { CreateWorkspaceModal } from './workspaces/create-workspace/createworkspacemodal'
+import { WorkspaceLimitModal } from './workspaces/workspace-limit-modal'
 import { useCreateWorkspace, useSendWorkspaceInvite } from '@/features/workspace/hooks'
 import { handleApiError } from '@/lib/handle-api-error'
 import { toast } from 'sonner'
@@ -41,12 +41,12 @@ export function WorkspaceSwitcher({
 }: WorkspaceSwitcherProps) {
   const { isMobile } = useSidebar()
   const router = useRouter()
-  const { mutateAsync: createWorkspace, isPending } = useCreateWorkspace()
+  const { mutateAsync: createWorkspace } = useCreateWorkspace()
 
   const { mutateAsync: sendInvite } = useSendWorkspaceInvite()
-  const [isInviting, setIsInviting] = React.useState(false)
 
   const [createOpen, setCreateOpen] = React.useState(false)
+  const [limitOpen, setLimitOpen] = React.useState(false)
   const [inviteOpen, setInviteOpen] = React.useState(false)
   const [newWsName, setNewWsName] = React.useState('')
   const [newWsId, setNewWsId] = React.useState<string | null>(null)
@@ -82,8 +82,6 @@ export function WorkspaceSwitcher({
       return
     }
 
-    setIsInviting(true)
-
     try {
       await Promise.all(
         payload.invites.map(invite =>
@@ -105,8 +103,6 @@ export function WorkspaceSwitcher({
       router.push(`/workspace/${newWsId}/projects`)
     } catch (error) {
       handleApiError(error)
-    } finally {
-      setIsInviting(false)
     }
   }
 
@@ -129,7 +125,8 @@ export function WorkspaceSwitcher({
         <SidebarMenuItem>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <SidebarMenuButton tooltip={activeWorkspace.name}
+              <SidebarMenuButton
+                tooltip={activeWorkspace.name}
                 size="lg"
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
@@ -156,7 +153,7 @@ export function WorkspaceSwitcher({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
-              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+              className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg z-200"
               align="start"
               side={isMobile ? 'bottom' : 'right'}
               sideOffset={4}
@@ -165,7 +162,7 @@ export function WorkspaceSwitcher({
                 Workspaces
               </DropdownMenuLabel>
 
-              {workspaces.map((ws, i) => (
+              {workspaces.map(ws => (
                 <DropdownMenuItem
                   key={ws.workspaceId}
                   onClick={() => router.push(`/workspace/${ws.workspaceId}/projects`)}
@@ -185,7 +182,7 @@ export function WorkspaceSwitcher({
                     <Check size={13} className="text-primary" />
                   )}
 
-                  <DropdownMenuShortcut>⌘{i + 1}</DropdownMenuShortcut>
+                  {/* <DropdownMenuShortcut>⌘{i + 1}</DropdownMenuShortcut> */}
                 </DropdownMenuItem>
               ))}
 
@@ -194,7 +191,13 @@ export function WorkspaceSwitcher({
               {/* Add workspace */}
               <DropdownMenuItem
                 className="gap-2 p-2 cursor-pointer"
-                onClick={() => setCreateOpen(true)}
+                onClick={() => {
+                  if (workspaces.length >= 3) {
+                    setLimitOpen(true)
+                  } else {
+                    setCreateOpen(true)
+                  }
+                }}
               >
                 <div
                   className="flex size-6 items-center justify-center rounded-md border
@@ -202,7 +205,9 @@ export function WorkspaceSwitcher({
                 >
                   <PlusIcon size={14} />
                 </div>
-                <span className="font-medium text-muted-foreground">Add workspace</span>
+                <span className="font-medium text-muted-foreground">
+                  Create new workspace
+                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -213,6 +218,16 @@ export function WorkspaceSwitcher({
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onSubmit={handleCreateWorkspace}
+      />
+
+      <WorkspaceLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        onManageWorkspaces={() => {
+          setLimitOpen(false)
+          // TODO: Navigate to workspace management page
+          router.push(`/workspace/${activeWorkspaceId}/settings/members`)
+        }}
       />
 
       <InviteMembersModal

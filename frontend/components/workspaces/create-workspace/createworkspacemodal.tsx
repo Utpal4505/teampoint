@@ -92,7 +92,7 @@ export function CreateWorkspaceModal({ open, onClose, onSubmit }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[200] flex items-center justify-center p-4"
       style={{ background: 'oklch(0 0 0 / 0.75)' }}
       onMouseDown={e => {
         if (e.target === e.currentTarget) handleClose()

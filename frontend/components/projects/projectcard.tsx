@@ -33,7 +33,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-const MAX_AVATARS = 4
+const MAX_AVATARS = 3
 
 const GLOW_MAP: Record<string, string> = {
   'bg-emerald-500': 'oklch(0.74 0.18 155 / 0.07)',
@@ -59,8 +59,8 @@ function MemberAvatar({
         <Image
           src={member.avatarUrl}
           alt={member.name}
-          width={24}
-          height={24}
+          width={20}
+          height={20}
           className="rounded-full object-cover ring-2 ring-card"
         />
       ) : (
@@ -178,7 +178,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
         }}
       />
 
-      <div className="flex flex-col gap-0 p-4 pt-3.5">
+      <div className="flex flex-col flex-1 gap-0 p-4 pt-3.5">
         {/* Header */}
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2.5 min-w-0">
