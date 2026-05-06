@@ -10,7 +10,6 @@ import {
   useUpdateProjectTaskStatus,
 } from '@/features/projects/detail/hooks'
 import type { TaskStatus } from '@/features/projects/detail/types'
-import ProjectHeader from '@/components/projects/detail/projectheader'
 import EditProjectModal from '@/components/projects/detail/editprojectmodal'
 import DeleteConfirmModal from '@/components/projects/detail/deleteconfirmmodal'
 import MembersDrawer from '@/components/projects/detail/membersdrawer'
@@ -150,9 +149,6 @@ export default function ProjectLayoutShell({
                 {activeTabLabel}
               </span>
             </div>
-
-            {/* Project title + status + actions */}
-            <ProjectHeader project={project} activeTabLabel={activeTabLabel} />
 
             {/* Route-based Tabs */}
             {/* <div className="flex items-center gap-0.5 px-4 border-t border-border/40 bg-background/60">

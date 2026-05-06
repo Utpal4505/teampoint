@@ -16,6 +16,7 @@ import OverviewTeamWorkload from './overviewTeamWorkload'
 import OverviewAttentionCard from './overviewAttentionCard'
 import OverviewResourcesCard from './overviewResourcesCard'
 import { TabKey } from '../../project-detail-context'
+import StatusBadge from '../../statusbadge'
 
 interface OverviewTabProps {
   project: ProjectDetail
@@ -89,58 +90,78 @@ export default function OverviewTab({
   })
 
   return (
-    <div className="p-6 flex flex-col gap-4">
-      {/* Row 1 — KPI strip */}
-      <OverviewKpiStrip
-        total={total}
-        done={done}
-        inProgress={inProgress}
-        pct={pct}
-        overdueCount={overdue.length}
-        dueSoonCount={dueSoon.length}
-      />
-
-      {/* Row 2 — Progress / Priority / Info */}
-      <div className="grid grid-cols-12 gap-4">
-        <OverviewProgressCard
-          pct={pct}
-          total={total}
-          done={done}
-          todo={todo}
-          inProgress={inProgress}
-        />
-        <OverviewPriorityCard
-          byPriority={byPriority}
-          activeTotal={activeTasks.length}
-          cancelled={cancelled}
-          onTabChange={onTabChange}
-        />
-        <OverviewProjectInfoCard
-          ownerName={owner?.fullName ?? null}
-          createdAt={createdAt}
-          memberCount={project.projectMembers.length}
-          documentCount={documents.length}
-          description={project.description}
-        />
+    <div className="flex flex-col">
+      {/* Header */}
+      <div className="px-6 py-5 flex flex-col gap-4 border-b border-border">
+        <div>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="font-display text-[22px] font-bold text-foreground leading-tight">
+              {project.name}
+            </h1>
+            <StatusBadge status={project.status} projectId={project.id} />
+          </div>
+          {project.description && (
+            <p className="mt-1 text-[13px] text-muted-foreground max-w-xl leading-relaxed">
+              {project.description}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Row 3 — Recent Tasks */}
-      <OverviewRecentTasks
-        tasks={recentTasks}
-        activeTotal={activeTasks.length}
-        onTabChange={onTabChange}
-      />
+      {/* Content */}
+      <div className="p-6 flex flex-col gap-4">
+        {/* Row 1 — KPI strip */}
+        <OverviewKpiStrip
+          total={total}
+          done={done}
+          inProgress={inProgress}
+          pct={pct}
+          overdueCount={overdue.length}
+          dueSoonCount={dueSoon.length}
+        />
 
-      {/* Row 4 — Team Workload + Attention + Resources */}
-      <div className="grid grid-cols-12 gap-4">
-        <OverviewTeamWorkload workload={memberWorkload} onTabChange={onTabChange} />
-
-        <div className="col-span-5 flex flex-col gap-4">
-          <OverviewAttentionCard overdue={overdue} dueSoon={dueSoon} />
-          <OverviewResourcesCard
-            documentCount={documents.length}
+        {/* Row 2 — Progress / Priority / Info */}
+        <div className="grid grid-cols-12 gap-4">
+          <OverviewProgressCard
+            pct={pct}
+            total={total}
+            done={done}
+            todo={todo}
+            inProgress={inProgress}
+          />
+          <OverviewPriorityCard
+            byPriority={byPriority}
+            activeTotal={activeTasks.length}
+            cancelled={cancelled}
             onTabChange={onTabChange}
           />
+          <OverviewProjectInfoCard
+            ownerName={owner?.fullName ?? null}
+            createdAt={createdAt}
+            memberCount={project.projectMembers.length}
+            documentCount={documents.length}
+            description={project.description}
+          />
+        </div>
+
+        {/* Row 3 — Recent Tasks */}
+        <OverviewRecentTasks
+          tasks={recentTasks}
+          activeTotal={activeTasks.length}
+          onTabChange={onTabChange}
+        />
+
+        {/* Row 4 — Team Workload + Attention + Resources */}
+        <div className="grid grid-cols-12 gap-4">
+          <OverviewTeamWorkload workload={memberWorkload} onTabChange={onTabChange} />
+
+          <div className="col-span-5 flex flex-col gap-4">
+            <OverviewAttentionCard overdue={overdue} dueSoon={dueSoon} />
+            <OverviewResourcesCard
+              documentCount={documents.length}
+              onTabChange={onTabChange}
+            />
+          </div>
         </div>
       </div>
     </div>

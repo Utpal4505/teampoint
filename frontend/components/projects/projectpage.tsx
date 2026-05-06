@@ -48,8 +48,6 @@ export default function ProjectsPage({ workspaceId }: ProjectsPageProps) {
     setStatusOpen(false)
   }
 
-  console.log("Filtered project details", filtered)
-
   return (
     <SidebarInset>
       <ProjectsHeader />

@@ -30,7 +30,7 @@ const STATUS_CFG = {
     label: 'Cancelled',
     dotColor: 'bg-muted-foreground/40',
     textColor: 'text-muted-foreground/50',
-    badgeBg: 'bg-muted/20',
+    badgeBg: 'bg-destructive/25',
     badgeBorder: 'border-border/30',
     barColor: 'bg-muted-foreground/30',
   },
@@ -68,17 +68,17 @@ export default function MeetingCard({ meeting, onView, onCancel }: MeetingCardPr
   return (
     <div
       onClick={() => onView(meeting)}
-      className={`group relative flex rounded-xl border bg-card/50 cursor-pointer
+      className={`group relative flex rounded-xl border bg-card/50 cursor-pointer overflow-hidden
         transition-colors duration-150 hover:bg-card
         ${isCancelled ? 'border-border/30 opacity-50' : 'border-border/60 hover:border-border'}`}
     >
       {/* Thin left status bar */}
-      <div className={`w-[3px] rounded-l-xl shrink-0 ${cfg.barColor} opacity-50`} />
+      {/* <div className={`w-[3px] rounded-l-xl shrink-0 ${cfg.barColor} opacity-50`} /> */}
 
       {/* Date column — neutral, no color */}
       <div
-        className="flex flex-col items-center justify-center shrink-0 w-16 py-4
-        border-r border-border/30"
+        className={`flex flex-col items-center justify-center shrink-0 w-16 py-4 
+        border-r border-border/30 rounded-l-xl -ml-1 ${cfg.badgeBg}`}
       >
         <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">
           {d.toLocaleDateString('en-US', { month: 'short' })}
@@ -166,7 +166,7 @@ export default function MeetingCard({ meeting, onView, onCancel }: MeetingCardPr
               onView(meeting)
             }}
             className="flex items-center gap-1 rounded-lg border border-border/50
-              px-3 py-1.5 text-[11px] font-medium text-muted-foreground/70
+              px-3 py-1.5 text-[11px] font-medium text-muted-foreground
               hover:text-foreground hover:border-border transition-colors duration-100"
           >
             View <ArrowRight size={10} />
@@ -178,10 +178,11 @@ export default function MeetingCard({ meeting, onView, onCancel }: MeetingCardPr
                 e.stopPropagation()
                 onCancel(meeting)
               }}
-              className="flex h-7 w-7 items-center justify-center rounded-lg
-                text-muted-foreground/20 hover:text-red-400 hover:bg-red-400/10
-                transition-colors duration-100 opacity-0 group-hover:opacity-100"
+              className="flex items-center gap-1 rounded-lg border border-border/50
+              px-3 py-1.5 text-[11px] font-medium text-muted-foreground/70
+              hover:text-foreground hover:border-destructive/20 hover:bg-destructive/20 transition-colors duration-100"
             >
+              Cancel
               <Ban size={12} />
             </button>
           )}

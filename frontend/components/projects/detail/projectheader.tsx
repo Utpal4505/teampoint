@@ -1,6 +1,6 @@
 'use client'
 
-import type { ProjectDetail } from '@/features/projects/detail/types'
+import { ProjectDetail } from '@/features/projects/detail/types'
 import StatusBadge from './statusbadge'
 
 interface ProjectHeaderProps {
@@ -14,7 +14,6 @@ export default function ProjectHeader({ project, activeTabLabel }: ProjectHeader
   return (
     <>
     <div className="px-6 py-5 flex flex-col gap-4">
-      {/* Row 1 — Title + Status */}
       {activeTabLabel === 'Overview' ? (
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">

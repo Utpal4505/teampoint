@@ -52,75 +52,85 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col gap-3 border-b border-border px-6 py-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <div className="flex items-center gap-0.5 rounded-xl border border-border bg-muted/40 p-1">
-            {(['kanban', 'list'] as ViewMode[]).map(v => (
-              <button
-                key={v}
-                onClick={() => setView(v)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all
+      {/* Header */}
+      <div className="px-6 py-5 border-b border-border">
+        <h1 className="font-display text-[22px] font-bold text-foreground leading-tight">
+          Tasks
+        </h1>
+      </div>
+
+      {/* Content */}
+      <div className="flex flex-col flex-1">
+        <div className="flex flex-col gap-3 border-b border-border px-6 py-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-0.5 rounded-xl border border-border bg-muted/40 p-1">
+              {(['kanban', 'list'] as ViewMode[]).map(v => (
+                <button
+                  key={v}
+                  onClick={() => setView(v)}
+                  className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all
                   ${view === v ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
-              >
-                {v === 'kanban' ? <LayoutGrid size={13} /> : <List size={13} />}
-                {v.charAt(0).toUpperCase() + v.slice(1)}
-              </button>
-            ))}
+                >
+                  {v === 'kanban' ? <LayoutGrid size={13} /> : <List size={13} />}
+                  {v.charAt(0).toUpperCase() + v.slice(1)}
+                </button>
+              ))}
+            </div>
+            <div className="flex-1" />
+            <FilterDropdown
+              filters={filters}
+              onChange={setFilters}
+              onClear={() => setFilters(EMPTY_FILTERS)}
+            />
           </div>
-          <div className="flex-1" />
-          <FilterDropdown
-            filters={filters}
-            onChange={setFilters}
-            onClear={() => setFilters(EMPTY_FILTERS)}
-          />
+          <FilterChips filters={filters} onChange={setFilters} />
         </div>
-        <FilterChips filters={filters} onChange={setFilters} />
-      </div>
 
-      <div className="flex-1 overflow-hidden p-6">
-        {isLoading ? (
-          <div className="flex h-64 items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-          </div>
-        ) : view === 'kanban' ? (
-          <div
-            className="grid gap-4"
-            style={{
-              gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
-              alignItems: 'start',
-            }}
-          >
-            {COLUMNS.map(status => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                tasks={filtered.filter(t => t.status === status)}
-                onTaskClick={t => setSelectedTaskId(t.id)}
-                onAddTask={() => {}}
-                onDropTask={(taskId, newStatus) =>
-                  onStatusChange(taskId, newStatus as TaskStatus)
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <ListView
-            tasks={filtered}
-            onTaskClick={t => setSelectedTaskId(t.id)}
-            onStatusChange={(taskId, newStatus) =>
-              onStatusChange(taskId, newStatus as TaskStatus)
-            }
-          />
-        )}
-      </div>
+        <div className="flex-1 overflow-hidden p-6">
+          {isLoading ? (
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            </div>
+          ) : view === 'kanban' ? (
+            <div
+              className="grid gap-4"
+              style={{
+                gridTemplateColumns: 'repeat(3, minmax(280px, 1fr))',
+                alignItems: 'start',
+              }}
+            >
+              {COLUMNS.map(status => (
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  tasks={filtered.filter(t => t.status === status)}
+                  onTaskClick={t => setSelectedTaskId(t.id)}
+                  onAddTask={() => {}}
+                  onDropTask={(taskId, newStatus) =>
+                    onStatusChange(taskId, newStatus as TaskStatus)
+                  }
+                />
+              ))}
+            </div>
+          ) : (
+            <ListView
+              tasks={filtered}
+              onTaskClick={t => setSelectedTaskId(t.id)}
+              onStatusChange={(taskId, newStatus) =>
+                onStatusChange(taskId, newStatus as TaskStatus)
+              }
+            />
+          )}
+        </div>
 
-      <TaskDrawer
-        task={selectedTask}
-        onClose={() => setSelectedTaskId(null)}
-        onStatusChange={(taskId, newStatus) =>
-          onStatusChange(taskId, newStatus as TaskStatus)
-        }
-      />
+        <TaskDrawer
+          task={selectedTask}
+          onClose={() => setSelectedTaskId(null)}
+          onStatusChange={(taskId, newStatus) =>
+            onStatusChange(taskId, newStatus as TaskStatus)
+          }
+        />
+      </div>
     </div>
   )
 }

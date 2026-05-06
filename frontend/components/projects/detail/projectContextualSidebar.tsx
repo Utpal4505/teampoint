@@ -242,7 +242,7 @@ export default function ProjectContextualSidebar({
       iconColor: 'text-violet-500',
     },
     {
-      href: `${base}/docs`,
+      href: `${base}/documents`,
       icon: FileText,
       label: 'Docs',
       iconBg: 'bg-amber-500/15',
