@@ -107,8 +107,14 @@ export const useCreateTask = (workspaceId: number) => {
       }
     },
 
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
+      // Invalidate project tasks if this is a project task
+      if (variables.taskType === 'PROJECT' && variables.projectId) {
+        queryClient.invalidateQueries({
+          queryKey: ['project', Number(variables.projectId), 'tasks'],
+        })
+      }
     },
 
     onError: err => {

@@ -10,6 +10,7 @@ import FilterChips from '@/components/tasks/filterchips'
 import KanbanColumn from '@/components/tasks/kanbancolumn'
 import ListView from '@/components/tasks/listview'
 import TaskDrawer from '@/components/tasks/taskdrawer'
+import { TaskCreateModal } from '@/components/tasks/taskcreatemodal'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
@@ -30,13 +31,22 @@ function toTask(t: ProjectTask): Task {
 interface TasksTabProps {
   tasks: ProjectTask[]
   isLoading: boolean
+  workspaceId: number
   onStatusChange: (taskId: number, status: TaskStatus) => void
+  defaultProjectId?: string
 }
 
-export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabProps) {
+export default function TasksTab({
+  tasks,
+  isLoading,
+  workspaceId,
+  onStatusChange,
+  defaultProjectId,
+}: TasksTabProps) {
   const [view, setView] = useState<ViewMode>('kanban')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
 
   const uiTasks: Task[] = tasks.map(toTask)
 
@@ -49,6 +59,8 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
   const selectedTask = selectedTaskId
     ? (uiTasks.find(t => t.id === selectedTaskId) ?? null)
     : null
+
+    console.log("UI Task", uiTasks)
 
   return (
     <div className="flex flex-col">
@@ -105,7 +117,7 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
                   status={status}
                   tasks={filtered.filter(t => t.status === status)}
                   onTaskClick={t => setSelectedTaskId(t.id)}
-                  onAddTask={() => {}}
+                  onAddTask={() => setTaskModalOpen(true)}
                   onDropTask={(taskId, newStatus) =>
                     onStatusChange(taskId, newStatus as TaskStatus)
                   }
@@ -129,6 +141,14 @@ export default function TasksTab({ tasks, isLoading, onStatusChange }: TasksTabP
           onStatusChange={(taskId, newStatus) =>
             onStatusChange(taskId, newStatus as TaskStatus)
           }
+        />
+
+        <TaskCreateModal
+          key={taskModalOpen ? 'open' : 'closed'}
+          open={taskModalOpen}
+          onClose={() => setTaskModalOpen(false)}
+          workspaceId={workspaceId}
+          defaultProjectId={defaultProjectId}
         />
       </div>
     </div>

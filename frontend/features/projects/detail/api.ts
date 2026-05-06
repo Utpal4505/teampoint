@@ -26,7 +26,7 @@ export const updateProjectTaskStatus = async (
   taskId: number,
   status: string,
 ): Promise<void> => {
-  await api.patch(`/projects/${projectId}/tasks/${taskId}/status`, { status })
+  await api.patch(`/projects/tasks/${taskId}/status`, { status })
 }
 
 export const getProjectDocuments = async (

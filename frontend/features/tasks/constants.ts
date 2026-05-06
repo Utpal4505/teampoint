@@ -76,18 +76,27 @@ export const COLUMN_STYLES: Record<string, ColumnStyle> = {
     accent: 'text-slate-400',
     border: 'border-slate-400/30',
     glow: 'rgba(148,163,184,0.06)',
+    hoverBg: 'hover:bg-slate-400/10',
+    hoverBorder: 'hover:border-slate-400/50',
+    hoverText: 'hover:text-slate-400',
   },
   IN_PROGRESS: {
     label: 'In Progress',
     accent: 'text-amber-400',
     border: 'border-amber-400/30',
     glow: 'rgba(251,191,36,0.06)',
+    hoverBg: 'hover:bg-amber-400/10',
+    hoverBorder: 'hover:border-amber-400/50',
+    hoverText: 'hover:text-amber-400',
   },
   DONE: {
     label: 'Done',
     accent: 'text-emerald-400',
     border: 'border-emerald-400/30',
     glow: 'rgba(52,211,153,0.06)',
+    hoverBg: 'hover:bg-emerald-400/10',
+    hoverBorder: 'hover:border-emerald-400/50',
+    hoverText: 'hover:text-emerald-400',
   },
 }
 

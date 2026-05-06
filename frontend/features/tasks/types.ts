@@ -115,6 +115,9 @@ export interface ColumnStyle {
   accent: string
   border: string
   glow: string
+  hoverBg: string
+  hoverBorder: string
+  hoverText: string
 }
 
 export interface PriorityOption {

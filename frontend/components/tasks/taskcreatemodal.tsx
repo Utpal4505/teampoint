@@ -14,6 +14,7 @@ import {
   CalendarDays,
   Check,
   Sparkles,
+  UserCircle2,
 } from 'lucide-react'
 import { Calendar } from '@/components/ui/calendar'
 import { useQueryClient } from '@tanstack/react-query'
@@ -22,6 +23,7 @@ import { useUserStore } from '@/store/user.store'
 import { useCreateTask, formatTaskPayload } from '@/features/tasks/hooks'
 import { handleApiError } from '@/lib/handle-api-error'
 import { useListAllWorkspaceProjects } from '@/features/projects/hooks'
+import { useProjectMembers } from '@/features/projects/detail/hooks'
 
 export type TaskType = 'PERSONAL' | 'PROJECT'
 export type TaskStatus = 'TODO'
@@ -188,10 +190,10 @@ function DatePickerField({
         onClick={() => setOpen(v => !v)}
         onKeyDown={e => e.key === 'Enter' && setOpen(v => !v)}
         className={`flex w-full items-center gap-2.5 rounded-xl border border-border
-    bg-background px-3.5 py-2.5 text-sm transition-all duration-150
-    hover:border-border/80 hover:bg-accent/50 cursor-pointer
-    focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
-    ${formatted ? 'text-foreground' : 'text-muted-foreground'}`}
+          bg-background px-3.5 py-2.5 text-sm transition-all duration-150
+          hover:border-border/80 hover:bg-accent/50 cursor-pointer
+          focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
+          ${formatted ? 'text-foreground' : 'text-muted-foreground'}`}
       >
         <CalendarDays size={13} className="shrink-0 text-muted-foreground/60" />
         <span className="flex-1 text-left font-medium">{formatted ?? 'Pick a date'}</span>
@@ -232,6 +234,143 @@ function DatePickerField({
   )
 }
 
+function MemberAvatar({ name, avatarUrl }: { name: string; avatarUrl?: string | null }) {
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={name}
+        className="h-6 w-6 rounded-full object-cover shrink-0"
+      />
+    )
+  }
+  return (
+    <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center shrink-0">
+      <span className="text-[10px] font-bold text-primary uppercase leading-none">
+        {name.charAt(0)}
+      </span>
+    </div>
+  )
+}
+
+function AssigneeDropdown({
+  projectId,
+  value,
+  onChange,
+}: {
+  projectId: string
+  value: number | null
+  onChange: (id: number | null) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const { data: members = [], isLoading } = useProjectMembers(Number(projectId))
+  const selected = members.find(m => m.userId === value) ?? null
+
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        className="flex w-full items-center gap-2.5 rounded-xl border border-border
+          bg-background px-3.5 py-2.5 text-sm transition-all duration-150
+          hover:border-border/80 hover:bg-accent/50
+          focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+      >
+        {isLoading ? (
+          <Loader2 size={13} className="animate-spin text-muted-foreground/60 shrink-0" />
+        ) : selected ? (
+          <MemberAvatar name={selected.fullName} avatarUrl={selected.avatarUrl} />
+        ) : (
+          <UserCircle2 size={15} className="text-muted-foreground/40 shrink-0" />
+        )}
+        <span
+          className={`flex-1 text-left font-medium ${selected ? 'text-foreground' : 'text-muted-foreground'}`}
+        >
+          {isLoading ? 'Loading members…' : selected ? selected.fullName : 'Unassigned'}
+        </span>
+        <ChevronDown
+          size={13}
+          className={`text-muted-foreground/60 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-0 right-0 bottom-[calc(100%+6px)] z-50
+          overflow-hidden rounded-xl border border-border bg-card
+          shadow-[0_-12px_40px_oklch(0_0_0/0.5)]
+          animate-in fade-in-0 slide-in-from-bottom-2 duration-150
+          max-h-[200px] overflow-y-auto"
+        >
+          {/* Unassigned */}
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null)
+              setOpen(false)
+            }}
+            className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-sm
+              transition-colors duration-100 text-muted-foreground hover:bg-accent/40
+              ${value === null ? 'bg-muted/40' : ''}`}
+          >
+            <UserCircle2 size={16} className="shrink-0 text-muted-foreground/30" />
+            <span className="flex-1 text-left font-medium">Unassigned</span>
+            {value === null && <Check size={12} />}
+          </button>
+
+          {/* Members */}
+          {members.map(member => (
+            <button
+              key={member.userId}
+              type="button"
+              onClick={() => {
+                onChange(member.userId)
+                setOpen(false)
+              }}
+              className={`flex w-full items-center gap-3 px-3.5 py-2.5 text-sm
+                transition-colors duration-100 hover:bg-accent/40
+                ${value === member.userId ? 'bg-muted/40' : ''}`}
+            >
+              <MemberAvatar name={member.fullName} avatarUrl={member.avatarUrl} />
+              <div className="flex flex-1 flex-col items-start min-w-0">
+                <span className="font-medium text-foreground truncate w-full">
+                  {member.fullName}
+                </span>
+                {member.email && (
+                  <span className="text-[10px] text-muted-foreground/50 truncate w-full">
+                    {member.email}
+                  </span>
+                )}
+              </div>
+              <span className="text-[10px] text-muted-foreground/40 capitalize shrink-0 mr-1">
+                {member.role.toLowerCase()}
+              </span>
+              {value === member.userId && (
+                <Check size={12} className="shrink-0 text-primary" />
+              )}
+            </button>
+          ))}
+
+          {!isLoading && members.length === 0 && (
+            <div className="px-3.5 py-4 text-xs text-muted-foreground/50 text-center">
+              No members in this project
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function FieldLabel({
   children,
   required,
@@ -264,6 +403,7 @@ interface TaskCreateModalProps {
   open: boolean
   onClose: () => void
   workspaceId: number
+  defaultProjectId?: string
 }
 
 interface FormErrors {
@@ -271,23 +411,26 @@ interface FormErrors {
   projectId?: string
 }
 
-export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalProps) {
+export function TaskCreateModal({
+  open,
+  onClose,
+  workspaceId,
+  defaultProjectId,
+}: TaskCreateModalProps) {
   const queryClient = useQueryClient()
   const { user } = useUserStore()
-  const { mutate: createTaskMutate } = useCreateTask(workspaceId)
+  const { mutateAsync: createTaskAsync } = useCreateTask(workspaceId)
   const { data: projectsData = [] } = useListAllWorkspaceProjects(workspaceId)
 
-  const projects = projectsData.map(p => ({
-    id: String(p.id),
-    name: p.name,
-  }))
+  const projects = projectsData.map(p => ({ id: String(p.id), name: p.name }))
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState<TaskType>('PERSONAL')
-  const [projectId, setProjectId] = useState('')
+  const [type, setType] = useState<TaskType>(defaultProjectId ? 'PROJECT' : 'PERSONAL')
+  const [projectId, setProjectId] = useState(defaultProjectId ?? '')
   const [priority, setPriority] = useState<Priority>('MEDIUM')
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined)
+  const [assignedTo, setAssignedTo] = useState<number | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
 
@@ -306,6 +449,7 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
     setProjectId('')
     setPriority('MEDIUM')
     setDueDate(undefined)
+    setAssignedTo(null)
     setErrors({})
     setLoading(false)
   }
@@ -317,13 +461,11 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
 
   async function handleSubmit() {
     if (!validate()) return
-
     try {
       if (!user) {
         toast.error('User not found please login again')
         return
       }
-
       const payload: TaskCreatePayload = {
         title: title.trim(),
         description: description.trim(),
@@ -332,16 +474,16 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
         priority,
         status: 'TODO',
         dueDate: dueDate ? dueDate.toISOString() : null,
+        ...(assignedTo !== null && { assignedTo }),
       }
-
       setLoading(true)
       const taskInput = formatTaskPayload(payload, user.id)
-      createTaskMutate(taskInput)
+      await createTaskAsync(taskInput)
       toast.success('Task created successfully!')
-      queryClient.invalidateQueries({ queryKey: ['workspace', workspaceId, 'myTasks'] })
       handleClose()
     } catch (error) {
       handleApiError(error)
+    } finally {
       setLoading(false)
     }
   }
@@ -453,6 +595,7 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
                   onClick={() => {
                     setType(t)
                     setProjectId('')
+                    setAssignedTo(null)
                     setErrors(p => ({ ...p, projectId: undefined }))
                   }}
                   className={`flex flex-1 items-center justify-center gap-2 rounded-lg
@@ -483,6 +626,7 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
                   value={projectId}
                   onChange={e => {
                     setProjectId(e.target.value)
+                    setAssignedTo(null)
                     setErrors(p => ({ ...p, projectId: undefined }))
                   }}
                   className={`w-full appearance-none rounded-xl border pl-9 pr-9 py-2.5
@@ -506,6 +650,18 @@ export function TaskCreateModal({ open, onClose, workspaceId }: TaskCreateModalP
                 />
               </div>
               <FieldError msg={errors.projectId} />
+            </div>
+          )}
+
+          {/* Assignee — only visible when a project is selected */}
+          {type === 'PROJECT' && projectId && (
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel>Assignee</FieldLabel>
+              <AssigneeDropdown
+                projectId={projectId}
+                value={assignedTo}
+                onChange={setAssignedTo}
+              />
             </div>
           )}
 

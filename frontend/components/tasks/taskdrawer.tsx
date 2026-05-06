@@ -61,6 +61,8 @@ export default function TaskDrawer({ task, onClose, onStatusChange }: TaskDrawer
   const p = task ? PRIORITY_CONFIG[task.priority] : null
   const s = task ? STATUS_CONFIG[task.status] : null
 
+  console.log("Tasks", task)
+
   return (
     <>
       <div

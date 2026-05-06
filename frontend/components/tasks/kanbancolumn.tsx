@@ -60,12 +60,24 @@ export default function KanbanColumn({
     >
       {/* Column Header */}
       <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/40">
-        <span className={`text-xs font-bold uppercase tracking-widest ${cfg.accent}`}>
-          {cfg.label}
-        </span>
-        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground">
-          {tasks.length}
-        </span>
+        <div className="flex items-center gap-2.5">
+          <span className={`text-xs font-bold uppercase tracking-widest ${cfg.accent}`}>
+            {cfg.label}
+          </span>
+          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-[10px] font-semibold text-muted-foreground">
+            {tasks.length}
+          </span>
+        </div>
+        <button
+          onClick={() => onAddTask(status)}
+          className={`flex items-center justify-center h-[26px] w-[26px] rounded-full
+                      border border-border/40 text-muted-foreground/40
+                      active:scale-95 transition-all duration-150
+                      ${cfg.hoverBg} ${cfg.hoverBorder} ${cfg.hoverText}`}
+          aria-label="Add task"
+        >
+          <Plus size={14} />
+        </button>
       </div>
 
       {/* Inner dashed drop zone */}
@@ -97,7 +109,7 @@ export default function KanbanColumn({
             px-3 py-2.5 text-xs text-muted-foreground/40 transition-all
             hover:border-border/70 hover:text-muted-foreground hover:bg-accent/20"
         >
-          <Plus size={13} /> Add Task
+          <Plus size={13} /> Create New Task
         </button>
       </div>
     </div>

@@ -91,77 +91,75 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
 
         {/* Content */}
         <div className="p-6 flex flex-col gap-6 overflow-y-auto flex-1">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex flex-col gap-1">
-              <p className="text-[12px] text-muted-foreground/50">
-                All files and references for this project
-              </p>
+          <div className="flex items-center justify-between gap-4">
+            {/* Stats cards on left */}
+            <div className="grid grid-cols-4 gap-3 flex-1">
+              {[
+                {
+                  label: 'Total',
+                  value: counts.ALL,
+                  Icon: FolderOpen,
+                  color: 'text-primary',
+                  bg: 'bg-primary/5',
+                  border: 'border-primary/15',
+                },
+                {
+                  label: 'Linked',
+                  value: counts.LINKED,
+                  Icon: Link2,
+                  color: 'text-sky-400',
+                  bg: 'bg-sky-400/5',
+                  border: 'border-sky-400/15',
+                },
+                {
+                  label: 'Unlinked',
+                  value: counts.UNLINKED,
+                  Icon: FileText,
+                  color: 'text-amber-400',
+                  bg: 'bg-amber-400/5',
+                  border: 'border-amber-400/15',
+                },
+                {
+                  label: 'Archived',
+                  value: counts.ARCHIVED,
+                  Icon: Archive,
+                  color: 'text-muted-foreground',
+                  bg: 'bg-muted/20',
+                  border: 'border-border/40',
+                },
+              ].map(s => (
+                <div
+                  key={s.label}
+                  className={`flex items-center gap-3 rounded-2xl border ${s.border} ${s.bg} px-4 py-3`}
+                >
+                  <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${s.bg} border ${s.border}`}
+                  >
+                    <s.Icon size={14} className={s.color} />
+                  </div>
+                  <div>
+                    <p
+                      className={`text-lg font-bold tabular-nums leading-none ${s.color}`}
+                    >
+                      {s.value}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 uppercase tracking-wider">
+                      {s.label}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
+            {/* Upload button on right */}
             <button
               onClick={() => setUploadOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2
-                text-xs font-semibold text-primary-foreground shrink-0
+              className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 shrink-0
+                text-xs font-semibold text-primary-foreground
                 hover:bg-primary/90 transition-all duration-150 shadow-sm shadow-primary/20"
             >
               <Upload size={12} /> Upload
             </button>
-          </div>
-
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              {
-                label: 'Total',
-                value: counts.ALL,
-                Icon: FolderOpen,
-                color: 'text-primary',
-                bg: 'bg-primary/5',
-                border: 'border-primary/15',
-              },
-              {
-                label: 'Linked',
-                value: counts.LINKED,
-                Icon: Link2,
-                color: 'text-sky-400',
-                bg: 'bg-sky-400/5',
-                border: 'border-sky-400/15',
-              },
-              {
-                label: 'Unlinked',
-                value: counts.UNLINKED,
-                Icon: FileText,
-                color: 'text-amber-400',
-                bg: 'bg-amber-400/5',
-                border: 'border-amber-400/15',
-              },
-              {
-                label: 'Archived',
-                value: counts.ARCHIVED,
-                Icon: Archive,
-                color: 'text-muted-foreground',
-                bg: 'bg-muted/20',
-                border: 'border-border/40',
-              },
-            ].map(s => (
-              <div
-                key={s.label}
-                className={`flex items-center gap-3 rounded-2xl border ${s.border} ${s.bg} px-4 py-3`}
-              >
-                <div
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${s.bg} border ${s.border}`}
-                >
-                  <s.Icon size={14} className={s.color} />
-                </div>
-                <div>
-                  <p className={`text-lg font-bold tabular-nums leading-none ${s.color}`}>
-                    {s.value}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/50 mt-0.5 uppercase tracking-wider">
-                    {s.label}
-                  </p>
-                </div>
-              </div>
-            ))}
           </div>
 
           <DocumentFilterBar

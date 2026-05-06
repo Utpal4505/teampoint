@@ -1,7 +1,7 @@
 import { CalendarDays, FolderKanban, User, GripVertical } from 'lucide-react'
 import { PRIORITY_CONFIG } from '@/features/tasks/constants'
 import type { Task } from '@/features/tasks/types'
-import { formatDate, getInitials } from '@/lib/utils'
+import { getInitials } from '@/lib/utils'
 import Image from 'next/image'
 
 interface TaskCardProps {
@@ -10,6 +10,69 @@ interface TaskCardProps {
   dragging?: boolean
   onDragStart?: (e: React.DragEvent, task: Task) => void
   onDragEnd?: () => void
+}
+
+function getDaysLeftInfo(dueDate: string, status: string) {
+  if (status === 'DONE') {
+    return {
+      text: 'Completed',
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
+    }
+  }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const due = new Date(dueDate)
+  due.setHours(0, 0, 0, 0)
+
+  const daysLeft = Math.ceil((due.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+  if (daysLeft < 0) {
+    return {
+      text: `${Math.abs(daysLeft)} day${Math.abs(daysLeft) !== 1 ? 's' : ''} overdue`,
+      color: 'text-red-600',
+      bg: 'bg-red-500/10',
+      border: 'border-red-500/30',
+    }
+  } else if (daysLeft === 0) {
+    return {
+      text: 'Due today',
+      color: 'text-red-600',
+      bg: 'bg-red-500/10',
+      border: 'border-red-500/30',
+    }
+  } else if (daysLeft === 1) {
+    return {
+      text: '1 day left',
+      color: 'text-red-600',
+      bg: 'bg-red-500/10',
+      border: 'border-red-500/30',
+    }
+  } else if (daysLeft <= 3) {
+    return {
+      text: `${daysLeft} days left`,
+      color: 'text-amber-600',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/30',
+    }
+  } else if (daysLeft <= 7) {
+    return {
+      text: `${daysLeft} days left`,
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-500/10',
+      border: 'border-yellow-500/30',
+    }
+  } else {
+    return {
+      text: `${daysLeft} days left`,
+      color: 'text-emerald-600',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
+    }
+  }
 }
 
 export default function TaskCard({
@@ -21,6 +84,7 @@ export default function TaskCard({
 }: TaskCardProps) {
   const p = PRIORITY_CONFIG[task.priority]
   const P_Icon = p.Icon
+  const dueDateInfo = task.dueDate ? getDaysLeftInfo(task.dueDate, task.status) : null
 
   return (
     <div
@@ -49,10 +113,12 @@ export default function TaskCard({
           <P_Icon size={9} />
           {p.label}
         </span>
-        {task.dueDate && (
-          <span className="flex items-center gap-1 rounded-md border border-border bg-muted/30 px-2 py-0.5 text-[10px] text-muted-foreground">
+        {dueDateInfo && (
+          <span
+            className={`flex items-center gap-1 rounded-md border ${dueDateInfo.border} ${dueDateInfo.bg} px-2 py-0.5 text-[10px] font-semibold ${dueDateInfo.color}`}
+          >
             <CalendarDays size={9} />
-            {formatDate(task.dueDate)}
+            {dueDateInfo.text}
           </span>
         )}
       </div>

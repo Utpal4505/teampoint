@@ -4,7 +4,8 @@ import TasksTab from '@/components/projects/detail/tabs/taskstab'
 import { useProjectDetailContext } from '@/components/projects/detail/project-detail-context'
 
 export default function TasksPage() {
-  const { project, tasks, isLoading, onStatusChange, projectId } = useProjectDetailContext()
+  const { project, tasks, isLoading, onStatusChange, projectId, workspaceId } =
+    useProjectDetailContext()
 
   const updatedTasks = tasks.map(t => ({
     ...t,
@@ -15,7 +16,9 @@ export default function TasksPage() {
     <TasksTab
       tasks={updatedTasks}
       isLoading={isLoading}
+      workspaceId={workspaceId}
       onStatusChange={onStatusChange}
+      defaultProjectId={String(projectId)}
     />
   )
 }

@@ -84,11 +84,11 @@ export default function ScheduleMeetingModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/50" onClick={onClose} />
+      <div className="fixed inset-0 z-50 bg-card/50" onClick={onClose} />
 
       <div
         className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2
-          w-full max-w-[480px] rounded-2xl border border-border bg-background
+          w-full max-w-[480px] rounded-2xl border border-border bg-card
           shadow-2xl shadow-black/25 flex flex-col overflow-hidden"
         style={{ maxHeight: '88vh' }}
       >
@@ -100,7 +100,7 @@ export default function ScheduleMeetingModal({
             </div>
             <div>
               <h2 className="text-sm font-bold text-foreground">Schedule Meeting</h2>
-              <p className="text-[11px] text-muted-foreground/50">
+              <p className="text-[11px] text-muted-foreground/70">
                 A Google Meet link will be auto-generated
               </p>
             </div>
@@ -108,7 +108,7 @@ export default function ScheduleMeetingModal({
           <button
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-lg
-              text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              text-muted-foreground hover:bg-destructive/30 hover:text-foreground transition-colors"
           >
             <X size={14} />
           </button>
@@ -119,7 +119,7 @@ export default function ScheduleMeetingModal({
           {/* Title */}
           <div className="flex flex-col gap-1.5">
             <label
-              className="text-[11px] font-semibold text-muted-foreground/70
+              className="text-[11px] font-semibold text-muted-foreground
               uppercase tracking-wider"
             >
               Title <span className="text-red-400 normal-case font-normal">*</span>
@@ -139,7 +139,7 @@ export default function ScheduleMeetingModal({
           {/* Description */}
           <div className="flex flex-col gap-1.5">
             <label
-              className="text-[11px] font-semibold text-muted-foreground/70
+              className="text-[11px] font-semibold text-muted-foreground
               uppercase tracking-wider"
             >
               Description
@@ -164,7 +164,7 @@ export default function ScheduleMeetingModal({
           {/* Date + Time row */}
           <div className="flex flex-col gap-1.5">
             <label
-              className="text-[11px] font-semibold text-muted-foreground/70
+              className="text-[11px] font-semibold text-muted-foreground
               uppercase tracking-wider"
             >
               Date & Time <span className="text-red-400 normal-case font-normal">*</span>
@@ -211,12 +211,12 @@ export default function ScheduleMeetingModal({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <label
-                className="text-[11px] font-semibold text-muted-foreground/70
+                className="text-[11px] font-semibold text-muted-foreground
                 uppercase tracking-wider flex items-center gap-1.5"
               >
                 <Users size={11} /> Participants
               </label>
-              <span className="text-[10px] text-muted-foreground/40">
+              <span className="text-[10px] text-muted-foreground/60">
                 HOST role receives the Google Meet link
               </span>
             </div>
