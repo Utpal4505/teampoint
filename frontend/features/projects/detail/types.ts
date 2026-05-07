@@ -42,6 +42,7 @@ export type TaskType = 'PERSONAL' | 'PROJECT'
 export interface ProjectTask {
   id: number
   title: string
+  description?: string | null
   status: TaskStatus
   priority: TaskPriority
   dueDate: string | null

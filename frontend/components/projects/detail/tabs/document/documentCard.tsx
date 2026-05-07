@@ -292,14 +292,28 @@ export default function DocumentCard({
 
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <div
-              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full
-              bg-primary/20 text-[8px] font-bold text-primary"
-            >
-              {doc.uploaderName ? doc.uploaderName.charAt(0).toUpperCase() : 'U'}
-            </div>
+            {doc.uploadedBy?.avatarUrl ? (
+              <img
+                src={doc.uploadedBy.avatarUrl}
+                alt={doc.uploadedBy.name}
+                className="h-5 w-5 shrink-0 rounded-full object-cover"
+              />
+            ) : (
+              <div
+                className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full
+                bg-primary/20 text-[8px] font-bold text-primary"
+              >
+                {doc.uploadedBy?.name
+                  ? doc.uploadedBy.name.charAt(0).toUpperCase()
+                  : doc.uploaderName
+                    ? doc.uploaderName.charAt(0).toUpperCase()
+                    : 'U'}
+              </div>
+            )}
             <span className="text-[11px] text-muted-foreground/60 truncate">
-              {doc.uploaderName || `User ${doc.uploadedBy || '—'}`}
+              {doc.uploadedBy?.name ||
+                doc.uploaderName ||
+                `User ${doc.uploadedBy?.id || '—'}`}
             </span>
             <span className="text-muted-foreground/30 text-[10px]">·</span>
             <span className="text-[11px] text-muted-foreground/40 shrink-0">

@@ -55,6 +55,8 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
     }
   }, [docs, filter])
 
+  console.log("Filtered docuyment", filtered)
+
   const visible = filtered.slice(0, visibleCount)
   const hasMore = filtered.length > visibleCount
 

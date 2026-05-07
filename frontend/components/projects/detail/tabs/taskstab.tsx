@@ -19,7 +19,7 @@ function toTask(t: ProjectTask): Task {
     ...t,
     status: t.status as Status,
     priority: t.priority as Task['priority'],
-    description: '',
+    description: t.description ?? '',
     type: 'PROJECT',
     taskType: 'PROJECT',
     assignee: t.assignedTo?.name ?? 'Unassigned',
@@ -59,8 +59,6 @@ export default function TasksTab({
   const selectedTask = selectedTaskId
     ? (uiTasks.find(t => t.id === selectedTaskId) ?? null)
     : null
-
-    console.log("UI Task", uiTasks)
 
   return (
     <div className="flex flex-col">

@@ -55,7 +55,9 @@ export const createDocumentService = async (
         isArchived: true,
         uploader: {
           select: {
+            id: true,
             fullName: true,
+            avatarUrl: true,
           },
         },
       },
@@ -76,7 +78,18 @@ export const createDocumentService = async (
     })
 
     return {
-      ...document,
+      id: document.id,
+      projectId: document.projectId,
+      title: document.title,
+      description: document.description,
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+      isArchived: document.isArchived,
+      uploadedBy: {
+        id: document.uploader.id,
+        name: document.uploader.fullName,
+        avatarUrl: document.uploader.avatarUrl,
+      },
       fileKey: upload.fileKey,
       fileType: upload.contentType,
     }
@@ -103,7 +116,13 @@ export const listDocumentsService = async (
           contentType: true,
         },
       },
-      uploadedBy: true,
+      uploader: {
+        select: {
+          id: true,
+          fullName: true,
+          avatarUrl: true,
+        },
+      },
       isArchived: true,
       createdAt: true,
       updatedAt: true,
@@ -130,7 +149,11 @@ export const listDocumentsService = async (
     isArchived: doc.isArchived,
     title: doc.title,
     updatedAt: doc.updatedAt,
-    uploadedBy: doc.uploadedBy,
+    uploadedBy: {
+      id: doc.uploader.id,
+      name: doc.uploader.fullName,
+      avatarUrl: doc.uploader.avatarUrl,
+    },
     links: (doc.links || []).map(link => ({
       id: link.id,
       entityId: link.entityId,
@@ -159,7 +182,13 @@ export const getSingleDocumentByIdService = async (
           contentType: true,
         },
       },
-      uploadedBy: true,
+      uploader: {
+        select: {
+          id: true,
+          fullName: true,
+          avatarUrl: true,
+        },
+      },
       isArchived: true,
       createdAt: true,
       updatedAt: true,
@@ -180,7 +209,11 @@ export const getSingleDocumentByIdService = async (
     projectId: document.projectId,
     title: document.title,
     updatedAt: document.updatedAt,
-    uploadedBy: document.uploadedBy,
+    uploadedBy: {
+      id: document.uploader.id,
+      name: document.uploader.fullName,
+      avatarUrl: document.uploader.avatarUrl,
+    },
   }
 }
 

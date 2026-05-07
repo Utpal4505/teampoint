@@ -11,7 +11,11 @@ export interface DocumentLink {
 export interface Document {
   id: number
   projectId: number
-  uploadedBy: number
+  uploadedBy: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
   title: string
   description: string | null
   fileKey: string
@@ -48,7 +52,11 @@ export interface CreateDocumentLinkInput {
 export interface DocumentResponse {
   id: number
   projectId: number
-  uploadedBy: number
+  uploadedBy: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
   title: string
   description: string | null
   fileKey: string

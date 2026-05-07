@@ -6,7 +6,11 @@ export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>
 export type CreateDocumentDTO = {
   id: number
   projectId: number
-  uploadedBy: number
+  uploadedBy: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
   title: string
   description: string | null
   fileKey: string
@@ -22,7 +26,11 @@ export type ListDocumentItem = {
   description: string | null
   fileKey: string
   fileType: string
-  uploadedBy: number
+  uploadedBy: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
   isArchived: boolean
   createdAt: Date
   updatedAt: Date
@@ -37,7 +45,11 @@ export type ListDocumentItem = {
 export type GetSingleDocumentDTO = {
   id: number
   projectId: number
-  uploadedBy: number
+  uploadedBy: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }
   title: string
   description: string | null
   fileKey: string

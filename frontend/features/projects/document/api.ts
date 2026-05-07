@@ -29,7 +29,14 @@ export const getProjectDocuments = async (
 ): Promise<DocumentWithLinks[]> => {
   const { data } = await api.get(`/projects/${projectId}/documents`)
   return (data.data ?? []).map((doc: DocumentWithLinks) => ({
-    ...doc,
+    id: doc.id,
+    title: doc.title,
+    description: doc.description,
+    fileType: doc.fileType,
+    uploadedBy: doc.uploadedBy,
+    uploaderName: doc.uploadedBy?.name,
+    isArchived: doc.isArchived,
+    createdAt: doc.createdAt,
     links: doc.links ?? [],
   }))
 }
@@ -39,7 +46,21 @@ export const getDocument = async (
   documentId: number,
 ): Promise<DocumentWithLinks> => {
   const { data } = await api.get(`/projects/${projectId}/documents/${documentId}`)
-  return data.data
+  const doc = data.data as DocumentWithLinks
+  return {
+    id: doc.id,
+    projectId: doc.projectId,
+    title: doc.title,
+    description: doc.description,
+    fileKey: doc.fileKey,
+    fileType: doc.fileType,
+    uploadedBy: doc.uploadedBy,
+    uploaderName: doc.uploadedBy?.name,
+    isArchived: doc.isArchived,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+    links: doc.links ?? [],
+  }
 }
 
 export const createDocument = async (input: CreateDocumentInput): Promise<Document> => {
