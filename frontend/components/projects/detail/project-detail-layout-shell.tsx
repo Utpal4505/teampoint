@@ -22,7 +22,6 @@ import {
   CalendarDays,
   ListChecks,
 } from 'lucide-react'
-import Link from 'next/link'
 import { ProjectDetailContext, TabKey } from './project-detail-context'
 
 export type ModalState =
@@ -89,10 +88,13 @@ export default function ProjectLayoutShell({
     )
   }
 
-  const sidebarMembers = (project.projectMembers ?? []).map(m => ({
-    id: String(m.userId),
-    name: m.fullName ?? 'Member',
-  }))
+  const sidebarMembers = (project.projectMembers ?? []).map(m => {
+    return {
+      id: m.user.id.toString(),
+      name: m.user.fullName,
+      avatarUrl: m.user.avatarUrl ?? undefined,
+    }
+  })
 
   return (
     <ProjectDetailContext.Provider

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { X, FolderKanban, Loader2 } from 'lucide-react'
 import type { ProjectDetail, ProjectStatus } from '@/features/projects/detail/types'
 import { STATUS_CONFIG } from '@/features/projects/constants'
+import { useUpdateProject } from '@/features/projects/hooks'
 
 interface EditProjectModalProps {
   open: boolean
@@ -27,7 +28,9 @@ export default function EditProjectModal({
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description ?? '')
   const [status, setStatus] = useState<ProjectStatus>(project.status)
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+
+  const {  } = useUpdateProject
 
   async function handleSubmit() {
     if (!name.trim()) return

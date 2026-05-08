@@ -1,12 +1,14 @@
-import { WorkspaceRole } from '@/features/workspace/types'
-
 export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 export type MemberStatus = 'ACTIVE' | 'INVITED' | 'REMOVED' | 'LEFT' | 'BLOCKED'
 
 export interface ProjectMember {
   userId: number
-  fullName: string
+  user: {
+    id: number
+    fullName: string
+    avatarUrl: string | null
+  }
   role: ProjectRole
   joinedAt: string
   status: MemberStatus

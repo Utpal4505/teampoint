@@ -4,15 +4,6 @@ import { useState } from 'react'
 import { X, Plus, Trash2, Zap, CheckCircle2 } from 'lucide-react'
 import type { Meeting } from './meetings.types'
 
-// Fake project members for assignee dropdown — swap with real data later
-const FAKE_MEMBERS = [
-  { id: 1, name: 'Utpal Kumar' },
-  { id: 2, name: 'Rahul Sharma' },
-  { id: 3, name: 'Aman Verma' },
-  { id: 4, name: 'Neha Singh' },
-  { id: 5, name: 'Dev Patel' },
-]
-
 interface ActionItemDraft {
   id: string
   title: string
@@ -22,6 +13,7 @@ interface ActionItemDraft {
 
 interface CompleteMeetingModalProps {
   meeting: Meeting
+  members: Array<{ id: number; name: string }>
   onClose: () => void
   onComplete: (data: {
     keyDecisions: string
@@ -31,6 +23,7 @@ interface CompleteMeetingModalProps {
 
 export default function CompleteMeetingModal({
   meeting,
+  members,
   onClose,
   onComplete,
 }: CompleteMeetingModalProps) {
@@ -200,7 +193,7 @@ export default function CompleteMeetingModal({
                           focus:border-primary/40 transition-colors duration-100"
                       >
                         <option value="">Assign to…</option>
-                        {FAKE_MEMBERS.map(m => (
+                        {members.map(m => (
                           <option key={m.id} value={m.id}>
                             {m.name}
                           </option>

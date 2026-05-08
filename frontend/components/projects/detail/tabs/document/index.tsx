@@ -240,7 +240,7 @@ export default function DocumentsTab({ projectId }: DocumentsTabProps) {
       {drawerDoc && (
         <DocumentLinksDrawer
           projectId={projectId}
-          doc={drawerDoc}
+          docId={drawerDoc.id}
           onClose={() => setDrawerDoc(null)}
         />
       )}

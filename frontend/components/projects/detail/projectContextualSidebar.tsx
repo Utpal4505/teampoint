@@ -64,8 +64,6 @@ function AvatarStack({ members }: { members: Member[] }) {
   const visible = members.slice(0, 3)
   const extra = members.length - 3
 
-  console.log('Visible', visible)
-
   return (
     <div className="flex items-center shrink-0">
       <div className="flex -space-x-1.5">

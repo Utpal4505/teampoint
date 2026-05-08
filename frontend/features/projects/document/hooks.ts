@@ -50,7 +50,7 @@ export const useDocument = (projectId: number | null, documentId: number | null)
     queryKey: documentKeys.detail(projectId || 0, documentId || 0),
     queryFn: () => getDocument(projectId!, documentId!),
     enabled: projectId !== null && documentId !== null,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   })
 }
 
@@ -117,26 +117,22 @@ export const useDeleteDocument = (projectId: number) => {
 
 export const useCreateDocumentLink = (projectId: number) => {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (input: CreateDocumentLinkInput) => createDocumentLink(projectId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.byProject(projectId),
-      })
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: documentKeys.byProject(projectId) })
+      queryClient.invalidateQueries({ queryKey: documentKeys.detail(projectId, variables.documentId) })
     },
   })
 }
 
 export const useUnlinkDocument = (projectId: number) => {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: (linkId: number) => unlinkDocument(projectId, linkId),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: documentKeys.byProject(projectId),
-      })
+      queryClient.invalidateQueries({ queryKey: documentKeys.byProject(projectId) })
+      queryClient.invalidateQueries({ queryKey: documentKeys.all })
     },
   })
 }

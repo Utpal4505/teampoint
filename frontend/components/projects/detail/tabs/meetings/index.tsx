@@ -130,6 +130,10 @@ export default function MeetingsTab() {
         {completeTarget && (
           <CompleteMeetingModal
             meeting={completeTarget}
+            members={membersData.map(m => ({
+              id: m.userId,
+              name: m.fullName,
+            }))}
             onClose={() => setCompleteTarget(null)}
             onComplete={handleComplete}
           />
@@ -252,6 +256,10 @@ export default function MeetingsTab() {
         {completeTarget && (
           <CompleteMeetingModal
             meeting={completeTarget}
+            members={membersData.map(m => ({
+              id: m.userId,
+              name: m.fullName,
+            }))}
             onClose={() => setCompleteTarget(null)}
             onComplete={handleComplete}
           />

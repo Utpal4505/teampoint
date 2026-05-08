@@ -22,7 +22,6 @@ export const getProjectTasks = async (projectId: number): Promise<ProjectTask[]>
 }
 
 export const updateProjectTaskStatus = async (
-  projectId: number,
   taskId: number,
   status: string,
 ): Promise<void> => {
