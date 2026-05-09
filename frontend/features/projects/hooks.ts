@@ -53,10 +53,9 @@ export const useUpdateProject = () => {
       projectId: number
       input: UpdateProjectInput
     }) => updateProject(projectId, input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: projectKeys.all,
-      })
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: projectKeys.all })
+      queryClient.invalidateQueries({ queryKey: ['project', variables.projectId] }) // ← add this
     },
     onError: error => {
       handleApiError(error)
@@ -68,7 +67,13 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (projectId: number) => deleteProject(projectId),
+    mutationFn: ({
+      projectId,
+      workspaceId,
+    }: {
+      projectId: number
+      workspaceId: number
+    }) => deleteProject(projectId, workspaceId),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: projectKeys.all,

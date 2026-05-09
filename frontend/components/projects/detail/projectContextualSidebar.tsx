@@ -39,7 +39,9 @@ interface Member {
 interface Channel {
   id: string
   name: string
+  href?: string
   unread?: boolean
+  count?: number
 }
 
 interface ProjectContextualSidebarProps {
@@ -143,12 +145,52 @@ function NavLink({
 
 // ─── Channel Item ─────────────────────────────────────────────────────────────
 
-function ChannelItem({ name, unread }: { name: string; unread?: boolean }) {
+function ChannelContent({
+  name,
+  unread,
+  count,
+}: {
+  name: string
+  unread?: boolean
+  count?: number
+}) {
   return (
-    <button className="group flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-colors">
+    <>
       <Hash className="h-3 w-3 shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
       <span className="truncate flex-1 text-left">{name}</span>
+      {typeof count === 'number' && count > 0 && (
+        <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+          {count}
+        </span>
+      )}
       {unread && <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />}
+    </>
+  )
+}
+
+function ChannelItem({ channel }: { channel: Channel }) {
+  const className =
+    'group flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-colors'
+
+  if (channel.href) {
+    return (
+      <Link href={channel.href} className={className}>
+        <ChannelContent
+          name={channel.name}
+          unread={channel.unread}
+          count={channel.count}
+        />
+      </Link>
+    )
+  }
+
+  return (
+    <button className={className}>
+      <ChannelContent
+        name={channel.name}
+        unread={channel.unread}
+        count={channel.count}
+      />
     </button>
   )
 }
@@ -338,12 +380,15 @@ export default function ProjectContextualSidebar({
         {discussionOpen && (
           <div className="flex flex-col gap-0.5 mt-1">
             {channels.map(ch => (
-              <ChannelItem key={ch.id} name={ch.name} unread={ch.unread} />
+              <ChannelItem key={ch.id} channel={ch} />
             ))}
-            <button className="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-colors mt-0.5">
+            <Link
+              href={`${base}/discussions`}
+              className="flex items-center gap-2 rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent/60 hover:text-foreground transition-colors mt-0.5"
+            >
               <Plus className="h-3 w-3" />
-              Create Channel
-            </button>
+              New Discussion
+            </Link>
           </div>
         )}
       </div>

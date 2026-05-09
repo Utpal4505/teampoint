@@ -70,7 +70,7 @@ export const useUpdateProjectTaskStatus = (projectId: number) => {
 
   return useMutation({
     mutationFn: ({ taskId, status }: { taskId: number; status: TaskStatus }) =>
-      updateProjectTaskStatus(projectId, taskId, status),
+      updateProjectTaskStatus(taskId, status),
     onMutate: async ({ taskId, status }) => {
       await queryClient.cancelQueries({ queryKey: projectKeys.tasks(projectId) })
       const previous = queryClient.getQueryData<ProjectTask[]>(

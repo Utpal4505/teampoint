@@ -25,8 +25,8 @@ export const updateProject = async (projectId: number, input: UpdateProjectInput
   return data.data
 }
 
-export const deleteProject = async (projectId: number) => {
-  const { data } = await api.delete(`/projects/${projectId}`)
+export const deleteProject = async (projectId: number, workspaceId: number) => {
+  const { data } = await api.delete(`/projects/${projectId}?workspaceId=${workspaceId}`)
 
   return data.data
 }

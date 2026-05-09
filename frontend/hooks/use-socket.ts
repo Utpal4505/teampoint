@@ -35,7 +35,7 @@ export function useSocket({
 
     connectSocket()
 
-    if (projectId) {
+    if (projectId && !discussionId) {
       joinProjectRoom(projectId)
     }
 
@@ -48,7 +48,7 @@ export function useSocket({
         leaveDiscussionRoom(discussionId)
       }
 
-      if (projectId) {
+      if (projectId && !discussionId) {
         leaveProjectRoom(projectId)
       }
 

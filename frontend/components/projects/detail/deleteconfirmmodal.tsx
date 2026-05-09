@@ -1,29 +1,33 @@
 'use client'
 
-import { useState } from 'react'
 import { Trash2, Loader2, AlertTriangle } from 'lucide-react'
+import { useDeleteProject } from '@/features/projects/hooks'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 
 interface DeleteConfirmModalProps {
   open: boolean
   onClose: () => void
+  projectId: number
+  workspaceId: number
   projectName: string
-  onConfirm?: () => Promise<void>
 }
 
-export default function DeleteConfirmModal({
-  open,
-  onClose,
-  projectName,
-  onConfirm,
-}: DeleteConfirmModalProps) {
-  const [loading, setLoading] = useState(false)
+
+export default function DeleteConfirmModal({ open, onClose, projectId, workspaceId, projectName }: DeleteConfirmModalProps) {
+  const { mutateAsync: deleteProject, isPending: loading } = useDeleteProject()
+  const router = useRouter()
 
   async function handleConfirm() {
-    setLoading(true)
-    await onConfirm?.()
-    setLoading(false)
-    onClose()
+    try {
+      await deleteProject({ projectId, workspaceId })
+      toast.success('Project deleted')
+      onClose()
+      router.push('/projects')
+    } catch {
+    }
   }
+
 
   if (!open) return null
 

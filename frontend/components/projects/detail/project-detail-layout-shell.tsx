@@ -21,8 +21,13 @@ import {
   Users,
   CalendarDays,
   ListChecks,
+  MessageSquare,
 } from 'lucide-react'
 import { ProjectDetailContext, TabKey } from './project-detail-context'
+import {
+  useDiscussionSocketEvents,
+  useProjectDiscussions,
+} from '@/features/discussions/hooks'
 
 export type ModalState =
   | { type: 'none' }
@@ -36,6 +41,7 @@ const TABS: { key: TabKey; label: string; Icon: React.ElementType }[] = [
   { key: 'documents', label: 'Documents', Icon: FileText },
   { key: 'members', label: 'Members', Icon: Users },
   { key: 'meetings', label: 'Meetings', Icon: CalendarDays },
+  { key: 'discussions', label: 'Discussions', Icon: MessageSquare },
 ]
 
 interface ProjectLayoutShellProps {
@@ -56,11 +62,15 @@ export default function ProjectLayoutShell({
   const { data: project, isLoading: projectLoading } = useProjectDetail(projectId)
   const { data: tasks = [], isLoading: tasksLoading } = useProjectTasks(projectId)
   const { data: documents = [] } = useProjectDocuments(projectId)
+  const { data: discussions = [] } = useProjectDiscussions(projectId)
   const { mutate: updateTaskStatus } = useUpdateProjectTaskStatus(projectId)
+  useDiscussionSocketEvents(projectId)
 
   const base = `/workspace/${workspaceId}/projects/${projectId}`
 
-  const activeTab = (TABS.find(t => pathname.endsWith(`/${t.key}`))?.key ??
+  const activeTab = (TABS.find(
+    t => pathname.endsWith(`/${t.key}`) || pathname.includes(`/${t.key}/`),
+  )?.key ??
     'overview') as TabKey
   const activeTabLabel = TABS.find(t => t.key === activeTab)?.label ?? 'Overview'
 
@@ -95,6 +105,13 @@ export default function ProjectLayoutShell({
       avatarUrl: m.user.avatarUrl ?? undefined,
     }
   })
+  const sidebarDiscussions = discussions.slice(0, 8).map(discussion => ({
+    id: discussion.id.toString(),
+    name: discussion.title,
+    href: `${base}/discussions/${discussion.id}`,
+    count: discussion.messageCount,
+    unread: discussion.status === 'OPEN' && discussion.updatedAt !== discussion.createdAt,
+  }))
 
   return (
     <ProjectDetailContext.Provider
@@ -117,6 +134,7 @@ export default function ProjectLayoutShell({
           projectId={projectId}
           projectName={project.name}
           members={sidebarMembers}
+          channels={sidebarDiscussions}
           userRole={'MEMBER'}
           totalTasks={tasks.length}
           doneTasks={tasks.filter(t => t.status === 'DONE').length}
@@ -199,7 +217,6 @@ export default function ProjectLayoutShell({
           <div className="flex-1 overflow-auto">{children}</div>
         </div>
 
-        {/* ── Modals ── */}
         <EditProjectModal
           open={modal.type === 'edit'}
           onClose={() => setModal({ type: 'none' })}
@@ -208,7 +225,9 @@ export default function ProjectLayoutShell({
         <DeleteConfirmModal
           open={modal.type === 'delete'}
           onClose={() => setModal({ type: 'none' })}
+          projectId={project.id}
           projectName={project.name}
+          workspaceId={workspaceId}
         />
         <MembersDrawer
           open={modal.type === 'members'}

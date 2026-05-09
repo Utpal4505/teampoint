@@ -48,6 +48,7 @@ export const updateProjectSchema = z
         return sanitizeText(v.trim())
       }),
     status: z.nativeEnum(ProjectStatus),
+    workspaceId: z.coerce.number().int().positive().transform(Number),
   })
   .partial()
 

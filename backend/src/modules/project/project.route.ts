@@ -13,6 +13,7 @@ import {
   getProjectByIdController,
   updateProjectController,
 } from './project.controller.ts'
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
 
 const router = Router()
 
@@ -42,6 +43,7 @@ router.patch(
 router.delete(
   '/:projectId',
   validateRequest(projectIdParamSchema, 'params'),
+  validateRequest(workspaceIdParamSchema, 'body'),
   requireWorkspacePermission('canDeleteProject'),
   deleteProjectController,
 )

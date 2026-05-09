@@ -3,7 +3,13 @@
 import { createContext, useContext } from 'react'
 import type { ProjectDetail, ProjectTask, ProjectDocument } from '@/features/projects/detail/types'
 
-export type TabKey = 'tasks' | 'overview' | 'documents' | 'members' | 'meetings'
+export type TabKey =
+  | 'tasks'
+  | 'overview'
+  | 'documents'
+  | 'members'
+  | 'meetings'
+  | 'discussions'
 
 interface ProjectDetailContextValue {
   workspaceId: number

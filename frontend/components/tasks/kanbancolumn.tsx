@@ -40,6 +40,7 @@ export default function KanbanColumn({
   function handleDrop(e: React.DragEvent) {
     e.preventDefault()
     const raw = e.dataTransfer.getData('taskId')
+    console.log("Kanban handledrop", raw, status)
     if (raw) onDropTask(+raw, status)
     setDragOver(false)
     setDraggingId(null)

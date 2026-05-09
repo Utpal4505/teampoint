@@ -5,16 +5,12 @@ import { X, FolderKanban, Loader2 } from 'lucide-react'
 import type { ProjectDetail, ProjectStatus } from '@/features/projects/detail/types'
 import { STATUS_CONFIG } from '@/features/projects/constants'
 import { useUpdateProject } from '@/features/projects/hooks'
+import { toast } from 'sonner'
 
 interface EditProjectModalProps {
   open: boolean
   onClose: () => void
   project: ProjectDetail
-  onSubmit?: (data: {
-    name: string
-    description: string
-    status: ProjectStatus
-  }) => Promise<void>
 }
 
 const STATUS_OPTIONS: ProjectStatus[] = ['ACTIVE', 'ONHOLD', 'COMPLETED', 'DELETED']
@@ -23,21 +19,23 @@ export default function EditProjectModal({
   open,
   onClose,
   project,
-  onSubmit,
 }: EditProjectModalProps) {
   const [name, setName] = useState(project.name)
   const [description, setDescription] = useState(project.description ?? '')
-  const [status, setStatus] = useState<ProjectStatus>(project.status)
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<ProjectStatus>(project.status as ProjectStatus)
 
-  const {  } = useUpdateProject
+  const { mutateAsync: updateProject, isPending: loading } = useUpdateProject()
 
   async function handleSubmit() {
     if (!name.trim()) return
-    setLoading(true)
-    await onSubmit?.({ name: name.trim(), description: description.trim(), status })
-    setLoading(false)
-    onClose()
+    try {
+      await updateProject({
+        projectId: project.id,
+        input: { name: name.trim(), description: description.trim(), status, workspaceId: project.workspaceId },
+      })
+      toast.success('Project updated!')
+      onClose()
+    } catch {}
   }
 
   if (!open) return null

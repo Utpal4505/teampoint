@@ -34,6 +34,7 @@ export type CreateProjectInput = {
 }
 
 export type UpdateProjectInput = {
+  workspaceId: number
   name?: string
   description?: string | null
   status?: ProjectStatus

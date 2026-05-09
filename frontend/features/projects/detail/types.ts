@@ -1,4 +1,4 @@
-export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
+export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED'
 export type ProjectRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 export type MemberStatus = 'ACTIVE' | 'INVITED' | 'REMOVED' | 'LEFT' | 'BLOCKED'
 
