@@ -30,6 +30,13 @@ export interface CreateDiscussionInput {
   contextId?: number
 }
 
+export interface DiscussionFilters {
+  status?: DiscussionStatus
+  type?: DiscussionType
+  contextId?: number
+  includeClosed?: boolean
+}
+
 export interface UpdateDiscussionInput {
   title?: string
   description?: string

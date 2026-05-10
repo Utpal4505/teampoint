@@ -17,6 +17,8 @@ export const validateRequest = <T extends z.ZodType>(
 
     if (target === 'query') {
       Object.assign(req.query, data)
+    } else if (target === 'params') {
+      Object.assign(req.params, data)
     } else {
       req[target] = data
     }

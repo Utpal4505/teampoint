@@ -10,6 +10,7 @@ interface KanbanColumnProps {
   status: Status
   tasks: Task[]
   onTaskClick: (task: Task) => void
+  onTaskDiscussionClick?: (task: Task, hasDiscussions: boolean) => void
   onAddTask: (status: Status) => void
   onDropTask: (taskId: number, newStatus: Status) => void
 }
@@ -18,6 +19,7 @@ export default function KanbanColumn({
   status,
   tasks,
   onTaskClick,
+  onTaskDiscussionClick,
   onAddTask,
   onDropTask,
 }: KanbanColumnProps) {
@@ -95,6 +97,7 @@ export default function KanbanColumn({
             key={task.id}
             task={task}
             onClick={onTaskClick}
+            onDiscussionClick={onTaskDiscussionClick}
             dragging={draggingId === task.id}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}

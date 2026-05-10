@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import {
   X,
   CalendarDays,
@@ -9,6 +10,8 @@ import {
   Clock,
   ChevronDown,
   Check,
+  MessageSquare,
+  Plus,
 } from 'lucide-react'
 import { PRIORITY_CONFIG, STATUS_CONFIG } from '@/features/tasks/constants'
 import { formatDate, getInitials } from '@/lib/utils'
@@ -19,12 +22,21 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { Task, Status } from '@/features/tasks/types'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  useDiscussionSocketEvents,
+  useProjectDiscussions,
+} from '@/features/discussions/hooks'
+import NewDiscussionModal from '@/components/projects/detail/tabs/discussions/new-discussion-modal'
 
 interface TaskDrawerProps {
   task: Task | null
   onClose: () => void
   onStatusChange?: (taskId: number, newStatus: Status) => void
+  activeTab?: 'overview' | 'discussion'
+  onActiveTabChange?: (tab: 'overview' | 'discussion') => void
+  workspaceId?: number
 }
 
 function AssigneeAvatar({ task }: { task: Task }) {
@@ -46,7 +58,16 @@ function AssigneeAvatar({ task }: { task: Task }) {
   )
 }
 
-export default function TaskDrawer({ task, onClose, onStatusChange }: TaskDrawerProps) {
+export default function TaskDrawer({
+  task,
+  onClose,
+  onStatusChange,
+  activeTab = 'overview',
+  onActiveTabChange,
+  workspaceId,
+}: TaskDrawerProps) {
+  const [discussionModalOpen, setDiscussionModalOpen] = useState(false)
+
   useEffect(() => {
     if (task) {
       document.body.style.overflow = 'hidden'
@@ -60,8 +81,15 @@ export default function TaskDrawer({ task, onClose, onStatusChange }: TaskDrawer
 
   const p = task ? PRIORITY_CONFIG[task.priority] : null
   const s = task ? STATUS_CONFIG[task.status] : null
-
-  console.log("Tasks", task)
+  const projectId = task?.project?.id ?? null
+  const taskDiscussionsQuery = useProjectDiscussions(projectId ?? 0, {
+    type: 'TASK',
+    contextId: task?.id,
+    includeClosed: true,
+  })
+  useDiscussionSocketEvents(projectId ?? 0)
+  const linkedDiscussions = taskDiscussionsQuery.data ?? []
+  const showDiscussionTab = !!task?.project
 
   return (
     <>
@@ -113,159 +141,238 @@ export default function TaskDrawer({ task, onClose, onStatusChange }: TaskDrawer
 
             <div className="h-px bg-border/60 mx-5 shrink-0" />
 
-            <div className="flex flex-col gap-4 overflow-y-auto p-5">
-              {/* Status + Priority chips */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Status — dropdown */}
-                {onStatusChange ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
-                        text-[11px] font-semibold border outline-none transition-all
-                        hover:opacity-80 ${s.color} ${s.bg}`}
-                    >
-                      <s.Icon size={11} /> {s.label}
-                      <ChevronDown size={10} className="ml-0.5 opacity-60" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-36">
-                      {(Object.keys(STATUS_CONFIG) as Status[])
-                        .filter(key => key !== 'CANCELLED')
-                        .map(key => (
-                          <DropdownMenuItem
-                            key={key}
-                            onClick={() => onStatusChange(task.id, key)}
-                            className="flex items-center justify-between text-[11px] font-medium"
-                          >
-                            <span
-                              className={`flex items-center gap-1.5 ${STATUS_CONFIG[key].color}`}
-                            >
-                              {(() => {
-                                const Icon = STATUS_CONFIG[key].Icon
-                                return <Icon size={11} />
-                              })()}
-                              {STATUS_CONFIG[key].label}
-                            </span>
-                            {task.status === key && (
-                              <Check size={11} className="text-primary" />
-                            )}
-                          </DropdownMenuItem>
-                        ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <span
-                    className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
-                    text-[11px] font-semibold border ${s.color} ${s.bg}`}
-                  >
-                    <s.Icon size={11} /> {s.label}
-                  </span>
-                )}
-
-                {/* Priority chip */}
-                <span
-                  className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
-                  text-[11px] font-semibold border ${p.color} ${p.bg}`}
-                >
-                  <p.Icon size={11} /> {p.label}
-                </span>
-
-                <span
-                  className="flex items-center gap-1 rounded-lg border border-border
-                  bg-muted/40 px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground"
-                >
-                  {task.taskType === 'PROJECT' ? (
-                    <FolderKanban size={10} />
-                  ) : (
-                    <User size={10} />
+            <div className="overflow-y-auto p-5">
+              <Tabs
+                value={activeTab}
+                onValueChange={value =>
+                  onActiveTabChange?.(value as 'overview' | 'discussion')
+                }
+                className="gap-4"
+              >
+                <TabsList className="bg-muted/40">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  {showDiscussionTab && (
+                    <TabsTrigger value="discussion" className="gap-1.5">
+                      <MessageSquare size={13} />
+                      Discussion
+                    </TabsTrigger>
                   )}
-                  {task.taskType.charAt(0) + task.taskType.slice(1).toLowerCase()}
-                </span>
-              </div>
+                </TabsList>
 
-              {/* Details card */}
-              <div className="rounded-xl border border-border/60 bg-muted/10 divide-y divide-border/40">
-                <div className="flex items-center justify-between gap-4 px-4 py-3">
-                  <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
-                    Assignee
-                  </span>
-                  <div className="flex items-center gap-2 min-w-0">
-                    <AssigneeAvatar task={task} />
-                    <span className="text-sm text-foreground truncate">
-                      {task.assignee ?? 'Unassigned'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 px-4 py-3">
-                  <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
-                    Due Date
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <CalendarDays size={12} className="text-muted-foreground shrink-0" />
-                    <span
-                      className={`text-sm ${task.dueDate ? 'text-foreground' : 'text-muted-foreground'}`}
-                    >
-                      {task.dueDate ? formatDate(task.dueDate) : 'No due date'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 px-4 py-3">
-                  <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
-                    Project
-                  </span>
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    {task.project ? (
-                      <>
-                        <FolderKanban
-                          size={12}
-                          className="text-muted-foreground shrink-0"
-                        />
-                        <span className="text-sm text-foreground truncate">
-                          {task.project.name}
-                        </span>
-                      </>
+                <TabsContent value="overview" className="space-y-4">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {onStatusChange ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                            text-[11px] font-semibold border outline-none transition-all
+                            hover:opacity-80 ${s.color} ${s.bg}`}
+                        >
+                          <s.Icon size={11} /> {s.label}
+                          <ChevronDown size={10} className="ml-0.5 opacity-60" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-36">
+                          {(Object.keys(STATUS_CONFIG) as Status[])
+                            .filter(key => key !== 'CANCELLED')
+                            .map(key => (
+                              <DropdownMenuItem
+                                key={key}
+                                onClick={() => onStatusChange(task.id, key)}
+                                className="flex items-center justify-between text-[11px] font-medium"
+                              >
+                                <span
+                                  className={`flex items-center gap-1.5 ${STATUS_CONFIG[key].color}`}
+                                >
+                                  {(() => {
+                                    const Icon = STATUS_CONFIG[key].Icon
+                                    return <Icon size={11} />
+                                  })()}
+                                  {STATUS_CONFIG[key].label}
+                                </span>
+                                {task.status === key && (
+                                  <Check size={11} className="text-primary" />
+                                )}
+                              </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
-                      <>
-                        <User size={12} className="text-muted-foreground shrink-0" />
-                        <span className="text-sm text-muted-foreground">Personal</span>
-                      </>
+                      <span
+                        className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                        text-[11px] font-semibold border ${s.color} ${s.bg}`}
+                      >
+                        <s.Icon size={11} /> {s.label}
+                      </span>
+                    )}
+
+                    <span
+                      className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5
+                      text-[11px] font-semibold border ${p.color} ${p.bg}`}
+                    >
+                      <p.Icon size={11} /> {p.label}
+                    </span>
+
+                    <span
+                      className="flex items-center gap-1 rounded-lg border border-border
+                      bg-muted/40 px-2.5 py-1.5 text-[11px] font-medium text-muted-foreground"
+                    >
+                      {task.taskType === 'PROJECT' ? (
+                        <FolderKanban size={10} />
+                      ) : (
+                        <User size={10} />
+                      )}
+                      {task.taskType.charAt(0) + task.taskType.slice(1).toLowerCase()}
+                    </span>
+                  </div>
+
+                  <div className="rounded-xl border border-border/60 bg-muted/10 divide-y divide-border/40">
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
+                        Assignee
+                      </span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <AssigneeAvatar task={task} />
+                        <span className="text-sm text-foreground truncate">
+                          {task.assignee ?? 'Unassigned'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
+                        Due Date
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <CalendarDays size={12} className="text-muted-foreground shrink-0" />
+                        <span
+                          className={`text-sm ${task.dueDate ? 'text-foreground' : 'text-muted-foreground'}`}
+                        >
+                          {task.dueDate ? formatDate(task.dueDate) : 'No due date'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                      <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
+                        Project
+                      </span>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        {task.project ? (
+                          <>
+                            <FolderKanban
+                              size={12}
+                              className="text-muted-foreground shrink-0"
+                            />
+                            <span className="text-sm text-foreground truncate">
+                              {task.project.name}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <User size={12} className="text-muted-foreground shrink-0" />
+                            <span className="text-sm text-muted-foreground">Personal</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {task.dueDate && (
+                      <div className="flex items-center justify-between gap-4 px-4 py-3">
+                        <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
+                          Created
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <Clock size={12} className="text-muted-foreground shrink-0" />
+                          <span className="text-sm text-muted-foreground">
+                            {formatDate(task.dueDate)}
+                          </span>
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
 
-                {task.dueDate && (
-                  <div className="flex items-center justify-between gap-4 px-4 py-3">
-                    <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
-                      Created
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <Clock size={12} className="text-muted-foreground shrink-0" />
-                      <span className="text-sm text-muted-foreground">
-                        {formatDate(task.dueDate)}
-                      </span>
-                    </div>
+                  <div>
+                    <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      Description
+                    </p>
+                    <p
+                      className={`rounded-xl border border-border/60 bg-muted/10 p-4
+                      text-sm leading-relaxed min-h-[90px]
+                      ${task.description ? 'text-foreground/80' : 'text-muted-foreground/50 italic'}`}
+                    >
+                      {task.description || 'No description provided.'}
+                    </p>
                   </div>
-                )}
-              </div>
+                </TabsContent>
 
-              {/* Description */}
-              <div>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  Description
-                </p>
-                <p
-                  className={`rounded-xl border border-border/60 bg-muted/10 p-4
-                  text-sm leading-relaxed min-h-[90px]
-                  ${task.description ? 'text-foreground/80' : 'text-muted-foreground/50 italic'}`}
-                >
-                  {task.description || 'No description provided.'}
-                </p>
-              </div>
+                {showDiscussionTab && (
+                  <TabsContent value="discussion" className="space-y-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        Linked Discussions
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setDiscussionModalOpen(true)}
+                        className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                      >
+                        <Plus size={12} />
+                        New
+                      </button>
+                    </div>
+
+                    {taskDiscussionsQuery.isLoading ? (
+                      <div className="rounded-xl border border-border/60 bg-muted/10 p-4 text-sm text-muted-foreground">
+                        Loading discussions...
+                      </div>
+                    ) : linkedDiscussions.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-border/60 bg-muted/10 p-4">
+                        <p className="text-sm text-foreground">No discussions linked yet.</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Start a discussion for this task and it will appear here.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {linkedDiscussions.map(discussion => (
+                          <Link
+                            key={discussion.id}
+                            href={`/workspace/${workspaceId}/projects/${task.project?.id}/discussions/${discussion.id}`}
+                            className="block rounded-xl border border-border/60 bg-muted/10 p-4 transition-colors hover:border-border hover:bg-accent/20"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {discussion.title}
+                                </p>
+                                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
+                                  {discussion.description || 'No description provided.'}
+                                </p>
+                              </div>
+                              <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                                {discussion.messageCount}
+                              </span>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </TabsContent>
+                )}
+              </Tabs>
             </div>
           </>
         )}
       </div>
+
+      {task?.project && (
+        <NewDiscussionModal
+          open={discussionModalOpen}
+          onClose={() => setDiscussionModalOpen(false)}
+          projectId={task.project.id}
+          linkedTask={{ id: task.id, title: task.title }}
+        />
+      )}
     </>
   )
 }

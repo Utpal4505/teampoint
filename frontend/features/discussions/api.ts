@@ -3,6 +3,7 @@ import type {
   CreateDiscussionInput,
   CreateMessageInput,
   Discussion,
+  DiscussionFilters,
   DiscussionStatus,
   Message,
   UpdateDiscussionInput,
@@ -10,10 +11,13 @@ import type {
 
 export const listDiscussions = async (
   projectId: number,
-  filters?: { status?: DiscussionStatus },
+  filters?: DiscussionFilters,
 ): Promise<Discussion[]> => {
   const params = new URLSearchParams()
   if (filters?.status) params.set('status', filters.status)
+  if (filters?.type) params.set('type', filters.type)
+  if (filters?.contextId) params.set('contextId', String(filters.contextId))
+  if (filters?.includeClosed) params.set('includeClosed', 'true')
 
   const query = params.toString()
   const { data } = await api.get(
@@ -69,6 +73,16 @@ export const reopenDiscussion = async (
   const { data } = await api.post(
     `/projects/${projectId}/discussions/${discussionId}/reopen`,
     {},
+  )
+  return data.data
+}
+
+export const deleteDiscussion = async (
+  projectId: number,
+  discussionId: number,
+): Promise<{ id: number; deleted: true }> => {
+  const { data } = await api.delete(
+    `/projects/${projectId}/discussions/${discussionId}`,
   )
   return data.data
 }

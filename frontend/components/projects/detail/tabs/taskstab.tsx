@@ -11,6 +11,7 @@ import KanbanColumn from '@/components/tasks/kanbancolumn'
 import ListView from '@/components/tasks/listview'
 import TaskDrawer from '@/components/tasks/taskdrawer'
 import { TaskCreateModal } from '@/components/tasks/taskcreatemodal'
+import NewDiscussionModal from '@/components/projects/detail/tabs/discussions/new-discussion-modal'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
@@ -46,7 +47,9 @@ export default function TasksTab({
   const [view, setView] = useState<ViewMode>('kanban')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [drawerTab, setDrawerTab] = useState<'overview' | 'discussion'>('overview')
   const [taskModalOpen, setTaskModalOpen] = useState(false)
+  const [discussionTask, setDiscussionTask] = useState<Task | null>(null)
 
   const uiTasks: Task[] = tasks.map(toTask)
 
@@ -59,6 +62,16 @@ export default function TasksTab({
   const selectedTask = selectedTaskId
     ? (uiTasks.find(t => t.id === selectedTaskId) ?? null)
     : null
+
+  function handleTaskDiscussionClick(task: Task, hasDiscussions: boolean) {
+    if (hasDiscussions) {
+      setSelectedTaskId(task.id)
+      setDrawerTab('discussion')
+      return
+    }
+
+    setDiscussionTask(task)
+  }
 
   return (
     <div className="flex flex-col">
@@ -114,7 +127,11 @@ export default function TasksTab({
                   key={status}
                   status={status}
                   tasks={filtered.filter(t => t.status === status)}
-                  onTaskClick={t => setSelectedTaskId(t.id)}
+                  onTaskClick={t => {
+                    setDrawerTab('overview')
+                    setSelectedTaskId(t.id)
+                  }}
+                  onTaskDiscussionClick={handleTaskDiscussionClick}
                   onAddTask={() => setTaskModalOpen(true)}
                   onDropTask={(taskId, newStatus) =>
                     onStatusChange(taskId, newStatus as TaskStatus)
@@ -125,7 +142,10 @@ export default function TasksTab({
           ) : (
             <ListView
               tasks={filtered}
-              onTaskClick={t => setSelectedTaskId(t.id)}
+              onTaskClick={t => {
+                setDrawerTab('overview')
+                setSelectedTaskId(t.id)
+              }}
               onStatusChange={(taskId, newStatus) =>
                 onStatusChange(taskId, newStatus as TaskStatus)
               }
@@ -139,6 +159,9 @@ export default function TasksTab({
           onStatusChange={(taskId, newStatus) =>
             onStatusChange(taskId, newStatus as TaskStatus)
           }
+          activeTab={drawerTab}
+          onActiveTabChange={setDrawerTab}
+          workspaceId={workspaceId}
         />
 
         <TaskCreateModal
@@ -148,6 +171,15 @@ export default function TasksTab({
           workspaceId={workspaceId}
           defaultProjectId={defaultProjectId}
         />
+
+        {discussionTask?.project && (
+          <NewDiscussionModal
+            open={!!discussionTask}
+            onClose={() => setDiscussionTask(null)}
+            projectId={discussionTask.project.id}
+            linkedTask={{ id: discussionTask.id, title: discussionTask.title }}
+          />
+        )}
       </div>
     </div>
   )

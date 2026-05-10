@@ -19,6 +19,7 @@ import { TaskCreateModal } from './taskcreatemodal'
 import { SidebarInset,  } from '../ui/sidebar'
 import { useWorkspaceAssignedTasks, useUpdateTaskStatus } from '@/features/tasks/hooks'
 import { useWorkspaceId } from '@/hooks/useworkspaceid'
+import NewDiscussionModal from '@/components/projects/detail/tabs/discussions/new-discussion-modal'
 
 const EMPTY_FILTERS: Filters = { status: [], priority: [], type: [] }
 
@@ -43,7 +44,9 @@ export default function TasksPage() {
   const [view, setView] = useState<ViewMode>('kanban')
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
+  const [drawerTab, setDrawerTab] = useState<'overview' | 'discussion'>('overview')
   const [modalOpen, setModalOpen] = useState(false)
+  const [discussionTask, setDiscussionTask] = useState<Task | null>(null)
 
   const filteredTasks = tasks.filter(t => {
     if (filters.status?.length && !filters.status.includes(t.status)) return false
@@ -58,6 +61,16 @@ export default function TasksPage() {
 
   function handleAddTask() {
     setModalOpen(true)
+  }
+
+  function handleTaskDiscussionClick(task: Task, hasDiscussions: boolean) {
+    if (hasDiscussions) {
+      setSelectedTaskId(task.id)
+      setDrawerTab('discussion')
+      return
+    }
+
+    setDiscussionTask(task)
   }
 
   async function handleDropTask(taskId: number, newStatus: Status) {
@@ -127,20 +140,27 @@ export default function TasksPage() {
             }}
           >
             {COLUMNS.map(status => (
-              <KanbanColumn
-                key={status}
-                status={status}
-                tasks={filteredTasks.filter(t => t.status === status)}
-                onTaskClick={t => setSelectedTaskId(t.id)}
-                onAddTask={handleAddTask}
-                onDropTask={handleDropTask}
-              />
+                <KanbanColumn
+                  key={status}
+                  status={status}
+                  tasks={filteredTasks.filter(t => t.status === status)}
+                  onTaskClick={t => {
+                    setDrawerTab('overview')
+                    setSelectedTaskId(t.id)
+                  }}
+                  onTaskDiscussionClick={handleTaskDiscussionClick}
+                  onAddTask={handleAddTask}
+                  onDropTask={handleDropTask}
+                />
             ))}
           </div>
         ) : (
           <ListView
             tasks={filteredTasks}
-            onTaskClick={t => setSelectedTaskId(t.id)}
+            onTaskClick={t => {
+              setDrawerTab('overview')
+              setSelectedTaskId(t.id)
+            }}
             onStatusChange={handleDropTask}
           />
         )}
@@ -150,6 +170,9 @@ export default function TasksPage() {
         task={selectedTask}
         onClose={() => setSelectedTaskId(null)}
         onStatusChange={handleDropTask}
+        activeTab={drawerTab}
+        onActiveTabChange={setDrawerTab}
+        workspaceId={Number(workspaceId)}
       />
 
       <TaskCreateModal
@@ -157,6 +180,15 @@ export default function TasksPage() {
         onClose={() => setModalOpen(false)}
         workspaceId={Number(workspaceId)}
       />
+
+      {discussionTask?.project && (
+        <NewDiscussionModal
+          open={!!discussionTask}
+          onClose={() => setDiscussionTask(null)}
+          projectId={discussionTask.project.id}
+          linkedTask={{ id: discussionTask.id, title: discussionTask.title }}
+        />
+      )}
     </SidebarInset>
   )
 }

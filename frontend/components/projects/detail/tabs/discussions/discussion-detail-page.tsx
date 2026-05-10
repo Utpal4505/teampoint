@@ -1,8 +1,9 @@
 'use client'
 
-import { FormEvent, useMemo, useState } from 'react'
+import { FormEvent, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { format, isSameDay } from 'date-fns'
+import { useRouter } from 'next/navigation'
+import { format, formatDistanceToNow, isSameDay } from 'date-fns'
 import {
   ArrowLeft,
   CheckCircle2,
@@ -24,6 +25,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -36,10 +43,12 @@ import { useCurrentUser } from '@/features/users/hooks'
 import {
   useCloseDiscussion,
   useCreateMessage,
+  useDeleteDiscussion,
   useDeleteMessage,
   useDiscussion,
   useDiscussionMessages,
   useDiscussionSocketEvents,
+  useProjectDiscussions,
   useUpdateDiscussion,
   useReopenDiscussion,
 } from '@/features/discussions/hooks'
@@ -106,13 +115,17 @@ function MessageRow({
 export default function DiscussionDetailPage({
   discussionId,
 }: DiscussionDetailPageProps) {
-  const { project, projectId } = useProjectDetailContext()
+  const router = useRouter()
+  const { project, projectId, workspaceId } = useProjectDetailContext()
   const [content, setContent] = useState('')
   const [asDecision, setAsDecision] = useState(false)
   const [editing, setEditing] = useState(false)
+  const [decisionsOpen, setDecisionsOpen] = useState(false)
   const [editTitle, setEditTitle] = useState('')
   const [editDescription, setEditDescription] = useState('')
+  const messageRefs = useRef<Record<number, HTMLDivElement | null>>({})
   const { data: user } = useCurrentUser()
+  const { data: projectDiscussions = [] } = useProjectDiscussions(projectId)
   const { data: discussion, isLoading: discussionLoading } = useDiscussion(
     projectId,
     discussionId,
@@ -134,14 +147,31 @@ export default function DiscussionDetailPage({
     projectId,
     discussionId,
   )
+  const { mutate: deleteDiscussion, isPending: deleting } = useDeleteDiscussion(
+    projectId,
+    discussionId,
+  )
   const { mutate: updateDiscussion, isPending: updating } = useUpdateDiscussion(
     projectId,
     discussionId,
   )
   useDiscussionSocketEvents(projectId, discussionId)
 
+  const fallbackDiscussion = projectDiscussions.find(item => item.id === discussionId)
+  const activeDiscussion = discussion ?? fallbackDiscussion
+  const currentMember = project.projectMembers?.find(member => member.user.id === user?.id)
+  const canCreateDecision =
+    activeDiscussion?.createdBy.id === user?.id ||
+    currentMember?.role === 'OWNER' ||
+    currentMember?.role === 'ADMIN'
+  const canManageDiscussion = canCreateDecision
+
   const decisionCount = useMemo(
     () => messages.filter(message => message.type === 'DECISION').length,
+    [messages],
+  )
+  const decisionMessages = useMemo(
+    () => messages.filter(message => message.type === 'DECISION'),
     [messages],
   )
 
@@ -152,7 +182,7 @@ export default function DiscussionDetailPage({
     createMessage(
       {
         content,
-        type: asDecision ? 'DECISION' : 'NORMAL',
+        type: asDecision && canCreateDecision ? 'DECISION' : 'NORMAL',
       },
       {
         onSuccess: () => {
@@ -164,8 +194,8 @@ export default function DiscussionDetailPage({
   }
 
   function openEditDialog() {
-    setEditTitle(discussion?.title ?? '')
-    setEditDescription(discussion?.description ?? '')
+    setEditTitle(activeDiscussion?.title ?? '')
+    setEditDescription(activeDiscussion?.description ?? '')
     setEditing(true)
   }
 
@@ -183,7 +213,31 @@ export default function DiscussionDetailPage({
     )
   }
 
-  if (discussionLoading) {
+  function handleDeleteDiscussion() {
+    const confirmed = window.confirm(
+      'Delete this discussion and all of its messages?',
+    )
+
+    if (!confirmed) return
+
+    deleteDiscussion(undefined, {
+      onSuccess: () => {
+        router.push(`/workspace/${workspaceId}/projects/${projectId}/discussions`)
+      },
+    })
+  }
+
+  function jumpToDecision(messageId: number) {
+    setDecisionsOpen(false)
+    window.setTimeout(() => {
+      messageRefs.current[messageId]?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+    }, 150)
+  }
+
+  if (discussionLoading && !activeDiscussion) {
     return (
       <div className="flex h-full items-center justify-center">
         <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
@@ -191,7 +245,7 @@ export default function DiscussionDetailPage({
     )
   }
 
-  if (!discussion) {
+  if (!activeDiscussion) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
         Discussion not found.
@@ -203,58 +257,92 @@ export default function DiscussionDetailPage({
     <div className="flex h-full flex-col">
       <div className="flex h-12 shrink-0 items-center gap-3 border-b border-dashed border-border px-5">
         <Button asChild variant="ghost" size="icon-sm">
-          <Link href={`/workspace/${project.workspaceId}/projects/${projectId}/discussions`}>
+          <Link href={`/workspace/${workspaceId}/projects/${projectId}/discussions`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
 
         <h1 className="flex min-w-0 flex-1 items-center gap-2 text-base font-semibold">
           <Hash className="h-4 w-4 text-muted-foreground" />
-          <span className="truncate">{discussion.title}</span>
+          <span className="truncate">{activeDiscussion.title}</span>
         </h1>
 
-        <span className="rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+        <button
+          onClick={() => setDecisionsOpen(true)}
+          disabled={decisionCount === 0}
+          className="rounded-md border border-primary/30 bg-primary/10 px-2 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/15 disabled:cursor-not-allowed disabled:opacity-60"
+        >
           Decisions({decisionCount})
-        </span>
+        </button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon-sm">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52">
-            {discussion.status === 'OPEN' ? (
-              <DropdownMenuItem
-                onClick={() => closeDiscussion()}
-                disabled={closing}
-              >
-                <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
-                Close Discussion
-              </DropdownMenuItem>
+        {canManageDiscussion && (
+          <Button
+            variant="outline"
+            size="icon-sm"
+            onClick={() =>
+              activeDiscussion.status === 'OPEN'
+                ? closeDiscussion()
+                : reopenDiscussion()
+            }
+            disabled={closing || reopening}
+            title={
+              activeDiscussion.status === 'OPEN'
+                ? 'Close discussion'
+                : 'Reopen discussion'
+            }
+          >
+            {activeDiscussion.status === 'OPEN' ? (
+              <CheckCircle2 className="h-4 w-4" />
             ) : (
-              <DropdownMenuItem
-                onClick={() => reopenDiscussion()}
-                disabled={reopening}
-              >
-                <RotateCcw className="mr-2 h-3.5 w-3.5" />
-                Reopen Discussion
-              </DropdownMenuItem>
+              <RotateCcw className="h-4 w-4" />
             )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditDialog}>
-              Change Title
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={openEditDialog}>
-              Change Description
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem disabled className="text-destructive">
-              <Trash2 className="mr-2 h-3.5 w-3.5" />
-              Delete Discussion
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </Button>
+        )}
+
+        {canManageDiscussion && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon-sm">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              {activeDiscussion.status === 'OPEN' ? (
+                <DropdownMenuItem
+                  onClick={() => closeDiscussion()}
+                  disabled={closing}
+                >
+                  <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
+                  Close Discussion
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem
+                  onClick={() => reopenDiscussion()}
+                  disabled={reopening}
+                >
+                  <RotateCcw className="mr-2 h-3.5 w-3.5" />
+                  Reopen Discussion
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={openEditDialog}>
+                Change Title
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={openEditDialog}>
+                Change Description
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleDeleteDiscussion}
+                disabled={deleting}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-3.5 w-3.5" />
+                Delete Discussion
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-5 py-6">
@@ -278,7 +366,13 @@ export default function DiscussionDetailPage({
                 !isSameDay(new Date(previous.createdAt), new Date(message.createdAt))
 
               return (
-                <div key={message.id}>
+                <div
+                  key={message.id}
+                  ref={node => {
+                    messageRefs.current[message.id] = node
+                  }}
+                  className="scroll-mt-24"
+                >
                   {showDate && (
                     <div className="my-5 flex items-center gap-3">
                       <div className="h-px flex-1 bg-border" />
@@ -304,7 +398,7 @@ export default function DiscussionDetailPage({
         onSubmit={handleSubmit}
         className="shrink-0 border-t border-border bg-background p-4"
       >
-        {discussion.status === 'CLOSED' ? (
+        {activeDiscussion.status === 'CLOSED' ? (
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
             This discussion is closed. Reopen it before sending new messages.
           </div>
@@ -319,18 +413,24 @@ export default function DiscussionDetailPage({
               className="min-h-20 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"
             />
             <div className="flex items-center justify-between gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setAsDecision(value => !value)}
-                className={cn(
-                  'rounded-md border px-2 py-1 text-xs transition-colors',
-                  asDecision
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border text-muted-foreground hover:text-foreground',
-                )}
-              >
-                Decision
-              </button>
+              {canCreateDecision ? (
+                <button
+                  type="button"
+                  onClick={() => setAsDecision(value => !value)}
+                  className={cn(
+                    'rounded-md border px-2 py-1 text-xs transition-colors',
+                    asDecision
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border text-muted-foreground hover:text-foreground',
+                  )}
+                >
+                  Decision
+                </button>
+              ) : (
+                <span className="text-xs text-muted-foreground">
+                  Members send normal messages
+                </span>
+              )}
               <Button type="submit" size="sm" disabled={creating || !content.trim()}>
                 {creating ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -378,6 +478,46 @@ export default function DiscussionDetailPage({
           </form>
         </DialogContent>
       </Dialog>
+
+      <Sheet open={decisionsOpen} onOpenChange={setDecisionsOpen}>
+        <SheetContent className="w-full sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Decisions</SheetTitle>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto px-4 pb-4">
+            {decisionMessages.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-4 text-sm text-muted-foreground">
+                No decisions have been marked yet.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {decisionMessages.map(message => (
+                  <button
+                    key={message.id}
+                    onClick={() => jumpToDecision(message.id)}
+                    className="w-full rounded-lg border border-border bg-background p-3 text-left transition-colors hover:border-primary/50 hover:bg-accent/30"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="truncate text-xs font-semibold text-foreground">
+                        {message.createdBy.fullName}
+                      </span>
+                      <span className="shrink-0 text-[11px] text-muted-foreground">
+                        {formatDistanceToNow(new Date(message.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </div>
+                    <p className="mt-2 line-clamp-4 text-sm text-muted-foreground">
+                      {message.content}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   )
 }

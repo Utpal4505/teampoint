@@ -15,6 +15,7 @@ import {
 import {
   closeDiscussionService,
   createDiscussionService,
+  deleteDiscussionService,
   getDiscussionByIdService,
   listDiscussionsService,
   reopenDiscussionService,
@@ -103,4 +104,16 @@ export const reopenDiscussionController = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, 'Discussion reopened successfully', discussion))
+})
+
+export const deleteDiscussionController = asyncHandler(async (req, res) => {
+  assertUser(req.user)
+
+  const { projectId, discussionId } = projectDiscussionParamsSchema.parse(req.params)
+
+  const discussion = await deleteDiscussionService(projectId, discussionId, req.user.id)
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, 'Discussion deleted successfully', discussion))
 })

@@ -58,4 +58,7 @@ export const updateDiscussionSchema = z.object({
 export const listDiscussionsQuerySchema = z.object({
   status: DiscussionStatusEnum.optional(),
   createdBy: z.coerce.number().int().positive().optional(),
+  type: DiscussionTypeEnum.optional(),
+  contextId: z.coerce.number().int().positive().optional(),
+  includeClosed: z.coerce.boolean().optional(),
 })

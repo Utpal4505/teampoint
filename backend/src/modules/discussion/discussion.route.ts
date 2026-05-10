@@ -14,6 +14,7 @@ import {
   getDiscussionByIdController,
   listDiscussionsController,
   closeDiscussionController,
+  deleteDiscussionController,
   reopenDiscussionController,
   updateDiscussionController,
 } from './discussion.controller.ts'
@@ -54,15 +55,19 @@ router.patch(
 router.post(
   '/:discussionId/close',
   validateRequest(discussionIdParamSchema, 'params'),
-  requireProjectPermission('canCloseDiscussions'),
   closeDiscussionController,
 )
 
 router.post(
   '/:discussionId/reopen',
   validateRequest(discussionIdParamSchema, 'params'),
-  requireProjectPermission('canReopenDiscussions'),
   reopenDiscussionController,
+)
+
+router.delete(
+  '/:discussionId',
+  validateRequest(discussionIdParamSchema, 'params'),
+  deleteDiscussionController,
 )
 
 export default router

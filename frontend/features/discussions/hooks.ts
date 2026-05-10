@@ -6,6 +6,7 @@ import {
   closeDiscussion,
   createDiscussion,
   createMessage,
+  deleteDiscussion,
   deleteMessage,
   getDiscussion,
   listDiscussions,
@@ -18,6 +19,7 @@ import type {
   CreateDiscussionInput,
   CreateMessageInput,
   Discussion,
+  DiscussionFilters,
   DiscussionStatus,
   Message,
   UpdateDiscussionInput,
@@ -26,8 +28,16 @@ import type {
 export const discussionKeys = {
   all: ['discussions'] as const,
   lists: (projectId: number) => [...discussionKeys.all, 'project', projectId] as const,
-  list: (projectId: number, status?: DiscussionStatus) =>
-    [...discussionKeys.lists(projectId), { status: status ?? 'ALL' }] as const,
+  list: (projectId: number, filters?: DiscussionFilters) =>
+    [
+      ...discussionKeys.lists(projectId),
+      {
+        status: filters?.status ?? 'ALL',
+        type: filters?.type ?? 'ALL',
+        contextId: filters?.contextId ?? 'ALL',
+        includeClosed: filters?.includeClosed ?? false,
+      },
+    ] as const,
   detail: (projectId: number, discussionId: number) =>
     [...discussionKeys.lists(projectId), 'detail', discussionId] as const,
   messages: (projectId: number, discussionId: number) =>
@@ -36,10 +46,10 @@ export const discussionKeys = {
 
 export const useProjectDiscussions = (
   projectId: number,
-  filters?: { status?: DiscussionStatus },
+  filters?: DiscussionFilters,
 ) =>
   useQuery({
-    queryKey: discussionKeys.list(projectId, filters?.status),
+    queryKey: discussionKeys.list(projectId, filters),
     queryFn: () => listDiscussions(projectId, filters),
     enabled: !!projectId,
     staleTime: 1000 * 60 * 2,
@@ -117,6 +127,24 @@ export const useReopenDiscussion = (projectId: number, discussionId: number) => 
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: discussionKeys.detail(projectId, discussionId),
+      })
+      queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
+    },
+    onError: handleApiError,
+  })
+}
+
+export const useDeleteDiscussion = (projectId: number, discussionId: number) => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => deleteDiscussion(projectId, discussionId),
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: discussionKeys.detail(projectId, discussionId),
+      })
+      queryClient.removeQueries({
+        queryKey: discussionKeys.messages(projectId, discussionId),
       })
       queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
     },
@@ -250,6 +278,7 @@ export const useDiscussionSocketEvents = (
     socket.on('discussion:updated', updateDiscussionInCache)
     socket.on('discussion:closed', updateDiscussionInCache)
     socket.on('discussion:reopened', updateDiscussionInCache)
+    socket.on('discussion:deleted', refreshDiscussions)
     socket.on('message:created', upsertMessage)
     socket.on('message:updated', updateMessageInCache)
     socket.on('message:deleted', removeMessage)
@@ -261,6 +290,7 @@ export const useDiscussionSocketEvents = (
       socket.off('discussion:updated', updateDiscussionInCache)
       socket.off('discussion:closed', updateDiscussionInCache)
       socket.off('discussion:reopened', updateDiscussionInCache)
+      socket.off('discussion:deleted', refreshDiscussions)
       socket.off('message:created', upsertMessage)
       socket.off('message:updated', updateMessageInCache)
       socket.off('message:deleted', removeMessage)

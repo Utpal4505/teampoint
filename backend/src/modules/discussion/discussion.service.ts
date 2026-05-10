@@ -8,6 +8,7 @@ import type {
   CloseDiscussionDTO,
   CreateDiscussionDTO,
   CreateDiscussionInput,
+  DeleteDiscussionDTO,
   GetDiscussionDTO,
   ListDiscussionDTO,
   ListDiscussionsQuery,
@@ -72,6 +73,21 @@ const assertDiscussionPermission = async (
   if (!allowed) {
     throw new ApiError(403, 'Permission denied')
   }
+}
+
+const assertDiscussionOwnerOrPermission = async (
+  tx: Prisma.TransactionClient,
+  projectId: number,
+  discussionCreatorId: number,
+  userId: number,
+  permission: keyof ProjectPermissionMap,
+) => {
+  if (discussionCreatorId === userId) {
+    await assertProjectMember(projectId, userId, tx)
+    return
+  }
+
+  await assertDiscussionPermission(tx, projectId, userId, permission)
 }
 
 const assertDiscussionContext = async (
@@ -178,8 +194,12 @@ export const listDiscussionsService = async (
       projectId,
       ...(filters.status
         ? { status: filters.status }
+        : filters.includeClosed
+          ? {}
         : { status: { not: DiscussionStatus.CLOSED } }),
       ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
+      ...(filters.type ? { type: filters.type } : {}),
+      ...(filters.contextId ? { contextId: filters.contextId } : {}),
     },
     select: discussionSelect,
     orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
@@ -289,6 +309,7 @@ export const closeDiscussionService = async (
       select: {
         id: true,
         title: true,
+        createdBy: true,
         status: true,
       },
     })
@@ -299,7 +320,13 @@ export const closeDiscussionService = async (
       throw new ApiError(400, 'Discussion is already closed')
     }
 
-    await assertDiscussionPermission(tx, projectId, userId, 'canCloseDiscussions')
+    await assertDiscussionOwnerOrPermission(
+      tx,
+      projectId,
+      discussion.createdBy,
+      userId,
+      'canCloseDiscussions',
+    )
 
     const closedAt = new Date()
 
@@ -352,6 +379,7 @@ export const reopenDiscussionService = async (
       select: {
         id: true,
         title: true,
+        createdBy: true,
         status: true,
       },
     })
@@ -362,7 +390,13 @@ export const reopenDiscussionService = async (
       throw new ApiError(400, 'Discussion is already open')
     }
 
-    await assertDiscussionPermission(tx, projectId, userId, 'canReopenDiscussions')
+    await assertDiscussionOwnerOrPermission(
+      tx,
+      projectId,
+      discussion.createdBy,
+      userId,
+      'canReopenDiscussions',
+    )
 
     const updated = await tx.discussion.update({
       where: { id: discussionId },
@@ -396,6 +430,82 @@ export const reopenDiscussionService = async (
       status: DiscussionStatus.OPEN,
       closedAt: null,
       updatedAt: updated.updatedAt,
+    }
+  })
+}
+
+export const deleteDiscussionService = async (
+  projectId: number,
+  discussionId: number,
+  userId: number,
+): Promise<DeleteDiscussionDTO> => {
+  return prisma.$transaction(async tx => {
+    const discussion = await tx.discussion.findFirst({
+      where: {
+        id: discussionId,
+        projectId,
+      },
+      select: {
+        id: true,
+        title: true,
+        createdBy: true,
+      },
+    })
+
+    ensureExists(discussion, 'Discussion')
+
+    await assertDiscussionOwnerOrPermission(
+      tx,
+      projectId,
+      discussion.createdBy,
+      userId,
+      'canEditAnyDiscussion',
+    )
+
+    const workspaceId = await getWorkspaceIdFromProject(projectId, userId, tx)
+
+    await tx.message.deleteMany({
+      where: {
+        discussionId,
+      },
+    })
+
+    await tx.documentLink.updateMany({
+      where: {
+        entityType: 'DISCUSSION',
+        entityId: discussionId,
+        status: 'LINKED',
+      },
+      data: {
+        status: 'UNLINKED',
+        unlinkedAt: new Date(),
+      },
+    })
+
+    await tx.discussion.delete({
+      where: {
+        id: discussionId,
+      },
+    })
+
+    await tx.activityLog.create({
+      data: {
+        action: 'DELETED',
+        entityType: 'DISCUSSION',
+        entityId: discussionId,
+        actorId: userId,
+        workspaceId,
+        projectId,
+        content: `Discussion "${discussion.title}" was deleted`,
+      },
+    })
+
+    emitToProjectRoom(projectId, 'discussion:deleted', { id: discussionId })
+    emitToDiscussionRoom(discussionId, 'discussion:deleted', { id: discussionId })
+
+    return {
+      id: discussionId,
+      deleted: true,
     }
   })
 }

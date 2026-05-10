@@ -64,3 +64,8 @@ export type ReopenDiscussionDTO = {
   closedAt: null
   updatedAt: Date
 }
+
+export type DeleteDiscussionDTO = {
+  id: number
+  deleted: true
+}

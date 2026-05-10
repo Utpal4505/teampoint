@@ -15,7 +15,7 @@ import type { DiscussionStatus } from '@/features/discussions/types'
 import NewDiscussionModal from './new-discussion-modal'
 
 export default function DiscussionsListPage() {
-  const { project, projectId, tasks } = useProjectDetailContext()
+  const { project, projectId, tasks, workspaceId } = useProjectDetailContext()
   const [status, setStatus] = useState<DiscussionStatus>('OPEN')
   const [modalOpen, setModalOpen] = useState(false)
   const { data: discussions = [], isLoading } = useProjectDiscussions(projectId, {
@@ -73,7 +73,7 @@ export default function DiscussionsListPage() {
           {discussions.map(discussion => (
             <Link
               key={discussion.id}
-              href={`/workspace/${project.workspaceId}/projects/${projectId}/discussions/${discussion.id}`}
+              href={`/workspace/${workspaceId}/projects/${projectId}/discussions/${discussion.id}`}
               className="group rounded-lg border border-border bg-background p-4 transition-colors hover:border-primary/50 hover:bg-accent/30"
             >
               <div className="flex items-start justify-between gap-3">

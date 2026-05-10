@@ -84,12 +84,24 @@ const getDiscussionOrThrow = async (
       id: true,
       title: true,
       projectId: true,
+      createdBy: true,
       status: true,
     },
   })
 
   ensureExists(discussion, 'Discussion')
   return discussion
+}
+
+const assertDecisionPermission = async (
+  tx: Prisma.TransactionClient,
+  projectId: number,
+  discussionCreatorId: number,
+  userId: number,
+) => {
+  if (discussionCreatorId === userId) return
+
+  await assertProjectPermission(tx, projectId, userId, 'canEditAnyDiscussion')
 }
 
 export const listMessagesService = async (
@@ -126,6 +138,15 @@ export const createMessageService = async (
 
     if (discussion.status === DiscussionStatus.CLOSED) {
       throw new ApiError(400, 'Messages can only be added to open discussions')
+    }
+
+    if (input.type === MessageType.DECISION) {
+      await assertDecisionPermission(
+        tx,
+        input.projectId,
+        discussion.createdBy,
+        userId,
+      )
     }
 
     if (input.parentMessageId) {

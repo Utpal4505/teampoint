@@ -15,32 +15,42 @@ import type { ProjectTask } from '@/features/projects/detail/types'
 import type { DiscussionType } from '@/features/discussions/types'
 import { useCreateDiscussion } from '@/features/discussions/hooks'
 
+type TaskOption = {
+  id: number
+  title: string
+}
+
 interface NewDiscussionModalProps {
   open: boolean
   onClose: () => void
   projectId: number
-  tasks: ProjectTask[]
+  tasks?: ProjectTask[] | TaskOption[]
+  linkedTask?: TaskOption | null
 }
 
 export default function NewDiscussionModal({
   open,
   onClose,
   projectId,
-  tasks,
+  tasks = [],
+  linkedTask = null,
 }: NewDiscussionModalProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [type, setType] = useState<DiscussionType>('GENERAL')
-  const [contextId, setContextId] = useState('')
+  const [type, setType] = useState<DiscussionType>(linkedTask ? 'TASK' : 'GENERAL')
+  const [contextId, setContextId] = useState(linkedTask ? String(linkedTask.id) : '')
   const { mutate, isPending } = useCreateDiscussion(projectId)
 
-  const projectTasks = useMemo(() => tasks.filter(task => task.id), [tasks])
+  const projectTasks = useMemo(
+    () => tasks.filter(task => task.id).map(task => ({ id: task.id, title: task.title })),
+    [tasks],
+  )
 
   function reset() {
     setTitle('')
     setDescription('')
-    setType('GENERAL')
-    setContextId('')
+    setType(linkedTask ? 'TASK' : 'GENERAL')
+    setContextId(linkedTask ? String(linkedTask.id) : '')
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -63,12 +73,20 @@ export default function NewDiscussionModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={value => !value && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={value => {
+        if (!value) {
+          reset()
+          onClose()
+        }
+      }}
+    >
       <DialogContent className="max-w-sm gap-4 rounded-xl border-border bg-background p-5">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-sm font-semibold">
             <MessageSquarePlus className="h-4 w-4 text-primary" />
-            New Discussion
+            {linkedTask ? 'New Task Discussion' : 'New Discussion'}
           </DialogTitle>
         </DialogHeader>
 
@@ -97,44 +115,52 @@ export default function NewDiscussionModal({
             />
           </label>
 
-          <div className="space-y-2">
-            <span className="text-xs font-medium text-muted-foreground">Type</span>
-            <div className="grid grid-cols-2 gap-2">
-              {(['GENERAL', 'TASK'] as DiscussionType[]).map(option => (
-                <button
-                  key={option}
-                  type="button"
-                  onClick={() => setType(option)}
-                  className={`rounded-md border px-3 py-2 text-left text-xs transition-colors ${
-                    type === option
-                      ? 'border-primary bg-primary/10 text-foreground'
-                      : 'border-border text-muted-foreground hover:bg-accent'
-                  }`}
-                >
-                  {option === 'GENERAL' ? 'General' : 'Linked to task'}
-                </button>
-              ))}
+          {!linkedTask && (
+            <div className="space-y-2">
+              <span className="text-xs font-medium text-muted-foreground">Type</span>
+              <div className="grid grid-cols-2 gap-2">
+                {(['GENERAL', 'TASK'] as DiscussionType[]).map(option => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setType(option)}
+                    className={`rounded-md border px-3 py-2 text-left text-xs transition-colors ${
+                      type === option
+                        ? 'border-primary bg-primary/10 text-foreground'
+                        : 'border-border text-muted-foreground hover:bg-accent'
+                    }`}
+                  >
+                    {option === 'GENERAL' ? 'General' : 'Linked to task'}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {type === 'TASK' && (
             <label className="block space-y-1.5">
               <span className="text-xs font-medium text-muted-foreground">
                 Linked task
               </span>
-              <select
-                value={contextId}
-                onChange={event => setContextId(event.target.value)}
-                required
-                className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-sm outline-none transition-colors focus:border-ring"
-              >
-                <option value="">Select task</option>
-                {projectTasks.map(task => (
-                  <option key={task.id} value={task.id}>
-                    {task.title}
-                  </option>
-                ))}
-              </select>
+              {linkedTask ? (
+                <div className="rounded-md border border-input bg-muted/20 px-3 py-2 text-sm text-foreground">
+                  {linkedTask.title}
+                </div>
+              ) : (
+                <select
+                  value={contextId}
+                  onChange={event => setContextId(event.target.value)}
+                  required
+                  className="h-9 w-full rounded-md border border-input bg-background px-2.5 text-sm outline-none transition-colors focus:border-ring"
+                >
+                  <option value="">Select task</option>
+                  {projectTasks.map(task => (
+                    <option key={task.id} value={task.id}>
+                      {task.title}
+                    </option>
+                  ))}
+                </select>
+              )}
             </label>
           )}
 

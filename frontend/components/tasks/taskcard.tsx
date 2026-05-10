@@ -1,12 +1,20 @@
-import { CalendarDays, FolderKanban, User, GripVertical } from 'lucide-react'
+import {
+  CalendarDays,
+  FolderKanban,
+  User,
+  GripVertical,
+  MessageSquare,
+} from 'lucide-react'
 import { PRIORITY_CONFIG } from '@/features/tasks/constants'
 import type { Task } from '@/features/tasks/types'
 import { getInitials } from '@/lib/utils'
 import Image from 'next/image'
+import { useProjectDiscussions } from '@/features/discussions/hooks'
 
 interface TaskCardProps {
   task: Task
   onClick: (task: Task) => void
+  onDiscussionClick?: (task: Task, hasDiscussions: boolean) => void
   dragging?: boolean
   onDragStart?: (e: React.DragEvent, task: Task) => void
   onDragEnd?: () => void
@@ -78,6 +86,7 @@ function getDaysLeftInfo(dueDate: string, status: string) {
 export default function TaskCard({
   task,
   onClick,
+  onDiscussionClick,
   dragging,
   onDragStart,
   onDragEnd,
@@ -85,6 +94,12 @@ export default function TaskCard({
   const p = PRIORITY_CONFIG[task.priority]
   const P_Icon = p.Icon
   const dueDateInfo = task.dueDate ? getDaysLeftInfo(task.dueDate, task.status) : null
+  const taskDiscussionQuery = useProjectDiscussions(task.project?.id ?? 0, {
+    type: 'TASK',
+    contextId: task.id,
+    includeClosed: true,
+  })
+  const linkedDiscussionCount = task.project ? (taskDiscussionQuery.data?.length ?? 0) : 0
 
   return (
     <div
@@ -138,21 +153,45 @@ export default function TaskCard({
           )}
         </div>
 
-        {/* Avatar ? Avatar : Initials */}
-        {task.assignee &&
-          (task.avatarUrl ? (
-            <Image
-              src={task.avatarUrl}
-              alt={task.assignee}
-              width={20}
-              height={20}
-              className="rounded-full object-cover ring-1 ring-border/50"
-            />
-          ) : (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground ring-1 ring-border/50">
-              {getInitials(task.assignee)}
-            </div>
-          ))}
+        <div className="flex items-center gap-2">
+          {task.project && onDiscussionClick && (
+            <button
+              type="button"
+              onClick={event => {
+                event.stopPropagation()
+                onDiscussionClick(task, linkedDiscussionCount > 0)
+              }}
+              className="relative flex h-6 min-w-6 items-center justify-center rounded-md border border-border/60 bg-muted/30 px-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              title={
+                linkedDiscussionCount > 0
+                  ? `${linkedDiscussionCount} linked discussion${linkedDiscussionCount > 1 ? 's' : ''}`
+                  : 'Create task discussion'
+              }
+            >
+              <MessageSquare size={11} />
+              {linkedDiscussionCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold text-primary-foreground">
+                  {linkedDiscussionCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {task.assignee &&
+            (task.avatarUrl ? (
+              <Image
+                src={task.avatarUrl}
+                alt={task.assignee}
+                width={20}
+                height={20}
+                className="rounded-full object-cover ring-1 ring-border/50"
+              />
+            ) : (
+              <div className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-[9px] font-bold text-muted-foreground ring-1 ring-border/50">
+                {getInitials(task.assignee)}
+              </div>
+            ))}
+        </div>
       </div>
     </div>
   )
