@@ -15,3 +15,8 @@ export const acceptInviteSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
   tokenId: z.number().int().positive().transform(Number),
 })
+
+export const validateInviteParamSchema = z.object({
+  tokenId: z.string().regex(/^\d+$/, 'Invalid token ID'),
+  token: z.string().trim().min(1, 'Token is required'),
+})

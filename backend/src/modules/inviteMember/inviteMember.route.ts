@@ -1,20 +1,18 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
 import { validateRequest } from '../../middlewares/validateRequest.ts'
 import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
-import { acceptInviteSchema, inviteIdParamSchema } from './inviteMember.schema.ts'
+import { acceptInviteSchema, inviteIdParamSchema, validateInviteParamSchema } from './inviteMember.schema.ts'
 import {
   acceptInviteController,
   getSingleInviteController,
   listAllInvitesController,
   revokeInviteController,
   sendInviteController,
+  validateInviteController,
 } from './inviteMember.controller.ts'
 
 const router = Router()
-
-router.use(hardAuth)
 
 router.post(
   '/:workspaceId/invites',
@@ -49,6 +47,14 @@ router.post(
   '/invites/accept',
   validateRequest(acceptInviteSchema, 'body'),
   acceptInviteController,
+)
+
+export const publicInviteRouter = Router()
+
+publicInviteRouter.get(
+  '/invites/validate/:tokenId/:token',
+  validateRequest(validateInviteParamSchema, 'params'),
+  validateInviteController,
 )
 
 export default router

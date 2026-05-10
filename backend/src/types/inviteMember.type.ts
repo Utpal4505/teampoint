@@ -35,6 +35,11 @@ export type AcceptInviteInput = {
   userId: number
 }
 
+export type ValidateInviteInput = {
+  tokenId: number
+  token: string
+}
+
 export type SendInviteDTO = {
   invitedBy: number
   workspaceId: number
@@ -75,4 +80,14 @@ export type AcceptInviteDTO = {
   workspaceId: number
   userId: number
   role: WorkspaceRole
+}
+
+export type ValidateInviteDTO = {
+  inviteId: number
+  email: string
+  role: WorkspaceRole
+  workspaceId: number
+  workspaceName: string
+  invitedByName: string
+  expiresAt: Date | null
 }

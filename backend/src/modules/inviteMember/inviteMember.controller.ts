@@ -7,6 +7,7 @@ import {
   getSingleInviteService,
   listAllInvitesService,
   sendInviteService,
+  validateInviteService,
 } from './inviteMember.service.ts'
 import type {
   SendInviteInput,
@@ -14,6 +15,7 @@ import type {
   ListInvitesInput,
   RevokeInviteInput,
   AcceptInviteInput,
+  ValidateInviteInput,
 } from '../../types/inviteMember.type.ts'
 
 export const sendInviteController = asyncHandler(async (req, res) => {
@@ -70,6 +72,19 @@ export const revokeInviteController = asyncHandler(async (req, res) => {
 
   return res.status(200).json(new ApiResponse(200, 'Invite revoked successfully', result))
 })
+
+
+export const validateInviteController = asyncHandler(async (req, res) => {
+  const { tokenId, token } = req.params
+
+  const result = await validateInviteService({
+    tokenId: Number(tokenId),
+    token,
+  } as ValidateInviteInput)
+
+  return res.status(200).json(new ApiResponse(200, 'Invite is valid', result))
+})
+
 
 export const acceptInviteController = asyncHandler(async (req, res) => {
   assertUser(req.user)

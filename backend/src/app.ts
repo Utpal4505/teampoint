@@ -24,7 +24,7 @@ import githubPassport from './modules/auth/providers/github.provider.ts'
 import { hardAuth, restrictNewUserRoutes } from './middlewares/auth.middlewares.ts'
 import userRouter from './modules/user/user.route.ts'
 import workspaceRouter from './modules/workspace/workspace.route.ts'
-import workspaceInviteRouter from './modules/inviteMember/inviteMember.route.ts'
+import workspaceInviteRouter, { publicInviteRouter } from './modules/inviteMember/inviteMember.route.ts'
 import uploadRouter from './modules/upload/upload.routes.ts'
 import projectRouter from './modules/project/project.route.ts'
 import projectMemberRouter from './modules/projectMember/projectMember.route.ts'
@@ -76,6 +76,8 @@ app.use('/api/v1/auth', authLimiter, devAuthRouter)
 app.use('/api/v1/integrations', integrationLimiter, integrationRouter)
 app.use('/api/v1/bug-reports', bugReportRouter)
 app.use('/api/v1/feedback', feedbackRouter)
+
+app.use('/api/v1/workspaces', publicInviteRouter)
 
 app.use('/api/v1', hardAuth, restrictNewUserRoutes, apiLimiter)
 app.use('/api/v1/users', userRouter)

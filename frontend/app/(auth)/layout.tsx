@@ -1,16 +1,18 @@
 'use client'
 
 import { ReactNode, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useAuthGuard } from '@/features/auth/hooks'
 import { Spinner } from '@/components/ui/spinner'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { user, initialized } = useAuthGuard()
 
   const { data: workspaces, isLoading: wsLoading } = useListUserWorkspaces()
+  const isInviteContinue = pathname === '/invite/continue'
 
   useEffect(() => {
     if (!initialized) return
@@ -20,17 +22,17 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       return
     }
 
-    if (user.is_new) {
+    if (user.is_new && !isInviteContinue) {
       router.replace('/onboarding/step-1')
       return
     }
 
-    if (!wsLoading && workspaces) {
+    if (!wsLoading && workspaces && !isInviteContinue) {
       if (workspaces.length === 0) {
         router.replace('/onboarding/create-workspace')
       }
     }
-  }, [user, initialized, wsLoading, workspaces, router])
+  }, [user, initialized, wsLoading, workspaces, router, isInviteContinue])
 
   if (!initialized || wsLoading) {
     return (

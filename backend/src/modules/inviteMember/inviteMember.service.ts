@@ -10,6 +10,8 @@ import type {
   RevokeInviteDTO,
   AcceptInviteInput,
   AcceptInviteDTO,
+  ValidateInviteInput,
+  ValidateInviteDTO,
 } from '../../types/inviteMember.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
 import { v4 as uuid } from 'uuid'
@@ -21,7 +23,7 @@ import { sendEmail } from '../../utils/sendEmail.ts'
 import { withRetry } from '../../utils/retry.ts'
 
 const buildInviteLink = (token: string, tokenId: number) =>
-  `${env.CLIENT_URL}/invite/${tokenId}/${token}/accept`
+  `${env.CLIENT_URL}/invite/${tokenId}/${token}`
 
 export const sendInviteService = async (
   input: SendInviteInput,
@@ -259,6 +261,76 @@ export const revokeInviteService = async (
     inviteId,
     status: 'REVOKED',
     revokedAt: now,
+  }
+}
+
+export const validateInviteService = async (
+  input: ValidateInviteInput,
+): Promise<ValidateInviteDTO> => {
+  const { tokenId, token } = input
+
+  const invite = await prisma.invite_Member.findUnique({
+    where: { id: tokenId },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      status: true,
+      expiredAt: true,
+      workspaceId: true,
+      workspace: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
+      },
+      inviter: {
+        select: {
+          fullName: true,
+        },
+      },
+      token: true,
+    },
+  })
+
+  if (!invite) {
+    throw new ApiError(404, 'Invite not found')
+  }
+
+  const isTokenValid = await bcrypt.compare(token, invite.token)
+  if (!isTokenValid) {
+    throw new ApiError(400, 'Invalid invite token')
+  }
+
+  if (invite.status !== 'PENDING') {
+    throw new ApiError(400, `Invite has already been ${invite.status.toLowerCase()}`)
+  }
+
+  if (invite.expiredAt && invite.expiredAt < new Date()) {
+    await prisma.invite_Member.update({
+      where: { id: invite.id },
+      data: { status: 'EXPIRED' },
+    })
+    throw new ApiError(400, 'Invite has expired')
+  }
+
+  if (!invite.workspace || invite.workspace.status === 'DELETED') {
+    throw new ApiError(404, 'Workspace no longer exists')
+  }
+
+  if (!ROLE_PERMISSIONS[invite.role]) {
+    throw new ApiError(400, 'Invalid role assigned to invite')
+  }
+
+  return {
+    inviteId: invite.id,
+    email: invite.email,
+    role: invite.role,
+    workspaceId: invite.workspaceId,
+    workspaceName: invite.workspace.name,
+    invitedByName: invite.inviter.fullName,
+    expiresAt: invite.expiredAt,
   }
 }
 

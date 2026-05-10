@@ -75,6 +75,12 @@ export default function LoginPage() {
 
         const user = res.data.data
 
+        const savedInvite = sessionStorage.getItem('inviteToken')
+        if (savedInvite) {
+          router.replace('/invite/continue')
+          return
+        }
+
         if (user.is_new) {
           router.replace('/onboarding/step-1')
           return

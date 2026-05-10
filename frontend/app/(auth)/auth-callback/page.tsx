@@ -24,6 +24,12 @@ export default function AuthCallbackPage() {
       return
     }
 
+    const savedInvite = sessionStorage.getItem('inviteToken')
+    if (savedInvite) {
+      router.replace('/invite/continue')
+      return
+    }
+
     if (!workspaces || workspaces.length === 0) {
       router.replace('/workspace/create')
       return
