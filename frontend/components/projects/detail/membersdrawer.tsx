@@ -137,7 +137,13 @@ export default function MembersDrawer({ open, onClose, members }: MembersDrawerP
       {/* Invite modal — renders above drawer */}
       {inviteOpen && (
         <InviteMemberModal
-          currentMembers={members}
+          currentMembers={members.map(m => ({
+            userId: m.user.id,
+            fullName: m.user.fullName,
+            role: m.role,
+            joinedAt: new Date(m.joinedAt).toISOString(),
+            status: 'ACTIVE'
+          }))}
           onClose={() => setInviteOpen(false)}
           onInvite={(userId, role) => {
             // TODO: wire to POST /projects/{id}/members

@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import { ListUserWorkspacesDTO, SendInviteDTO } from './types'
+import { ListUserWorkspacesDTO, SendInviteDTO, GetWorkspaceDTO } from './types'
 
 export const sendWorkspaceInvite = async ({
   workspaceId,
@@ -24,7 +24,7 @@ export const fetchUserWorkspaces = async (): Promise<ListUserWorkspacesDTO> => {
   return data.data
 }
 
-export const fetchWorkspaceById = async (workspaceId: number) => {
+export const fetchWorkspaceById = async (workspaceId: number): Promise<GetWorkspaceDTO> => {
   const { data } = await api.get(`/workspaces/${workspaceId}`)
   return data.data
 }

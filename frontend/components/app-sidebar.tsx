@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { CheckSquareIcon, FolderKanban, MessageSquareIcon, Video } from 'lucide-react'
+import { CheckSquareIcon, FolderKanban, MessageSquareIcon, Video, Users } from 'lucide-react'
 import { useUserStore } from '@/store/user.store'
 import { useListUserWorkspaces } from '@/features/workspace/hooks'
 import { useParams } from 'next/navigation'
@@ -43,6 +43,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: 'Meetings',
       url: `/workspace/${activeWorkspaceId}/meetings`,
       icon: <Video />,
+    },
+    {
+      title: 'Members',
+      url: `/workspace/${activeWorkspaceId}/members`,
+      icon: <Users />,
     },
   ]
 
