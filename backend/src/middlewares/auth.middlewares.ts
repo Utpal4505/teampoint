@@ -23,11 +23,13 @@ const extractToken = (req: Request): string | null => {
 }
 
 const allowedRoutesForNewUser = [
-  '/users/onboarding',
-  '/users/me',
-  '/auth/logout',
-  '/workspaces/invites/accept',
-  '/bug-reports/*',
+  '/api/v1/users/onboarding',
+  '/api/v1/users/me',
+  '/api/v1/users/logout',
+  '/api/v1/workspaces/invites/accept',
+  '/api/v1/bug-reports',
+  '/api/v1/feedback',
+  '/api/v1/workspaces/user-workspaces',
 ]
 
 export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {
@@ -35,10 +37,9 @@ export const restrictNewUserRoutes = asyncHandler((req, _res, next) => {
 
   if (!req.user.is_new) return next()
 
-  const path = req.path
-
+  const url = req.originalUrl.split('?')[0]
   const allowed = allowedRoutesForNewUser.some(
-    route => path === route || path.startsWith(route + '/'),
+    route => url === route || url?.startsWith(route + '/'),
   )
 
   if (!allowed) {

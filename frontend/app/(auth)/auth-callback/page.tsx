@@ -30,8 +30,13 @@ export default function AuthCallbackPage() {
       return
     }
 
+    if (user.is_new) {
+      router.replace('/onboarding/step-1')
+      return
+    }
+
     if (!workspaces || workspaces.length === 0) {
-      router.replace('/workspace/create')
+      router.replace('/onboarding/create-workspace')
       return
     }
 

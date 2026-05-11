@@ -10,6 +10,7 @@ export const assertProjectMember = async (
 ): Promise<{
   id: number
   role: WorkspaceRole
+  status: string
   permissions: Prisma.JsonValue | null
 }> => {
   const db = tx ?? prisma
@@ -28,7 +29,34 @@ export const assertProjectMember = async (
   })
 
   if (!member) {
-    throw new ApiError(403, 'Not a project member')
+    const workspaceMember = await db.workspace_Members.findFirst({
+      where: {
+        workspace: {
+          projects: {
+            some: { id: projectId }
+          }
+        },
+        userId,
+        role: { in: ['OWNER', 'ADMIN'] },
+        status: 'ACTIVE'
+      },
+      select: {
+        id: true,
+        role: true,
+        status: true,
+      }
+    })
+
+    if (!workspaceMember) {
+      throw new ApiError(403, 'Not a project member')
+    }
+
+    return {
+      id: workspaceMember.id,
+      role: workspaceMember.role,
+      status: 'ACTIVE',
+      permissions: null
+    }
   }
 
   if (member.status !== 'ACTIVE') {

@@ -51,9 +51,7 @@ router.get(
       },
     })
 
-    const redirectUrl = user.is_new
-      ? `${env.CLIENT_URL}/onboarding/step-1`
-      : `${env.CLIENT_URL}/auth-callback`
+    const redirectUrl = `${env.CLIENT_URL}/auth-callback`
 
     return res
       .cookie('accessToken', accessToken, accessTokenCookieOptions)

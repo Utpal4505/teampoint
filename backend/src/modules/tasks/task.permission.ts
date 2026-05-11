@@ -18,15 +18,12 @@ export async function assertTaskPermission(
   const isCreator = task.createdBy === userId
   const isAssignee = task.assignedTo === userId
 
-  // PERSONAL TASKS
   if (task.taskType === 'PERSONAL') {
     if (!isCreator) {
       throw new ApiError(403, 'You do not have access to this task')
     }
     return
   }
-
-  // PROJECT TASKS
 
   if (isCreator) return
 
@@ -41,7 +38,23 @@ export async function assertTaskPermission(
   })
 
   if (!membership) {
-    throw new ApiError(403, 'You do not have access to this task')
+    const workspaceMembership = await tx.workspace_Members.findFirst({
+      where: {
+        workspace: {
+          projects: {
+            some: { id: task.projectId! }
+          }
+        },
+        userId,
+        role: { in: ['OWNER', 'ADMIN'] }
+      }
+    })
+
+    if (!workspaceMembership) {
+      throw new ApiError(403, 'You do not have access to this task')
+    }
+    
+    return
   }
 
   const isAdmin = ['OWNER', 'ADMIN'].includes(membership.role)

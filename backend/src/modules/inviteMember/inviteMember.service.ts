@@ -389,6 +389,11 @@ export const acceptInviteService = async (
       data: { status: 'ACCEPTED', acceptedAt: new Date(), expiredAt: new Date() },
     })
 
+    await prisma.user.update({
+      where: { id: userId },
+      data: { is_new: false },
+    })
+
     return {
       workspaceId: invite.workspaceId,
       userId,
@@ -426,6 +431,11 @@ export const acceptInviteService = async (
         acceptedAt: new Date(),
         expiredAt: new Date(),
       },
+    })
+
+    await tx.user.update({
+      where: { id: userId },
+      data: { is_new: false },
     })
   })
 

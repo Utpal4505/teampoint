@@ -42,7 +42,24 @@ export const requireProjectPermission = (
     })
 
     if (!memebership) {
-      throw new ApiError(403, 'User is not a member of this project')
+      const workspaceMembership = await prisma.workspace_Members.findFirst({
+        where: {
+          workspace: {
+            projects: {
+              some: { id: projectId }
+            }
+          },
+          userId: user.id,
+          role: { in: ['OWNER', 'ADMIN'] },
+          status: 'ACTIVE'
+        }
+      })
+
+      if (!workspaceMembership) {
+        throw new ApiError(403, 'User is not a member of this project')
+      }
+
+      return next()
     }
 
     const overrides = memebership.permissions as ProjectPermissionOverride | null

@@ -22,7 +22,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
       return
     }
 
-    if (user.is_new && !isInviteContinue) {
+    const isAuthCallback = pathname === '/auth-callback'
+    const hasInviteToken = typeof window !== 'undefined' && !!sessionStorage.getItem('inviteToken')
+
+    if (user.is_new && !isInviteContinue && !isAuthCallback && !hasInviteToken) {
       router.replace('/onboarding/step-1')
       return
     }
