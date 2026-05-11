@@ -55,7 +55,7 @@ export const updateProjectController = asyncHandler(async (req, res) => {
     status,
   }
 
-  const updatedProject = await updateProjectService(input)
+  const updatedProject = await updateProjectService(input, req.user.id)
 
   return res
     .status(200)

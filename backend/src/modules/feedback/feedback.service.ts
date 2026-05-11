@@ -1,4 +1,5 @@
 import { prisma } from '../../config/db.config.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import type {
   CreateFeedback,
   UpdateFeedbackStatus,
@@ -33,7 +34,7 @@ export const createFeedbackService = async (
   data: CreateFeedback,
   userId: number | undefined,
 ) => {
-  return await prisma.feedback.create({
+  const feedback = await prisma.feedback.create({
     data: {
       submittedBy: userId ?? null,
       projectId: data.projectId ?? null,
@@ -49,6 +50,17 @@ export const createFeedbackService = async (
     },
     include: feedbackInclude,
   })
+
+  if (userId) {
+    trackPosthogEvent(userId, 'feedback_submitted', {
+      feedback_id: feedback.id,
+      feedback_type: data.type,
+      rating: data.rating ?? undefined,
+      project_id: data.projectId ?? undefined,
+    })
+  }
+
+  return feedback
 }
 
 export const getFeedbackByIdService = async (id: number) => {

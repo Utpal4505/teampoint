@@ -8,6 +8,7 @@ import {
   refreshTokenCookieOptions,
 } from '../../../utils/generateAccessandRefreshToken.ts'
 import { prisma } from '../../../config/db.config.ts'
+import { trackPosthogEvent } from '../../../utils/posthog.ts'
 import bcrypt from 'bcrypt'
 import { env } from '../../../config/env.ts'
 import { assertUser } from '../../../utils/assertUser.ts'
@@ -49,6 +50,10 @@ router.get(
         tokenHash: refreshTokenHash,
         expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       },
+    })
+
+    trackPosthogEvent(userId, 'user_logged_in', {
+      auth_provider: 'GOOGLE',
     })
 
     const redirectUrl = `${env.CLIENT_URL}/auth-callback`

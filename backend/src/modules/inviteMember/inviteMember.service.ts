@@ -14,6 +14,7 @@ import type {
   ValidateInviteDTO,
 } from '../../types/inviteMember.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { v4 as uuid } from 'uuid'
 import bcrypt from 'bcrypt'
 import { env } from '../../config/env.ts'
@@ -104,6 +105,12 @@ export const sendInviteService = async (
       status: true,
       expiredAt: true,
     },
+  })
+
+  trackPosthogEvent(invitedBy, 'workspace_member_invited', {
+    workspace_id: workspaceId,
+    invited_email: email,
+    role: role,
   })
 
   setImmediate(async () => {
@@ -394,6 +401,11 @@ export const acceptInviteService = async (
       data: { is_new: false },
     })
 
+    trackPosthogEvent(userId, 'workspace_joined', {
+      workspace_id: invite.workspaceId,
+      role: existingMember.role,
+    })
+
     return {
       workspaceId: invite.workspaceId,
       userId,
@@ -437,6 +449,11 @@ export const acceptInviteService = async (
       where: { id: userId },
       data: { is_new: false },
     })
+  })
+
+  trackPosthogEvent(userId, 'workspace_joined', {
+    workspace_id: invite.workspaceId,
+    role: invite.role,
   })
 
   return {

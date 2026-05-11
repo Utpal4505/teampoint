@@ -1,4 +1,5 @@
 import { prisma } from '../../config/db.config.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import type { CreateBugReport } from '../../types/bug-report.type.ts'
 import { eventBus } from '../../utils/eventBus.ts'
 import crypto from 'crypto'
@@ -90,6 +91,14 @@ export const createBugReportService = async (
       stepToReproduce: data.stepsToReproduce ?? null,
     },
   })
+
+  if (userId) {
+    trackPosthogEvent(userId, 'bug_reported', {
+      bug_id: newBug.id,
+      severity: newBug.severityLevel,
+      project_id: newBug.projectId ?? undefined,
+    })
+  }
 
   setImmediate(() => {
     eventBus.emit('BUG_REPORT_CREATED', newBug.id, newBug.reportedBy)

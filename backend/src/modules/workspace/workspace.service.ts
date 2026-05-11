@@ -14,6 +14,7 @@ import type {
 } from '../../types/workspace.types.ts'
 import { ApiError } from '../../utils/apiError.ts'
 import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { createActivityLog } from '../activityLog/activityLog.service.ts'
 import { ROLE_PERMISSIONS } from './workspace.permissions.ts'
 
@@ -60,6 +61,11 @@ export const createWorkspaceService = async (
     })
 
     return ws
+  })
+
+  trackPosthogEvent(ownerId, 'workspace_created', {
+    workspace_id: workspace.id,
+    workspace_name: workspace.name,
   })
 
   return workspace

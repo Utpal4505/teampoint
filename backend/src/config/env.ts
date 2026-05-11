@@ -61,4 +61,6 @@ export const env = {
   API_RATE_LIMIT: optionalEnv('API_RATE_LIMIT', 60) as number,
   INTEGRATION_RATE_LIMIT: optionalEnv('INTEGRATION_RATE_LIMIT', 20) as number,
   REFRESH_TOKEN_RATE_LIMIT: optionalEnv('REFRESH_TOKEN_RATE_LIMIT', 10) as number,
+
+  POSTHOG_PROJECT_TOKEN: requiredEnv('POSTHOG_PROJECT_TOKEN'),
 }

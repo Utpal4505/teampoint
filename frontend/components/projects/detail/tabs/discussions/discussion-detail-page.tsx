@@ -18,18 +18,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +47,6 @@ import type { Message } from '@/features/discussions/types'
 interface DiscussionDetailPageProps {
   discussionId: number
 }
-
 function initials(name: string) {
   return name
     .split(' ')
@@ -65,21 +54,26 @@ function initials(name: string) {
     .join('')
     .slice(0, 2)
     .toUpperCase()
+    .toUpperCase()
 }
 
 function MessageRow({
   message,
   mine,
   onDelete,
+  onReply,
 }: {
   message: Message
   mine: boolean
   onDelete: (id: number) => void
+  onReply: (message: Message) => void
 }) {
+  const avatarUrl = message.createdBy.avatarUrl ?? initials(message.createdBy.fullName)
+
   return (
-    <div className="group flex gap-3">
+    <div className="group relative flex gap-3 rounded-md px-2 py-1 hover:bg-muted/40 transition-colors">
       <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-semibold text-primary">
-        {initials(message.createdBy.fullName)}
+        <img src={avatarUrl} alt={message.createdBy.fullName} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
@@ -94,22 +88,73 @@ function MessageRow({
               Decision
             </span>
           )}
-          {mine && (
+        </div>
+        <div className="mt-1 text-sm text-foreground/90">
+          {decodeHtml(message.content)
+            .split('\n')
+            .map((line, i) => {
+              if (line.startsWith('> ')) {
+                return (
+                  <div
+                    key={i}
+                    className="mb-1 border-l-2 border-muted-foreground/40 pl-2 text-xs text-muted-foreground italic"
+                  >
+                    {line.slice(2)}
+                  </div>
+                )
+              }
+              return (
+                <p key={i} className="whitespace-pre-wrap wrap-break-word">
+                  {line}
+                </p>
+              )
+            })}
+        </div>
+      </div>
+
+      {/* Discord-style action toolbar */}
+      <div className="absolute right-2 top-0 -translate-y-1/2 flex items-center gap-0.5 rounded-md border border-border bg-background shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={() => onReply(message)}
+          className="flex items-center gap-1 rounded-l-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          aria-label="Reply"
+        >
+          <svg
+            className="h-3.5 w-3.5"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <polyline points="9 14 4 9 9 4" />
+            <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
+          </svg>
+          Reply
+        </button>
+        {mine && (
+          <>
+            <div className="w-px h-5 bg-border" />
             <button
               onClick={() => onDelete(message.id)}
-              className="ml-auto opacity-0 transition-opacity group-hover:opacity-100"
+              className="flex items-center gap-1 rounded-r-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
               aria-label="Delete message"
             >
-              <X className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+              <Trash2 className="h-3 w-3" />
+              Delete
             </button>
-          )}
-        </div>
-        <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground/90">
-          {message.content}
-        </p>
+          </>
+        )}
       </div>
     </div>
   )
+}
+
+function decodeHtml(str: string) {
+  return str
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
 }
 
 export default function DiscussionDetailPage({
@@ -117,6 +162,7 @@ export default function DiscussionDetailPage({
 }: DiscussionDetailPageProps) {
   const router = useRouter()
   const { project, projectId, workspaceId } = useProjectDetailContext()
+  const [replyTo, setReplyTo] = useState<Message | null>(null)
   const [content, setContent] = useState('')
   const [asDecision, setAsDecision] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -159,7 +205,9 @@ export default function DiscussionDetailPage({
 
   const fallbackDiscussion = projectDiscussions.find(item => item.id === discussionId)
   const activeDiscussion = discussion ?? fallbackDiscussion
-  const currentMember = project.projectMembers?.find(member => member.user.id === user?.id)
+  const currentMember = project.projectMembers?.find(
+    member => member.user.id === user?.id,
+  )
   const canCreateDecision =
     activeDiscussion?.createdBy.id === user?.id ||
     currentMember?.role === 'OWNER' ||
@@ -179,15 +227,22 @@ export default function DiscussionDetailPage({
     event.preventDefault()
     if (!content.trim()) return
 
+    const replyText = decodeHtml(replyTo?.content || '')
+
+    const fullContent = replyTo
+      ? `> @${replyTo.createdBy.fullName}: ${replyText.slice(0, 80)}${replyText.length > 80 ? '…' : ''}\n\n${content}`
+      : content
+
     createMessage(
       {
-        content,
+        content: fullContent,
         type: asDecision && canCreateDecision ? 'DECISION' : 'NORMAL',
       },
       {
         onSuccess: () => {
           setContent('')
           setAsDecision(false)
+          setReplyTo(null)
         },
       },
     )
@@ -214,9 +269,7 @@ export default function DiscussionDetailPage({
   }
 
   function handleDeleteDiscussion() {
-    const confirmed = window.confirm(
-      'Delete this discussion and all of its messages?',
-    )
+    const confirmed = window.confirm('Delete this discussion and all of its messages?')
 
     if (!confirmed) return
 
@@ -280,9 +333,7 @@ export default function DiscussionDetailPage({
             variant="outline"
             size="icon-sm"
             onClick={() =>
-              activeDiscussion.status === 'OPEN'
-                ? closeDiscussion()
-                : reopenDiscussion()
+              activeDiscussion.status === 'OPEN' ? closeDiscussion() : reopenDiscussion()
             }
             disabled={closing || reopening}
             title={
@@ -308,26 +359,18 @@ export default function DiscussionDetailPage({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-52">
               {activeDiscussion.status === 'OPEN' ? (
-                <DropdownMenuItem
-                  onClick={() => closeDiscussion()}
-                  disabled={closing}
-                >
+                <DropdownMenuItem onClick={() => closeDiscussion()} disabled={closing}>
                   <CheckCircle2 className="mr-2 h-3.5 w-3.5" />
                   Close Discussion
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem
-                  onClick={() => reopenDiscussion()}
-                  disabled={reopening}
-                >
+                <DropdownMenuItem onClick={() => reopenDiscussion()} disabled={reopening}>
                   <RotateCcw className="mr-2 h-3.5 w-3.5" />
                   Reopen Discussion
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={openEditDialog}>
-                Change Title
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={openEditDialog}>Change Title</DropdownMenuItem>
               <DropdownMenuItem onClick={openEditDialog}>
                 Change Description
               </DropdownMenuItem>
@@ -386,6 +429,7 @@ export default function DiscussionDetailPage({
                     message={message}
                     mine={message.createdBy.id === user?.id}
                     onDelete={deleteMessage}
+                    onReply={setReplyTo}
                   />
                 </div>
               )
@@ -404,10 +448,36 @@ export default function DiscussionDetailPage({
           </div>
         ) : (
           <div className="rounded-lg border border-border bg-muted/20 p-2">
+            {replyTo && (
+              <div className="mb-2 flex items-start justify-between gap-2 rounded-md border-l-2 border-primary bg-primary/5 px-2 py-1.5">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold text-primary">
+                    {replyTo.createdBy.fullName}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">
+                    {decodeHtml(replyTo.content).slice(0, 100)}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setReplyTo(null)}
+                  className="shrink-0 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
             <Textarea
               value={content}
               onChange={event => setContent(event.target.value)}
-              placeholder="Type a message"
+              onKeyDown={event => {
+                if (event.key === 'Enter' && !event.shiftKey) {
+                  event.preventDefault()
+                  if (content.trim() && !creating) {
+                    event.currentTarget.form?.requestSubmit()
+                  }
+                }
+              }}
+              placeholder="Type a message… (Enter to send, Shift+Enter for new line)"
               rows={3}
               maxLength={4000}
               className="min-h-20 resize-none border-0 bg-transparent shadow-none focus-visible:ring-0"

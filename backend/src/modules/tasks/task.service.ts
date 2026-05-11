@@ -13,6 +13,7 @@ import type {
   UpdateTaskInput,
 } from '../../types/task.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
 import { assertTaskPermission } from './task.permission.ts'
@@ -31,7 +32,7 @@ export const createTaskService = async (
     throw new ApiError(400, 'projectId must be null for PERSONAL tasks')
   }
 
-  return prisma.$transaction(async tx => {
+  const task = await prisma.$transaction(async tx => {
     await assertTaskPermission(
       tx,
       {
@@ -113,6 +114,16 @@ export const createTaskService = async (
 
     return task
   })
+
+  trackPosthogEvent(userId, 'task_created', {
+    task_id: task.id,
+    project_id: task.projectId,
+    task_type: task.taskType,
+    priority: priority,
+    assigned_to: assignedTo,
+  })
+
+  return task
 }
 
 export const listTasksService = async (
@@ -363,6 +374,14 @@ export const updateTaskService = async (
       },
     })
 
+    if (input.assignedTo !== undefined && input.assignedTo !== task.assignedTo) {
+      trackPosthogEvent(userId, 'task_assigned', {
+        task_id: taskId,
+        assigned_to: input.assignedTo,
+        previous_assignee: task.assignedTo,
+      })
+    }
+
     return updatedTask
   })
 }
@@ -455,6 +474,13 @@ export const changeTaskStatusService = async (
       },
     })
 
+    if (input.status === 'DONE') {
+      trackPosthogEvent(userId, 'task_completed', {
+        task_id: taskId,
+        project_id: task.projectId,
+      })
+    }
+
     return updatedTask
   })
 }
@@ -534,6 +560,11 @@ export const cancelTaskService = async (
               }`
             : `Personal task "${task.title}" was cancelled by ${task.creator.fullName}`,
       },
+    })
+
+    trackPosthogEvent(userId, 'task_cancelled', {
+      task_id: taskId,
+      project_id: task.projectId,
     })
 
     return cancelledTask as CancelTaskDTO

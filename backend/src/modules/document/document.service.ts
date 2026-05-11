@@ -10,6 +10,7 @@ import type {
   UpdateDocumentResponseDTO,
 } from '../../types/document.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { assertProjectMember } from '../../utils/assertProjectMember.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
@@ -77,7 +78,7 @@ export const createDocumentService = async (
       },
     })
 
-    return {
+    const result = {
       id: document.id,
       projectId: document.projectId,
       title: document.title,
@@ -93,6 +94,15 @@ export const createDocumentService = async (
       fileKey: upload.fileKey,
       fileType: upload.contentType,
     }
+
+    trackPosthogEvent(userId, 'document_uploaded', {
+      document_id: document.id,
+      project_id: document.projectId,
+      file_type: upload.contentType,
+      file_size_kb: Math.round(upload.size / 1024),
+    })
+
+    return result
   })
 }
 

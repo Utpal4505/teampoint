@@ -11,6 +11,7 @@ import type {
   UpdateProjectInput,
 } from '../../types/project.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { PROJECT_ROLE_PERMISSIONS } from './project.permissions.ts'
 
 export const createProjectService = async (
@@ -48,6 +49,12 @@ export const createProjectService = async (
     })
 
     return project
+  })
+
+  trackPosthogEvent(createdBy, 'project_created', {
+    project_id: project.id,
+    workspace_id: project.workspaceId,
+    project_name: project.name,
   })
 
   return project
@@ -96,6 +103,7 @@ export const getProjectByIdService = async (
 
 export const updateProjectService = async (
   input: UpdateProjectInput,
+  userId?: number,
 ): Promise<updateProjectDTO> => {
   const { projectId, description, name, status } = input
 
@@ -127,10 +135,19 @@ export const updateProjectService = async (
     throw new ApiError(404, 'Project not found')
   }
 
-  return prisma.project.update({
+  const updatedProject = await prisma.project.update({
     where: { id: projectId },
     data: updateData,
   })
+
+  if (status === 'ARCHIVED' && userId) {
+    trackPosthogEvent(userId, 'project_archived', {
+      project_id: projectId,
+      project_name: project.name,
+    })
+  }
+
+  return updatedProject
 }
 
 export const deleteProjectService = async (

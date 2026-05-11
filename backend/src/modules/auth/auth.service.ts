@@ -2,6 +2,7 @@ import type { Profile } from 'passport'
 import type { OAuthProvider } from '../../generated/prisma/enums.ts'
 import { prisma } from '../../config/db.config.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 
 export const authService = async (provider: OAuthProvider, profile: Profile) => {
   const email = profile.emails?.[0]?.value
@@ -55,6 +56,11 @@ export const authService = async (provider: OAuthProvider, profile: Profile) => 
         avatarUrl: true,
         is_new: true,
       },
+    })
+
+    trackPosthogEvent(user.id, 'user_signed_up', {
+      email: user.email,
+      auth_provider: provider,
     })
   }
 

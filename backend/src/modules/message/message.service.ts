@@ -9,6 +9,7 @@ import type {
   UpdateMessageDTO,
 } from '../../types/message.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { assertProjectMember } from '../../utils/assertProjectMember.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
@@ -141,12 +142,7 @@ export const createMessageService = async (
     }
 
     if (input.type === MessageType.DECISION) {
-      await assertDecisionPermission(
-        tx,
-        input.projectId,
-        discussion.createdBy,
-        userId,
-      )
+      await assertDecisionPermission(tx, input.projectId, discussion.createdBy, userId)
     }
 
     if (input.parentMessageId) {
@@ -195,6 +191,12 @@ export const createMessageService = async (
 
     emitToDiscussionRoom(input.discussionId, 'message:created', payload)
     emitToProjectRoom(input.projectId, 'discussion:message-created', payload)
+
+    trackPosthogEvent(userId, 'message_sent', {
+      discussion_id: input.discussionId,
+      project_id: input.projectId,
+      message_type: input.type ?? MessageType.NORMAL,
+    })
 
     return payload
   })

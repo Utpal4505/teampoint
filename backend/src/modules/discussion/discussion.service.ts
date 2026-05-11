@@ -1,8 +1,5 @@
 import { prisma } from '../../config/db.config.ts'
-import {
-  DiscussionStatus,
-  DiscussionType,
-} from '../../generated/prisma/enums.ts'
+import { DiscussionStatus, DiscussionType } from '../../generated/prisma/enums.ts'
 import type { Prisma } from '../../generated/prisma/client.ts'
 import type {
   CloseDiscussionDTO,
@@ -17,6 +14,7 @@ import type {
   UpdateDiscussionInput,
 } from '../../types/discussion.type.ts'
 import { ApiError } from '../../utils/apiError.ts'
+import { trackPosthogEvent } from '../../utils/posthog.ts'
 import { assertProjectMember } from '../../utils/assertProjectMember.ts'
 import { ensureExists } from '../../utils/ensureExists.ts'
 import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
@@ -25,10 +23,7 @@ import type {
   ProjectPermissionMap,
   ProjectPermissionOverride,
 } from '../../types/project.type.ts'
-import {
-  emitToDiscussionRoom,
-  emitToProjectRoom,
-} from '../../services/socket.service.ts'
+import { emitToDiscussionRoom, emitToProjectRoom } from '../../services/socket.service.ts'
 
 const discussionSelect = {
   id: true,
@@ -178,6 +173,12 @@ export const createDiscussionService = async (
     const payload = mapDiscussion(discussion)
     emitToProjectRoom(input.projectId, 'discussion:created', payload)
 
+    trackPosthogEvent(userId, 'discussion_created', {
+      discussion_id: discussion.id,
+      project_id: input.projectId,
+      discussion_type: discussion.type,
+    })
+
     return payload
   })
 }
@@ -196,7 +197,7 @@ export const listDiscussionsService = async (
         ? { status: filters.status }
         : filters.includeClosed
           ? {}
-        : { status: { not: DiscussionStatus.CLOSED } }),
+          : { status: { not: DiscussionStatus.CLOSED } }),
       ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
       ...(filters.type ? { type: filters.type } : {}),
       ...(filters.contextId ? { contextId: filters.contextId } : {}),
