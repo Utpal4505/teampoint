@@ -1,29 +1,21 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
 
-interface MembersHeaderProps {
-  onInviteClick: () => void
-  isAdmin: boolean
-}
 
-export default function MembersHeader({ onInviteClick, isAdmin }: MembersHeaderProps) {
+export default function MembersHeader() {
   return (
-    <div className="flex h-16 items-center justify-between border-b px-6 bg-background">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Members</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage your workspace members and their roles.
-        </p>
+    <header
+      className="sticky top-1.5 z-30 flex h-14 shrink-0 items-center border-b border-border
+      bg-background/80 backdrop-blur-sm transition-[width,height] ease-linear
+      group-has-data-[collapsible=icon]/sidebar-wrapper:h-12"
+    >
+      <div className="flex flex-1 items-center gap-3 px-6">
+        <div className="flex-1">
+          <h1 className="font-display text-lg font-bold tracking-tight text-foreground leading-none">
+            Members
+          </h1>
+        </div>
       </div>
-
-      {isAdmin && (
-        <Button onClick={onInviteClick} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Invite Member
-        </Button>
-      )}
-    </div>
+    </header>
   )
 }

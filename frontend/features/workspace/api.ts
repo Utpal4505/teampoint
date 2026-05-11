@@ -49,3 +49,33 @@ export const updateWorkspace = async (
 
   return data.data
 }
+
+export const updateWorkspaceMemberRole = async ({
+  workspaceId,
+  targetUserId,
+  role,
+}: {
+  workspaceId: number
+  targetUserId: number
+  role: 'ADMIN' | 'MEMBER'
+}) => {
+  const { data } = await api.patch(`/workspaces/${workspaceId}/members/${targetUserId}`, {
+    targetUserId,
+    role,
+  })
+  return data.data
+}
+
+export const removeWorkspaceMember = async ({
+  workspaceId,
+  targetUserId,
+}: {
+  workspaceId: number
+  targetUserId: number
+}) => {
+  const { data } = await api.delete(`/workspaces/${workspaceId}/members/${targetUserId}`, {
+    data: { targetUserId },
+  })
+  return data.data
+}
+

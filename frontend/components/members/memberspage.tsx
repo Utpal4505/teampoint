@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { SidebarInset } from '@/components/ui/sidebar'
-import MembersHeader from './membersheader'
 import MembersList from './memberslist'
 import InviteMemberModal from './invitemembermodal'
 import { useFetchWorkspaceById } from '@/features/workspace/hooks'
 import { useUserStore } from '@/store/user.store'
 import { Loader2 } from 'lucide-react'
+import MembersHeader from './membersheader'
 
 interface MembersPageProps {
   workspaceId: string
@@ -15,7 +15,7 @@ interface MembersPageProps {
 
 export default function MembersPage({ workspaceId }: MembersPageProps) {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false)
-  
+
   const { data: workspace, isLoading, error } = useFetchWorkspaceById(Number(workspaceId))
   const user = useUserStore(state => state.user)
 
@@ -47,11 +47,8 @@ export default function MembersPage({ workspaceId }: MembersPageProps) {
 
   return (
     <SidebarInset>
-      <MembersHeader
-        onInviteClick={() => setIsInviteModalOpen(true)}
-        isAdmin={isAdmin}
-      />
-      
+      <MembersHeader />
+
       <div className="flex-1 overflow-auto p-6 bg-muted/20">
         <div className="max-w-5xl mx-auto">
           <div className="mb-6">
@@ -60,8 +57,15 @@ export default function MembersPage({ workspaceId }: MembersPageProps) {
               People who have access to this workspace.
             </p>
           </div>
-          
-          <MembersList members={workspace.workspaceMembers} />
+
+          <MembersList 
+            workspaceId={Number(workspaceId)}
+            members={workspace.workspaceMembers} 
+            currentUserId={user?.id}
+            isAdmin={isAdmin}
+            ownerId={workspace.createdBy}
+            onInviteClick={() => setIsInviteModalOpen(true)}
+          />
         </div>
       </div>
 

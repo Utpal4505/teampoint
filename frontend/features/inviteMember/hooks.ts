@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { validateInviteToken, acceptInvite } from './api'
 
 
@@ -14,8 +14,12 @@ export const useValidateInvite = (tokenId: string, token: string) => {
 
 
 export const useAcceptInvite = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ tokenId, token }: { tokenId: number; token: string }) =>
       acceptInvite(tokenId, token),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspaces'] })
+    }
   })
 }
