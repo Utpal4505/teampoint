@@ -2,9 +2,9 @@ import Image from 'next/image'
 import { ArrowRight, CheckCircle2, Clock, Circle, Flag } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { ProjectTask } from '@/features/projects/detail/types'
-import type { TabKey } from '../../projectdetailpage'
 import { PRIORITY_CONFIG } from '@/features/tasks/constants'
 import { PRIORITY_META } from './constants'
+import { TabKey } from '../../project-detail-context'
 
 interface OverviewRecentTasksProps {
   tasks: ProjectTask[] // already sliced to recent (max 6)
@@ -50,7 +50,7 @@ export default function OverviewRecentTasks({
         ].map(h => (
           <span
             key={h.label}
-            className={`text-[10px] uppercase tracking-wider text-muted-foreground/40 ${h.span}`}
+            className={`text-[10px] uppercase tracking-wider text-muted-foreground ${h.span}`}
           >
             {h.label}
           </span>

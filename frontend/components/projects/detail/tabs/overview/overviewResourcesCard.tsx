@@ -1,13 +1,15 @@
 import { ArrowRight, FileText, Calendar } from 'lucide-react'
-import type { TabKey } from '../../projectdetailpage'
+import type { TabKey } from '../../project-detail-context'
 
 interface OverviewResourcesCardProps {
   documentCount: number
+  meetingCount: number
   onTabChange: (tab: TabKey) => void
 }
 
 export default function OverviewResourcesCard({
   documentCount,
+  meetingCount,
   onTabChange,
 }: OverviewResourcesCardProps) {
   return (
@@ -38,18 +40,29 @@ export default function OverviewResourcesCard({
         />
       </button>
 
-      {/* Meetings — coming soon */}
-      <div className="flex items-center gap-3 rounded-xl border border-border/40
-        bg-muted/10 p-3.5 opacity-50 cursor-not-allowed">
+      {/* Meetings — clickable */}
+      <button
+        onClick={() => onTabChange('meetings')}
+        className="group flex items-center gap-3 rounded-xl border border-border/50
+          bg-muted/20 p-3.5 hover:bg-accent/40 hover:border-border/80
+          transition-all duration-150 text-left"
+      >
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl
-          bg-emerald-500/10 border border-emerald-500/20">
+          bg-emerald-500/10 border border-emerald-500/20 group-hover:bg-emerald-500/15 transition-colors">
           <Calendar size={14} className="text-emerald-400" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-xs font-semibold text-foreground">Meetings</p>
-          <p className="text-[10px] text-muted-foreground/60 mt-0.5">Coming soon</p>
+          <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+            {meetingCount} meeting{meetingCount !== 1 ? 's' : ''} scheduled
+          </p>
         </div>
-      </div>
+        <ArrowRight
+          size={13}
+          className="text-muted-foreground/40 group-hover:text-muted-foreground
+            group-hover:translate-x-0.5 transition-all duration-150"
+        />
+      </button>
     </div>
   )
 }

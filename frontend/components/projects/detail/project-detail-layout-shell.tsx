@@ -8,6 +8,7 @@ import {
   useProjectTasks,
   useProjectDocuments,
   useUpdateProjectTaskStatus,
+  useProjectMeetings,
 } from '@/features/projects/detail/hooks'
 import type { TaskStatus } from '@/features/projects/detail/types'
 import EditProjectModal from '@/components/projects/detail/editprojectmodal'
@@ -62,6 +63,7 @@ export default function ProjectLayoutShell({
   const { data: project, isLoading: projectLoading } = useProjectDetail(projectId)
   const { data: tasks = [], isLoading: tasksLoading } = useProjectTasks(projectId)
   const { data: documents = [] } = useProjectDocuments(projectId)
+  const { data: meetings = [] } = useProjectMeetings(projectId)
   const { data: discussions = [] } = useProjectDiscussions(projectId)
   const { mutate: updateTaskStatus } = useUpdateProjectTaskStatus(projectId)
   useDiscussionSocketEvents(projectId)
@@ -121,6 +123,7 @@ export default function ProjectLayoutShell({
         project,
         tasks,
         documents,
+        meetings,
         isLoading: tasksLoading,
         onTabChange,
         onStatusChange: (taskId, status) =>
@@ -169,48 +172,6 @@ export default function ProjectLayoutShell({
                 {activeTabLabel}
               </span>
             </div>
-
-            {/* Route-based Tabs */}
-            {/* <div className="flex items-center gap-0.5 px-4 border-t border-border/40 bg-background/60">
-              {TABS.map(({ key, label, Icon }) => {
-                const isActive = activeTab === key
-                return (
-                  <Link
-                    key={key}
-                    href={`${base}/${key}`}
-                    className={`
-                      relative flex items-center gap-2 px-3.5 py-3 text-xs font-medium
-                      transition-all duration-200 rounded-t-lg group
-                      ${isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground/80'}
-                    `}
-                  >
-                    <Icon
-                      size={13}
-                      className={`shrink-0 transition-colors duration-200 ${
-                        isActive
-                          ? 'text-primary'
-                          : 'text-muted-foreground/60 group-hover:text-muted-foreground'
-                      }`}
-                    />
-                    <span className="tracking-wide">{label}</span>
-
-                    {isActive && (
-                      <span
-                        className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full"
-                        style={{
-                          background:
-                            'linear-gradient(90deg, oklch(0.55 0.18 262), oklch(0.65 0.16 262))',
-                          boxShadow: '0 0 6px oklch(0.6 0.16 262 / 0.6)',
-                        }}
-                      />
-                    )}
-                    {!isActive && (
-                      <span className="absolute inset-0 rounded-t-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-accent/40" />
-                    )}
-                  </Link>
-                )
-              })}
-            </div> */}
           </header>
 
           {/* ── Tab content ── */}

@@ -1,10 +1,6 @@
 'use client'
 
-import type {
-  ProjectDetail,
-  ProjectTask,
-  ProjectDocument,
-} from '@/features/projects/detail/types'
+import { useProjectDetailContext } from '../../project-detail-context'
 import { type PriorityKey } from './constants'
 
 import OverviewKpiStrip from './overviewKpiStrip'
@@ -15,22 +11,11 @@ import OverviewRecentTasks from './overviewRecentTasks'
 import OverviewTeamWorkload from './overviewTeamWorkload'
 import OverviewAttentionCard from './overviewAttentionCard'
 import OverviewResourcesCard from './overviewResourcesCard'
-import { TabKey } from '../../project-detail-context'
 import StatusBadge from '../../statusbadge'
 
-interface OverviewTabProps {
-  project: ProjectDetail
-  tasks: ProjectTask[]
-  documents: ProjectDocument[]
-  onTabChange: (tab: TabKey) => void
-}
-
-export default function OverviewTab({
-  project,
-  tasks,
-  documents,
-  onTabChange,
-}: OverviewTabProps) {
+export default function OverviewTab() {
+  const { project, tasks, documents, meetings, onTabChange } = useProjectDetailContext()
+  
   // ── Derived counts ─────────────────────────────────────────
   const total = tasks.length
   const done = tasks.filter(t => t.status === 'DONE').length
@@ -136,7 +121,7 @@ export default function OverviewTab({
             onTabChange={onTabChange}
           />
           <OverviewProjectInfoCard
-            ownerName={owner?.fullName ?? null}
+            ownerName={owner?.user.fullName ?? null}
             createdAt={createdAt}
             memberCount={project.projectMembers.length}
             documentCount={documents.length}
@@ -159,6 +144,7 @@ export default function OverviewTab({
             <OverviewAttentionCard overdue={overdue} dueSoon={dueSoon} />
             <OverviewResourcesCard
               documentCount={documents.length}
+              meetingCount={meetings.length}
               onTabChange={onTabChange}
             />
           </div>

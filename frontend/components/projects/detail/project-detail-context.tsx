@@ -1,7 +1,12 @@
 'use client'
 
 import { createContext, useContext } from 'react'
-import type { ProjectDetail, ProjectTask, ProjectDocument } from '@/features/projects/detail/types'
+import type {
+  ProjectDetail,
+  ProjectTask,
+  ProjectDocument,
+  MeetingListItem,
+} from '@/features/projects/detail/types'
 
 export type TabKey =
   | 'tasks'
@@ -17,6 +22,7 @@ interface ProjectDetailContextValue {
   project: ProjectDetail
   tasks: ProjectTask[]
   documents: ProjectDocument[]
+  meetings: MeetingListItem[]
   isLoading: boolean
   onTabChange: (tab: TabKey) => void
   onStatusChange: (taskId: number, status: string) => void
