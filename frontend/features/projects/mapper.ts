@@ -7,9 +7,13 @@ export function mapProjects(dto: ListAllWorkspaceProjectDTO): Project[] {
     description: project.description ?? '',
     status: project.status,
 
-    totalTasks: 0,
-    doneTasks: 0,
-    members: [],
+    totalTasks: project.totalTasks,
+    doneTasks: project.doneTasks,
+    members: project.members.map(member => ({
+      id: String(member.id),
+      name: member.name,
+      avatarUrl: member.avatarUrl ?? '',
+    })),
 
     createdAt: project.createdAt,
   }))

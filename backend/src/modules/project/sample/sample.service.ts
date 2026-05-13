@@ -12,6 +12,8 @@ export async function createSampleProject(input: CreateSampleProjectInput) {
     const project = await tx.project.create({
       data: {
         name: '🚀 Your First Product: Launch in 7 Days',
+        description:
+          'This is a sample project to help you explore how teams collaborate in TeamPoint. Build and launch a simple product in 7 days, focusing only on what matters.',
         workspaceId,
         createdBy: userId,
       },

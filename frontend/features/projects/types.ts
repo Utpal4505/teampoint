@@ -25,6 +25,13 @@ export type ListAllWorkspaceProjectDTO = {
   status: ProjectStatus
   createdBy: number
   createdAt: string
+  members: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }[]
+  totalTasks: number
+  doneTasks: number
 }[]
 
 export type CreateProjectInput = {
