@@ -97,7 +97,7 @@ export const useAddProjectMember = (projectId: number) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (input: { email: string; role?: string }) =>
+    mutationFn: (input: { userId: number; role?: string }) =>
       addProjectMember(projectId, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) })

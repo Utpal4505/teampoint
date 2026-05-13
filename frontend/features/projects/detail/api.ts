@@ -44,7 +44,7 @@ export const getProjectMembers = async (
 
 export const addProjectMember = async (
   projectId: number,
-  input: { email: string; role?: string },
+  input: { userId: number; role?: string },
 ): Promise<ProjectMemberDTO> => {
   const { data } = await api.post(`/projects/${projectId}/members`, input)
   return data.data

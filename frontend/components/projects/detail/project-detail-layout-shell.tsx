@@ -194,6 +194,8 @@ export default function ProjectLayoutShell({
           open={modal.type === 'members'}
           onClose={() => setModal({ type: 'none' })}
           members={project.projectMembers}
+          workspaceId={workspaceId}
+          projectId={projectId}
         />
       </SidebarInset>
     </ProjectDetailContext.Provider>

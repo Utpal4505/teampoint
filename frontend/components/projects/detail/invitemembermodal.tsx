@@ -6,17 +6,7 @@ import { X, UserPlus, Search, CheckCircle2, ChevronDown } from 'lucide-react'
 import { getInitials } from '@/lib/utils'
 import type { ProjectMember } from '@/features/projects/detail/types'
 
-// ── Fake workspace members — swap with useWorkspaceMembers() later ──
-const FAKE_WORKSPACE_MEMBERS = [
-  { id: 1, fullName: 'Utpal Kumar', avatarUrl: null, email: 'utpal@teampoint.app' },
-  { id: 2, fullName: 'Rahul Sharma', avatarUrl: null, email: 'rahul@teampoint.app' },
-  { id: 3, fullName: 'Aman Verma', avatarUrl: null, email: 'aman@teampoint.app' },
-  { id: 4, fullName: 'Neha Singh', avatarUrl: null, email: 'neha@teampoint.app' },
-  { id: 5, fullName: 'Dev Patel', avatarUrl: null, email: 'dev@teampoint.app' },
-  { id: 6, fullName: 'Priya Gupta', avatarUrl: null, email: 'priya@teampoint.app' },
-  { id: 7, fullName: 'Arjun Mehta', avatarUrl: null, email: 'arjun@teampoint.app' },
-  { id: 8, fullName: 'Sneha Joshi', avatarUrl: null, email: 'sneha@teampoint.app' },
-]
+import { useFetchWorkspaceById } from '@/features/workspace/hooks'
 
 type InviteRole = 'ADMIN' | 'MEMBER'
 
@@ -44,6 +34,7 @@ const ROLES: {
 ]
 
 interface InviteMemberModalProps {
+  workspaceId: number
   currentMembers: Array<{
     userId: number
     fullName: string
@@ -52,7 +43,7 @@ interface InviteMemberModalProps {
     status: string
   }>
   onClose: () => void
-  onInvite?: (email: string, role: InviteRole) => void
+  onInvite?: (id: number, role: InviteRole) => void
 }
 
 // ── Small inline role dropdown ────────────────────────────────
@@ -116,6 +107,7 @@ function RoleDropdown({
 }
 
 export default function InviteMemberModal({
+  workspaceId,
   currentMembers,
   onClose,
   onInvite,
@@ -123,15 +115,18 @@ export default function InviteMemberModal({
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Record<number, InviteRole>>({})
 
+  const { data: workspace } = useFetchWorkspaceById(workspaceId)
+  const workspaceMembers = workspace?.workspaceMembers ?? []
+
   const currentIds = useMemo(
     () => new Set(currentMembers.map(m => m.userId)),
     [currentMembers],
   )
 
-  const filtered = FAKE_WORKSPACE_MEMBERS.filter(
-    u =>
-      u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()),
+  const filtered = workspaceMembers.filter(
+    m =>
+      m.user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      m.user.email.toLowerCase().includes(search.toLowerCase()),
   )
 
   function toggleSelect(userId: number) {
@@ -153,9 +148,11 @@ export default function InviteMemberModal({
 
   function handleConfirm() {
     Object.entries(selected).forEach(([userId, role]) => {
-      const user = FAKE_WORKSPACE_MEMBERS.find(u => u.id === Number(userId))
-      if (user) {
-        onInvite?.(user.email, role)
+      const member = workspaceMembers.find(m => m.user.id === Number(userId))
+      if (member) {
+        // i have to send userId for oninvite
+
+        onInvite?.(member.user.id, role)
       }
     })
     onClose()
@@ -223,8 +220,8 @@ export default function InviteMemberModal({
         {selectedCount > 0 && (
           <div className="px-5 pb-3 flex items-center gap-2 flex-wrap shrink-0">
             {Object.entries(selected).map(([userId, role]) => {
-              const user = FAKE_WORKSPACE_MEMBERS.find(u => u.id === Number(userId))
-              if (!user) return null
+              const member = workspaceMembers.find(m => m.user.id === Number(userId))
+              if (!member) return null
               const roleMeta = ROLES.find(r => r.value === role)!
               return (
                 <span
@@ -236,14 +233,14 @@ export default function InviteMemberModal({
                     className="flex h-4 w-4 items-center justify-center rounded-full
                     bg-primary/20 text-[8px] font-bold"
                   >
-                    {getInitials(user.fullName)}
+                    {getInitials(member.user.fullName)}
                   </span>
-                  {user.fullName.split(' ')[0]}
+                  {member.user.fullName.split(' ')[0]}
                   <span className={`text-[9px] font-bold ${roleMeta.color} opacity-70`}>
                     · {role}
                   </span>
                   <button
-                    onClick={() => toggleSelect(user.id)}
+                    onClick={() => toggleSelect(member.user.id)}
                     className="flex h-4 w-4 items-center justify-center rounded-full
                       text-primary/50 hover:bg-primary/20 hover:text-primary transition-colors"
                   >
@@ -263,7 +260,8 @@ export default function InviteMemberModal({
             </div>
           ) : (
             <div className="flex flex-col gap-0.5">
-              {filtered.map(user => {
+              {filtered.map(member => {
+                const user = member.user
                 const isAlreadyIn = currentIds.has(user.id)
                 const isSelected = selected[user.id] !== undefined
                 const role = selected[user.id] ?? 'MEMBER'

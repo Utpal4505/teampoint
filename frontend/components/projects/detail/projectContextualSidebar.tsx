@@ -298,7 +298,7 @@ export default function ProjectContextualSidebar({
       )}
     >
       {/* ── Header ── */}
-      <div className="flex items-center gap-2 px-3 py-3 border-b border-border min-w-0">
+      <div className="flex items-center gap-2 px-3 py-[9px] border-b border-border min-w-0">
         <span className="truncate text-sm font-semibold text-foreground leading-tight flex-1 min-w-0">
           {projectName}
         </span>
@@ -348,7 +348,7 @@ export default function ProjectContextualSidebar({
       </div>
 
       {/* ── Nav Links ── */}
-      <div className="flex flex-col gap-0.5 px-2 pt-3 pb-2">
+      <div className="flex flex-col gap-0.5 px-2 pt-3 pb-1">
         {navItems.map(item => (
           <NavLink key={item.href} {...item} />
         ))}

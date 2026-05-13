@@ -8,6 +8,7 @@ export interface ProjectMember {
     id: number
     fullName: string
     avatarUrl: string | null
+    email: string
   }
   role: ProjectRole
   joinedAt: string

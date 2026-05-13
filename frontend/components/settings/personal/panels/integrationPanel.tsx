@@ -176,6 +176,8 @@ export default function IntegrationPanel() {
   }
 
   const connectedProviders = new Set(data?.data?.map(i => i.provider) ?? [])
+  const connectedCount = connectedProviders.size
+  const totalCount = Object.keys(INTEGRATION_CONFIG).length
 
   return (
     <div className="flex flex-col gap-2 p-5">
@@ -190,6 +192,13 @@ export default function IntegrationPanel() {
           workspaceId={workspaceId}
         />
       ))}
+
+      {/* Summary line */}
+      <p className="text-[11px] text-muted-foreground/50 mt-1 px-0.5">
+        {connectedCount === 0
+          ? 'No integrations connected'
+          : `${connectedCount} of ${totalCount} connected`}
+      </p>
     </div>
   )
 }

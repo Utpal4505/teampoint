@@ -8,15 +8,22 @@ import ProfilePanel from './panels/profilePanel'
 import IntegrationPanel from './panels/integrationPanel'
 import DeactivatePanel from './panels/dangerPanel'
 import SettingsModal from '../_components/settingsModal'
+import { useUserStore } from '@/store/user.store'
+import { useListIntegrations } from '@/features/integration/hooks'
 
 type ModalType = 'profile' | 'integration' | 'deactivate' | null
 
 export default function PersonalSettingsPage() {
   const [modal, setModal] = useState<ModalType>(null)
 
-  // TODO: replace with real user data from hook
-  const userName = 'Utpal Singh'
-  const integrated = true
+  const { user } = useUserStore()
+  const { data: integrationsData } = useListIntegrations()
+
+  const userName = user?.fullName || 'User'
+  const integrated =
+    integrationsData?.data?.some(i => i.status === 'CONNECTED') ?? false
+
+  
 
   return (
     <>
@@ -35,7 +42,7 @@ export default function PersonalSettingsPage() {
           />
           <SettingsRow
             title="Integrations"
-            description="Manage connected tools — Google, Slack, GitHub and more"
+            description="Manage connected tools - Google, Slack, GitHub and more"
             value={
               integrated ? (
                 <span className="flex items-center gap-1 text-emerald-400 font-medium text-[12px]">
@@ -60,9 +67,19 @@ export default function PersonalSettingsPage() {
             title="Account Status"
             description="Your current account standing"
             value={
-              <span className="flex items-center gap-1.5 text-emerald-400 font-medium text-[12px]">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                Active
+              <span
+                className={`flex items-center gap-1.5 font-medium text-[12px] ${
+                  user?.status === 'ACTIVE' ? 'text-emerald-400' : 'text-red-400'
+                }`}
+              >
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    user?.status === 'ACTIVE' ? 'bg-emerald-400' : 'bg-red-400'
+                  }`}
+                />
+                {user?.status
+                  ? user.status.charAt(0) + user.status.slice(1).toLowerCase()
+                  : 'Active'}
               </span>
             }
           />
