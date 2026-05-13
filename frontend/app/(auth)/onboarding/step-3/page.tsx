@@ -105,7 +105,7 @@ export default function OnboardingStep3() {
     )
 
   const workspaceName = workspace?.name ?? ''
-  const memberCount = workspace?.workspaceMembers.length ?? 0
+  const memberCount = workspace?.workspaceMembers?.length ?? 0
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center bg-[oklch(0.16_0.005_260)] p-8">

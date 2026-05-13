@@ -10,6 +10,7 @@ import {
 import { revokeTokens } from '../../utils/refreshTokenHandler.ts'
 import { AvatarCompleteSchema } from '../upload/upload.schema.ts'
 import { createWorkspaceService } from '../workspace/workspace.service.ts'
+import { createSampleProject } from '../project/sample/sample.service.ts'
 import {
   avatarCompleteService,
   deleteUserService,
@@ -49,6 +50,12 @@ export const onboardingController = asyncHandler(async (req, res) => {
     data: {
       is_new: false,
     },
+  })
+
+  // Create sample project for new user
+  await createSampleProject({
+    userId: req.user.id,
+    workspaceId: workspace.id,
   })
 
   return res.status(201).json(

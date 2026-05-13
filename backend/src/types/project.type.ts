@@ -70,4 +70,11 @@ export type ListAllWorkspaceProjectDTO = {
   status: ProjectStatus
   createdBy: number
   createdAt: Date
+  members: {
+    id: number
+    name: string
+    avatarUrl: string | null
+  }[]
+  totalTasks: number
+  doneTasks: number
 }[]

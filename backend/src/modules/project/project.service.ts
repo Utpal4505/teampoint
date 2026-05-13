@@ -214,7 +214,7 @@ export const listAllWorkspaceProjectService = async (
     where.createdBy = createdBy
   }
 
-  return prisma.project.findMany({
+  const projects = await prisma.project.findMany({
     where,
     select: {
       id: true,
@@ -223,9 +223,42 @@ export const listAllWorkspaceProjectService = async (
       status: true,
       createdBy: true,
       createdAt: true,
+      projectMembers: {
+        select: {
+          user: {
+            select: {
+              id: true,
+              fullName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+      tasks: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
     },
     orderBy: {
       createdAt: 'desc',
     },
   })
+
+  return projects.map(project => ({
+    id: project.id,
+    name: project.name,
+    description: project.description,
+    status: project.status,
+    createdBy: project.createdBy,
+    createdAt: project.createdAt,
+    members: project.projectMembers.map(pm => ({
+      id: pm.user.id,
+      name: pm.user.fullName,
+      avatarUrl: pm.user.avatarUrl,
+    })),
+    totalTasks: project.tasks.length,
+    doneTasks: project.tasks.filter(t => t.status === 'DONE').length,
+  }))
 }
