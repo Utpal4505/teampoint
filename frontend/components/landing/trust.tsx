@@ -10,26 +10,26 @@ export function Trust() {
   return (
     <section className="py-28 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-[oklch(0.6_0.18_262/0.04)] blur-[100px]" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-primary/5 blur-[100px]" />
       </div>
       <div className="mx-auto max-w-6xl px-6">
         <div className="text-center mb-14">
           <div className="flex items-center justify-center gap-1 mb-4">
             {[...Array(5)].map((_, i) => <Star key={i} size={16} className="text-amber-400 fill-amber-400" />)}
           </div>
-          <h2 className="font-['Syne'] text-4xl font-bold text-white tracking-tight">Loved by early teams</h2>
+          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">Loved by early teams</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {testimonials.map((t, i) => (
-            <div key={i} className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 flex flex-col gap-5">
-              <p className="text-sm text-[#8a8a9a] leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
+            <div key={i} className="rounded-2xl border border-border/40 bg-card/50 p-6 flex flex-col gap-5">
+              <p className="text-sm text-muted-foreground leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
               <div className="flex items-center gap-3 mt-auto">
-                <div className="h-8 w-8 rounded-full bg-[oklch(0.6_0.18_262/0.2)] flex items-center justify-center text-xs font-bold text-[oklch(0.75_0.14_262)]">
+                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                   {t.avatar}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-white">{t.name}</p>
-                  <p className="text-xs text-[#8a8a9a]">{t.role}</p>
+                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.role}</p>
                 </div>
               </div>
             </div>
@@ -38,4 +38,4 @@ export function Trust() {
       </div>
     </section>
   )
-}
+}

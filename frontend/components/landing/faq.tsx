@@ -20,22 +20,22 @@ export function FAQ() {
     <section id="faq" className="py-28">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center mb-14">
-          <h2 className="font-['Syne'] text-4xl font-bold text-white tracking-tight mb-4">FAQ</h2>
-          <p className="text-[#8a8a9a]">Everything you&apos;d want to know before signing up.</p>
+          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight mb-4">FAQ</h2>
+          <p className="text-muted-foreground">Everything you&apos;d want to know before signing up.</p>
         </div>
         <div className="flex flex-col gap-3">
           {faqs.map((f, i) => (
-            <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+            <div key={i} className="rounded-xl border border-border/40 bg-card/50 overflow-hidden">
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 className="w-full flex items-center justify-between px-5 py-4 text-left"
               >
-                <span className="text-sm font-medium text-white pr-4">{f.q}</span>
-                <ChevronDown size={16} className={cn('shrink-0 text-[#8a8a9a] transition-transform duration-200', open === i && 'rotate-180')} />
+                <span className="text-sm font-medium text-foreground pr-4">{f.q}</span>
+                <ChevronDown size={16} className={cn('shrink-0 text-muted-foreground transition-transform duration-200', open === i && 'rotate-180')} />
               </button>
               {open === i && (
                 <div className="px-5 pb-4">
-                  <p className="text-sm text-[#8a8a9a] leading-relaxed">{f.a}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.a}</p>
                 </div>
               )}
             </div>
@@ -44,4 +44,4 @@ export function FAQ() {
       </div>
     </section>
   )
-}
+}
