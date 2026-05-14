@@ -19,7 +19,6 @@ import {
 import type {
   ProjectTask,
   TaskStatus,
-  MeetingListItem,
   CreateMeetingInput,
   CompleteMeetingInput,
 } from './types'

@@ -4,7 +4,6 @@ import type {
   CreateMessageInput,
   Discussion,
   DiscussionFilters,
-  DiscussionStatus,
   Message,
   UpdateDiscussionInput,
 } from './types'

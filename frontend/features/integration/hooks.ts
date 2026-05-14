@@ -12,8 +12,6 @@ export const useListIntegrations = () => {
 }
 
 export const useInitiateIntegration = () => {
-  const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: ({
       provider,

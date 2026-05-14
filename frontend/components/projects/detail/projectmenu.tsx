@@ -11,8 +11,8 @@ import {
   Check,
 } from 'lucide-react'
 import type { ProjectDetail, ProjectStatus } from '@/features/projects/detail/types'
-import type { ModalState } from './projectdetailpage'
 import { STATUS_CONFIG } from '@/features/projects/constants'
+import { ModalState } from './project-detail-layout-shell'
 
 const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
   { value: 'ACTIVE', label: 'Active' },
