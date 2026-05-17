@@ -60,7 +60,7 @@ export const useProjectTasks = (
 ) => {
   return useQuery<AssignedTask[]>({
     queryKey: ['project', projectId, 'tasks', filters],
-    queryFn: () => listProjectTasks(projectId, filters),
+    queryFn: () => listProjectTasks(filters),
     enabled: !!projectId,
     staleTime: 1000 * 60 * 5,
   })

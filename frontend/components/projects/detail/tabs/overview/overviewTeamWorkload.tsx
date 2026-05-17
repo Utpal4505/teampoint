@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { getInitials } from '@/lib/utils'
 import type { ProjectMember } from '@/features/projects/detail/types'
-import type { TabKey } from '../../projectdetailpage'
+import { TabKey } from '../../project-detail-context'
 
 export interface MemberWorkload {
   member: ProjectMember

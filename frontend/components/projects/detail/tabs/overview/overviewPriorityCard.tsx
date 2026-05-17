@@ -1,4 +1,4 @@
-import type { TabKey } from '../../projectdetailpage'
+import { TabKey } from '../../project-detail-context'
 import { PRIORITY_META, type PriorityKey } from './constants'
 
 interface PriorityCount {

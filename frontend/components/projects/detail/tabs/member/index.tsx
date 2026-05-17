@@ -14,8 +14,10 @@ import {
   useAddProjectMember,
 } from '@/features/projects/detail/hooks'
 import { useParams } from 'next/navigation'
+import { useWorkspaceId } from '@/hooks/useworkspaceid'
 
 export default function MembersTab() {
+  const workspaceId = useWorkspaceId()
   const params = useParams()
   const projectId = Number(params.projectId)
   const [inviteOpen, setInviteOpen] = useState(false)
@@ -59,8 +61,8 @@ export default function MembersTab() {
     await removeMemberMutation.mutateAsync(userId)
   }
 
-  const handleInvite = async (email: string, role?: string) => {
-    await addMemberMutation.mutateAsync({ email, role })
+  const handleInvite = async (userId: number, role?: string) => {
+    await addMemberMutation.mutateAsync({ userId, role })
     setInviteOpen(false)
   }
 
@@ -203,9 +205,10 @@ export default function MembersTab() {
             status: m.status,
           }))}
           onClose={() => setInviteOpen(false)}
-          onInvite={(email, role) => {
-            handleInvite(email, role)
+          onInvite={(userId, role) => {
+            handleInvite(userId, role)
           }}
+          workspaceId={workspaceId}
         />
       )}
     </>
