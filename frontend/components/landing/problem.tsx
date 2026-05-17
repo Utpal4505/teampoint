@@ -1,38 +1,73 @@
-export function Problem() {
-  const pains = [
-    { icon: '😩', text: "Endless status meetings that could've been a message" },
-    { icon: '🗂️', text: 'Tasks scattered across 5 different tools' },
-    { icon: '😶‍🌫️', text: "No one knows what's actually blocking progress" },
-    { icon: '🔔', text: 'Notification overload that kills deep work' },
-  ]
+import {
+  MessagesSquare,
+  MousePointerClick,
+  RotateCcw,
+  SquareKanban,
+} from 'lucide-react'
 
+const PAINS = [
+  {
+    icon: SquareKanban,
+    title: 'Tasks are everywhere',
+    text: 'The work exists, but it is split between boards, chats, docs, and memory.',
+  },
+  {
+    icon: MessagesSquare,
+    title: 'Discussions do not end',
+    text: 'Teams talk for days, then still ask what was decided.',
+  },
+  {
+    icon: RotateCcw,
+    title: 'Meetings lose momentum',
+    text: 'A good conversation happens, then action items disappear after the call.',
+  },
+  {
+    icon: MousePointerClick,
+    title: 'Tools need too much managing',
+    text: 'Small teams should not need a process expert just to move work forward.',
+  },
+]
+
+export function Problem() {
   return (
-    <section id="product" className="py-28 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-destructive/5 blur-[100px]" />
-      </div>
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-destructive/20 bg-destructive/10 px-3.5 py-1.5 mb-5">
-            <span className="text-xs font-medium text-destructive">The problem</span>
-          </div>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Your team is busy.<br />But is it{' '}
-            <span className="text-destructive">actually productive?</span>
+    <section
+      id="product"
+      className="landing-noise relative bg-white/[0.015] py-24"
+    >
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mb-12 max-w-2xl">
+          <p className="mb-4 text-xs font-semibold uppercase text-rose-300">
+            The problem
+          </p>
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+            Work should not feel this messy.
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            Small teams waste hours every week on coordination overhead — not the actual work.
+          <p className="mt-4 text-base leading-7 text-muted-foreground">
+            Jira and ClickUp can be powerful, but they often feel heavy for a
+            small team still trying to find speed. TeamPoint starts from the
+            opposite question: what does the team need to finish this week?
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-          {pains.map((p, i) => (
-            <div key={i} className="flex items-start gap-3 rounded-xl border border-border/40 bg-card/50 p-4">
-              <span className="text-2xl shrink-0">{p.icon}</span>
-              <p className="text-sm text-muted-foreground leading-relaxed">{p.text}</p>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {PAINS.map(item => (
+            <div
+              key={item.title}
+              className="landing-card-hover rounded-lg border border-white/10 bg-[#11151a] p-5"
+            >
+              <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-md bg-rose-400/10 text-rose-300">
+                <item.icon size={18} />
+              </div>
+              <h3 className="text-base font-semibold text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {item.text}
+              </p>
             </div>
           ))}
         </div>
       </div>
     </section>
   )
-}
+}

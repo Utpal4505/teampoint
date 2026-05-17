@@ -1,41 +1,60 @@
-import { Star } from 'lucide-react'
+import { Compass, FlaskConical, ShieldCheck } from 'lucide-react'
+
+const TRUST_POINTS = [
+  {
+    icon: FlaskConical,
+    title: 'Currently in beta',
+    text: 'TeamPoint is in early access, so the product is still being shaped with real usage.',
+  },
+  {
+    icon: Compass,
+    title: 'Designed from real workflows',
+    text: 'The core model follows how small teams already work: tasks, discussions, meetings, outcomes.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Simple by default',
+    text: 'No complex rollout, no process migration, no credit card during early access.',
+  },
+]
 
 export function Trust() {
-  const testimonials = [
-    { quote: "Finally a tool where my team doesn't need onboarding. We were shipping in 10 minutes.", name: 'Arjun N.', role: 'Founder, early access', avatar: 'A' },
-    { quote: 'The contextual discussions are a game changer. No more "which Slack thread was that in?"', name: 'Priya M.', role: 'Product Lead, early access', avatar: 'P' },
-    { quote: "Linear is great but overkill for us. TeamPoint is exactly what a 6-person team needs.", name: 'Rahul S.', role: 'CTO, early access', avatar: 'R' },
-  ]
-
   return (
-    <section className="py-28 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] rounded-full bg-primary/5 blur-[100px]" />
-      </div>
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-14">
-          <div className="flex items-center justify-center gap-1 mb-4">
-            {[...Array(5)].map((_, i) => <Star key={i} size={16} className="text-amber-400 fill-amber-400" />)}
-          </div>
-          <h2 className="font-display text-4xl font-bold text-foreground tracking-tight">Loved by early teams</h2>
+    <section className="landing-noise relative bg-white/[0.015] py-24">
+      <div className="relative mx-auto grid max-w-6xl gap-8 px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div>
+          <p className="mb-4 text-xs font-semibold uppercase text-emerald-300">
+            Early access
+          </p>
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+            Built for small teams, shaped by real users.
+          </h2>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">
+            TeamPoint is a proof of concept moving into beta. The goal is not
+            to copy Jira or ClickUp. The goal is to make the first version
+            useful enough that a small team can actually use it every day.
+          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {testimonials.map((t, i) => (
-            <div key={i} className="rounded-2xl border border-border/40 bg-card/50 p-6 flex flex-col gap-5">
-              <p className="text-sm text-muted-foreground leading-relaxed italic">&ldquo;{t.quote}&rdquo;</p>
-              <div className="flex items-center gap-3 mt-auto">
-                <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                  {t.avatar}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
+
+        <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+          {TRUST_POINTS.map(point => (
+            <div
+              key={point.title}
+              className="landing-card-hover rounded-lg border border-white/10 bg-[#11151a] p-5"
+            >
+              <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
+                <point.icon size={18} />
               </div>
+              <h3 className="text-base font-semibold text-foreground">
+                {point.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                {point.text}
+              </p>
             </div>
           ))}
         </div>
       </div>
     </section>
   )
-}
+}

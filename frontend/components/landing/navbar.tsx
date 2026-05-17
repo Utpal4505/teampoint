@@ -1,122 +1,94 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, FolderKanban } from 'lucide-react'
+import { Menu, Target, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+const LINKS = [
+  { label: 'Product', href: '#product' },
+  { label: 'Flow', href: '#how-it-works' },
+  { label: 'FAQ', href: '#faq' },
+]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
-  const navRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20)
+    const handler = () => setScrolled(window.scrollY > 12)
+    handler()
     window.addEventListener('scroll', handler)
     return () => window.removeEventListener('scroll', handler)
   }, [])
 
-  const links = [
-    { label: 'Product', href: '#product' },
-    { label: 'How it works', href: '#how-it-works' },
-    { label: 'FAQ', href: '#faq' },
-  ]
-
-  function handleMouseEnter(e: React.MouseEvent<HTMLAnchorElement>) {
-    const el = e.currentTarget
-    const nav = navRef.current
-    if (!nav) return
-    const navRect = nav.getBoundingClientRect()
-    const elRect = el.getBoundingClientRect()
-    setIndicatorStyle({
-      left: elRect.left - navRect.left,
-      width: elRect.width,
-      opacity: 1,
-    })
-  }
-
-  function handleMouseLeave() {
-    setIndicatorStyle(s => ({ ...s, opacity: 0 }))
-  }
-
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        'fixed inset-x-0 top-0 z-50 border-b transition',
         scrolled
-          ? 'bg-background/90 backdrop-blur-md border-b border-border/40'
-          : 'bg-transparent',
+          ? 'border-white/10 bg-[#0b0d10]/90 backdrop-blur'
+          : 'border-transparent bg-transparent',
       )}
     >
-      <div className="mx-auto max-w-6xl px-6 h-16 flex items-center justify-between">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-lg bg-primary flex items-center justify-center">
-            <FolderKanban size={14} className="text-primary-foreground" />
-          </div>
-          <span className="font-display font-bold text-foreground text-[15px] tracking-tight">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+            <Target size={16} />
+          </span>
+          <span className="text-base font-bold text-foreground">
             TeamPoint
           </span>
         </Link>
 
-        <nav
-          ref={navRef}
-          className="hidden md:flex items-center gap-1 relative"
-          onMouseLeave={handleMouseLeave}
-        >
-          <div
-            className="absolute top-1/2 -translate-y-1/2 h-8 rounded-lg bg-foreground/[0.06] transition-all duration-200 pointer-events-none"
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width,
-              opacity: indicatorStyle.opacity,
-            }}
-          />
-          {links.map(link => (
+        <nav className="hidden items-center gap-1 md:flex">
+          {LINKS.map(link => (
             <a
               key={link.label}
               href={link.href}
-              onMouseEnter={handleMouseEnter}
-              className="relative px-4 py-2 text-sm font-sans font-medium text-muted-foreground hover:text-foreground transition-colors duration-150 rounded-lg"
+              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition hover:bg-white/[0.04] hover:text-foreground"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden items-center md:flex">
           <Link
             href="/login"
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-display font-semibold text-primary-foreground hover:opacity-90 transition-all shadow-[0_0_20px_var(--color-primary)]/30"
+            className="inline-flex h-9 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
           >
             Get early access
           </Link>
         </div>
 
         <button
-          className="md:hidden text-muted-foreground hover:text-foreground"
-          onClick={() => setMenuOpen(o => !o)}
+          type="button"
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
+          className="flex h-9 w-9 items-center justify-center rounded-md border border-white/10 text-muted-foreground md:hidden"
+          onClick={() => setMenuOpen(open => !open)}
         >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          {menuOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-md">
-          <div className="px-6 py-4 flex flex-col gap-3">
-            {links.map(l => (
+        <div className="border-t border-white/10 bg-[#0b0d10]/96 px-6 py-4 backdrop-blur md:hidden">
+          <div className="mx-auto flex max-w-6xl flex-col gap-2">
+            {LINKS.map(link => (
               <a
-                key={l.label}
-                href={l.href}
-                className="text-sm font-sans font-medium text-muted-foreground hover:text-foreground py-1"
+                key={link.label}
+                href={link.href}
+                className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-white/[0.04] hover:text-foreground"
                 onClick={() => setMenuOpen(false)}
               >
-                {l.label}
+                {link.label}
               </a>
             ))}
             <Link
-              href="/sign-up"
-              className="mt-2 w-full text-center rounded-lg bg-primary px-4 py-2.5 text-sm font-display font-semibold text-primary-foreground"
+              href="/login"
+              className="mt-2 inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground"
             >
               Get early access
             </Link>
@@ -126,4 +98,3 @@ export function Navbar() {
     </header>
   )
 }
-

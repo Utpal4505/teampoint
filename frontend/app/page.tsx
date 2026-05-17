@@ -13,20 +13,20 @@ import {
 
 export default function LandingPage() {
   return (
-    <div
-      className="min-h-screen bg-[#08080a]"
-      style={{ fontFamily: "'DM Sans', sans-serif" }}
-    >
-      <Navbar />
-      <Hero />
-      <Problem />
-      <Solution />
-      <ProductFlows />
-      <Differentiation />
-      <Trust />
-      <FAQ />
-      <FinalCTA />
-      <Footer />
+    <div className="landing-shell relative min-h-screen overflow-hidden bg-[#0b0d10] text-foreground">
+      <div className="landing-backdrop" />
+      <div className="relative z-10">
+        <Navbar />
+        <Hero />
+        <Problem />
+        <Solution />
+        <ProductFlows />
+        <Differentiation />
+        <Trust />
+        <FAQ />
+        <FinalCTA />
+        <Footer />
+      </div>
     </div>
   )
 }

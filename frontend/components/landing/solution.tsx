@@ -1,48 +1,85 @@
-import { CheckSquare, MessageSquare, Users, BarChart2, Zap, Shield } from 'lucide-react'
+import {
+  ArrowRight,
+  CalendarCheck2,
+  CheckSquare2,
+  MessageSquareReply,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export function Solution() {
-  const features = [
-    { icon: CheckSquare, color: 'text-emerald-400', bg: 'bg-emerald-400/10', title: 'Tasks, not tickets', desc: 'Simple Kanban + list view. No ceremonies, no config. Just work.' },
-    { icon: MessageSquare, color: 'text-primary', bg: 'bg-primary/12', title: 'Discussions in context', desc: 'Every project has channels. Talk where the work lives.' },
-    { icon: Users, color: 'text-amber-400', bg: 'bg-amber-400/10', title: 'Team visibility', desc: "See who's doing what. No standups required." },
-    { icon: BarChart2, color: 'text-blue-400', bg: 'bg-blue-400/10', title: 'Progress at a glance', desc: 'Overview dashboards that actually tell you something.' },
-    { icon: Zap, color: 'text-violet-400', bg: 'bg-violet-400/10', title: 'Fast by design', desc: 'No bloat, no loading spinners. Built for speed.' },
-    { icon: Shield, color: 'text-teal-400', bg: 'bg-teal-400/10', title: 'Roles & permissions', desc: 'Owner, Admin, Member — control what each person can do.' },
-  ]
+const PILLARS = [
+  {
+    icon: CheckSquare2,
+    title: 'Tasks that move forward',
+    text: 'Clear ownership, simple priorities, and progress your team can scan quickly.',
+    accent: 'text-emerald-300 bg-emerald-400/10 border-emerald-400/20',
+  },
+  {
+    icon: MessageSquareReply,
+    title: 'Discussions that lead to decisions',
+    text: 'Keep conversation close to the project, then turn the outcome into a saved decision.',
+    accent: 'text-cyan-300 bg-cyan-400/10 border-cyan-400/20',
+  },
+  {
+    icon: CalendarCheck2,
+    title: 'Meetings that create action',
+    text: 'Capture action items while context is fresh and move them straight into tasks.',
+    accent: 'text-amber-300 bg-amber-400/10 border-amber-400/20',
+  },
+]
 
+export function Solution() {
   return (
-    <section className="py-28 relative" id="how-it-works">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[120px]" />
-      </div>
+    <section className="py-24" id="how-it-works">
       <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 mb-5">
-            <span className="text-xs font-medium text-primary">The solution</span>
+        <div className="mb-12 grid gap-8 lg:grid-cols-[0.85fr_1fr] lg:items-end">
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase text-primary">
+              The idea
+            </p>
+            <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+              Built for execution, not management.
+            </h2>
           </div>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-tight">
-            Everything your team needs.<br />
-            <span className="bg-clip-text text-transparent bg-linear-to-br from-primary to-primary/60">
-              Nothing it doesn&apos;t.
-            </span>
-          </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">
-            TeamPoint combines tasks, communication, and visibility into one lean workspace.
+          <p className="max-w-2xl text-base leading-7 text-muted-foreground lg:ml-auto">
+            TeamPoint is not trying to become the biggest workspace. It is
+            trying to become the cleanest path from conversation to finished
+            work for small teams.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((f, i) => (
-            <div key={i} className="group rounded-2xl border border-border/40 bg-card/50 p-6 hover:border-border hover:bg-card transition-all duration-200">
-              <div className={cn('mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl', f.bg)}>
-                <f.icon size={18} className={f.color} />
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          {PILLARS.map((pillar, index) => (
+            <div
+              key={pillar.title}
+              className="landing-card-hover group rounded-lg border border-white/10 bg-[#11151a] p-6"
+            >
+              <div
+                className={cn(
+                  'mb-7 flex h-11 w-11 items-center justify-center rounded-md border',
+                  pillar.accent,
+                )}
+              >
+                <pillar.icon size={20} />
               </div>
-              <h3 className="font-display text-base font-semibold text-foreground mb-2">{f.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+              <div className="mb-4 flex items-center gap-3">
+                <span className="text-xs font-semibold text-muted-foreground">
+                  0{index + 1}
+                </span>
+                <ArrowRight
+                  size={14}
+                  className="text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground"
+                />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">
+                {pillar.title}
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {pillar.text}
+              </p>
             </div>
           ))}
         </div>
       </div>
     </section>
   )
-}
+}

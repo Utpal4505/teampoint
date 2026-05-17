@@ -1,59 +1,69 @@
-import { Check, X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { CheckCircle2, MinusCircle } from 'lucide-react'
+
+const ROWS = [
+  {
+    others: 'Feature-heavy',
+    teampoint: 'Focused workflow',
+  },
+  {
+    others: 'Complex setup',
+    teampoint: 'Start in 2 minutes',
+  },
+  {
+    others: 'Endless options',
+    teampoint: 'Clear next step',
+  },
+  {
+    others: 'Work scattered',
+    teampoint: 'Tasks, decisions, and meetings connected',
+  },
+]
 
 export function Differentiation() {
-  const rows = [
-    { feature: 'Contextual discussions', tp: true, jira: false, notion: false, linear: false },
-    { feature: 'Built for small teams', tp: true, jira: false, notion: true, linear: true },
-    { feature: 'No learning curve', tp: true, jira: false, notion: false, linear: true },
-    { feature: 'Tasks + Docs + Meetings', tp: true, jira: false, notion: true, linear: false },
-    { feature: 'Team workload overview', tp: true, jira: true, notion: false, linear: true },
-    { feature: 'Free early access', tp: true, jira: false, notion: false, linear: false },
-  ]
-
-  const tools = [
-    { name: 'TeamPoint', highlight: true },
-    { name: 'Jira', highlight: false },
-    { name: 'Notion', highlight: false },
-    { name: 'Linear', highlight: false },
-  ]
-
   return (
-    <section className="py-28">
+    <section className="py-24">
       <div className="mx-auto max-w-5xl px-6">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-foreground/[0.04] px-3.5 py-1.5 mb-5">
-            <span className="text-xs font-medium text-muted-foreground">Why TeamPoint</span>
-          </div>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold text-foreground tracking-tight mb-4">Built different</h2>
-          <p className="text-muted-foreground max-w-md mx-auto">
-            Most tools are built for enterprise. We&apos;re built for teams that actually ship.
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="mb-4 text-xs font-semibold uppercase text-amber-300">
+            Why not another tool?
+          </p>
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+            Not another complicated workspace.
+          </h2>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">
+            Notion is flexible, Jira is powerful, ClickUp is loaded. TeamPoint
+            is built for the smaller team that wants less tool management and
+            more finished work.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border/40 overflow-hidden">
-          <div className="grid grid-cols-5 border-b border-border/40 bg-card/50">
-            <div className="col-span-2 px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Feature</div>
-            {tools.map((t, i) => (
-              <div key={i} className={cn('px-3 py-3.5 text-xs font-semibold text-center uppercase tracking-wider', t.highlight ? 'text-primary' : 'text-muted-foreground')}>
-                {t.name}
-              </div>
-            ))}
+        <div className="overflow-hidden rounded-lg border border-white/10 bg-[#11151a] shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
+          <div className="hidden grid-cols-2 border-b border-white/10 bg-white/[0.03] sm:grid">
+            <div className="px-5 py-4 text-sm font-semibold text-muted-foreground">
+              Typical tools
+            </div>
+            <div className="border-l border-white/10 px-5 py-4 text-sm font-semibold text-primary">
+              TeamPoint
+            </div>
           </div>
-          {rows.map((row, i) => (
-            <div key={i} className={cn('grid grid-cols-5 border-b border-border/20 last:border-0', i % 2 !== 0 && 'bg-foreground/[0.01]')}>
-              <div className="col-span-2 px-5 py-3.5 text-sm text-muted-foreground">{row.feature}</div>
-              {[row.tp, row.jira, row.notion, row.linear].map((val, j) => (
-                <div key={j} className="px-3 py-3.5 flex items-center justify-center">
-                  {val
-                    ? <Check size={15} className={j === 0 ? 'text-primary' : 'text-emerald-500'} />
-                    : <X size={13} className="text-foreground/20" />}
-                </div>
-              ))}
+
+          {ROWS.map(row => (
+            <div
+              key={row.others}
+              className="grid border-b border-white/8 transition hover:bg-white/[0.025] last:border-b-0 sm:grid-cols-2"
+            >
+              <div className="flex items-center gap-3 px-5 pb-2 pt-4 text-sm text-muted-foreground sm:py-4">
+                <MinusCircle size={16} className="shrink-0 text-rose-300/80" />
+                {row.others}
+              </div>
+              <div className="flex items-center gap-3 px-5 pb-4 pt-2 text-sm text-foreground sm:border-l sm:border-white/10 sm:py-4">
+                <CheckCircle2 size={16} className="shrink-0 text-emerald-300" />
+                {row.teampoint}
+              </div>
             </div>
           ))}
         </div>
       </div>
     </section>
   )
-}
+}

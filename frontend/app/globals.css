@@ -210,3 +210,93 @@
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background: oklch(0.42 0.01 250);
 }
+
+.landing-shell {
+  --landing-panel: #11151a;
+  --landing-line: rgba(255, 255, 255, 0.08);
+}
+
+.landing-backdrop {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 18% 10%, rgba(47, 130, 255, 0.14), transparent 24rem),
+    radial-gradient(circle at 84% 18%, rgba(45, 212, 191, 0.08), transparent 22rem),
+    radial-gradient(circle at 50% 82%, rgba(251, 191, 36, 0.05), transparent 24rem),
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    auto,
+    42px 42px,
+    42px 42px;
+  opacity: 0.9;
+}
+
+.landing-noise {
+  position: relative;
+}
+
+.landing-noise::before {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  content: '';
+  opacity: 0.32;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: linear-gradient(to bottom, black, transparent);
+}
+
+.landing-card-hover {
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.landing-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+}
+
+.landing-flow-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.landing-flow-line::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  translate: -100% 0;
+  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.7), transparent);
+  animation: landing-flow 2.8s ease-in-out infinite;
+}
+
+@keyframes landing-flow {
+  0% {
+    translate: -100% 0;
+  }
+  100% {
+    translate: 100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-flow-line::after {
+    animation: none;
+  }
+
+  .landing-card-hover,
+  .landing-card-hover:hover {
+    transform: none;
+  }
+}

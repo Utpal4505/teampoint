@@ -1,36 +1,38 @@
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 
 export function FinalCTA() {
   return (
-    <section className="py-28 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] rounded-full bg-primary/10 blur-[100px]" />
-      </div>
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3.5 py-1.5 mb-8">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs font-medium text-primary">Limited early access spots</span>
-        </div>
-        <h2 className="font-display text-5xl lg:text-6xl font-extrabold text-foreground tracking-tight mb-6">
-          Ready to actually{' '}
-          <span className="bg-clip-text text-transparent bg-linear-to-br from-primary to-primary/60">
-            ship things?
-          </span>
-        </h2>
-        <p className="text-lg text-muted-foreground mb-10 max-w-lg mx-auto">
-          Join teams already using TeamPoint to stay focused, move faster, and finish what they start.
-        </p>
-        <div className="flex flex-col items-center gap-3">
-          <Link
-            href="/sign-up"
-            className="flex items-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-display font-bold text-primary-foreground hover:opacity-90 transition-all shadow-[0_0_40px_var(--color-primary)]/40 hover:shadow-[0_0_60px_var(--color-primary)]/55 hover:-translate-y-px"
-          >
-            Get early access — it&apos;s free <ArrowRight size={16} />
-          </Link>
-          <p className="text-xs text-muted-foreground/60">Free during early access. No spam. No credit card.</p>
+    <section className="px-6 py-24">
+      <div className="mx-auto max-w-5xl overflow-hidden rounded-lg border border-white/10 bg-[#11151a] shadow-[0_24px_90px_rgba(0,0,0,0.28)]">
+        <div className="grid gap-8 p-8 md:grid-cols-[1fr_auto] md:items-center lg:p-10">
+          <div>
+            <p className="mb-4 text-xs font-semibold uppercase text-emerald-300">
+              Early access is open
+            </p>
+            <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+              Ready to actually finish work?
+            </h2>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground">
+              Join the beta, create your first workspace, and see whether
+              TeamPoint fits how your team already works.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 md:items-end">
+            <Link
+              href="/login"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_18px_48px_rgba(76,119,255,0.25)] transition hover:-translate-y-0.5 hover:bg-primary/90"
+            >
+              Join the beta <ArrowRight size={16} />
+            </Link>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 size={14} className="text-emerald-300" />
+              Free during early access
+            </div>
+          </div>
         </div>
       </div>
     </section>
   )
-}
+}

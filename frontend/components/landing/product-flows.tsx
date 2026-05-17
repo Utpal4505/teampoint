@@ -1,68 +1,90 @@
 'use client'
 
 import { useState } from 'react'
-import { FolderKanban, CheckSquare, BarChart2 } from 'lucide-react'
+import {
+  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
+  GitBranch,
+  MessageCircle,
+  Plus,
+  UserRound,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { KanbanPreview } from './hero'
 
-function ProjectsVisual() {
-  const projects = [
-    { name: 'Design Engineering', status: 'ACTIVE', statusColor: 'text-emerald-400 bg-emerald-400/10', tasks: 18, total: 40 },
-    { name: 'Sales & Marketing', status: 'ON HOLD', statusColor: 'text-amber-400 bg-amber-400/10', tasks: 9, total: 24 },
-    { name: 'Mobile App v2', status: 'ACTIVE', statusColor: 'text-emerald-400 bg-emerald-400/10', tasks: 61, total: 61 },
-  ]
+const FLOWS = [
+  {
+    label: 'Tasks',
+    title: 'Create. Assign. Complete.',
+    text: 'Track tasks without overthinking. Every task has an owner, status, and clear next step.',
+    icon: ClipboardList,
+    accent: 'text-emerald-300',
+    steps: ['Create task', 'Assign owner', 'Move to done'],
+  },
+  {
+    label: 'Decisions',
+    title: 'Discuss. Decide. Save.',
+    text: 'Project discussions stay attached to the work, so decisions do not vanish inside chat threads.',
+    icon: MessageCircle,
+    accent: 'text-cyan-300',
+    steps: ['Start discussion', 'Agree on outcome', 'Save decision'],
+  },
+  {
+    label: 'Meetings',
+    title: 'Meet. Capture. Act.',
+    text: 'Turn meeting notes into action items while the context is still fresh.',
+    icon: CalendarDays,
+    accent: 'text-amber-300',
+    steps: ['Run meeting', 'Capture actions', 'Create tasks'],
+  },
+]
+
+function FlowVisual({ steps }: { steps: string[] }) {
   return (
-    <div className="rounded-2xl border border-border/40 bg-card/80 backdrop-blur p-4 flex flex-col gap-3">
-      {projects.map((p, i) => (
-        <div key={i} className="rounded-xl border border-border/30 bg-foreground/[0.02] p-4 flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2">
-              <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
-              <span className={cn('text-[10px] font-semibold px-2 py-0.5 rounded-full', p.statusColor)}>{p.status}</span>
-            </div>
-            <div className="h-1.5 w-full rounded-full bg-foreground/[0.06] overflow-hidden">
-              <div className="h-full rounded-full bg-primary" style={{ width: `${Math.round((p.tasks / p.total) * 100)}%` }} />
-            </div>
-          </div>
-          <span className="text-xs text-muted-foreground shrink-0">{p.tasks}/{p.total}</span>
+    <div className="rounded-lg border border-white/10 bg-[#11151a] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.24)]">
+      <div className="mb-5 flex items-center justify-between border-b border-white/10 pb-4">
+        <div className="flex items-center gap-2">
+          <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+          <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
         </div>
-      ))}
-    </div>
-  )
-}
+        <span className="text-[11px] font-medium text-muted-foreground">
+          Live workflow
+        </span>
+      </div>
 
-function OverviewVisual() {
-  return (
-    <div className="rounded-2xl border border-border/40 bg-card/80 backdrop-blur p-5 flex flex-col gap-4">
-      <div className="grid grid-cols-3 gap-3">
-        {[{ label: 'Total Tasks', value: '24', color: 'text-foreground' }, { label: 'In Progress', value: '8', color: 'text-amber-400' }, { label: 'Done', value: '13', color: 'text-emerald-400' }].map((s, i) => (
-          <div key={i} className="rounded-xl border border-border/30 bg-foreground/[0.02] p-3 text-center">
-            <p className={cn("text-xl font-bold font-display", s.color)}>{s.value}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{s.label}</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        {steps.map((step, index) => (
+          <div key={step} className="relative">
+            <div className="landing-card-hover rounded-lg border border-white/10 bg-white/[0.04] p-4">
+              <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary">
+                {index === 0 ? (
+                  <Plus size={18} />
+                ) : index === 1 ? (
+                  <UserRound size={18} />
+                ) : (
+                  <CheckCircle2 size={18} />
+                )}
+              </div>
+              <span className="text-[11px] font-semibold uppercase text-muted-foreground">
+                Step {index + 1}
+              </span>
+              <p className="mt-1 text-sm font-semibold text-foreground">
+                {step}
+              </p>
+            </div>
+            {index < steps.length - 1 && (
+              <div className="landing-flow-line absolute left-[calc(100%-2px)] top-1/2 z-10 hidden h-px w-4 bg-white/20 sm:block" />
+            )}
           </div>
         ))}
       </div>
-      <div className="rounded-xl border border-border/30 bg-foreground/[0.02] p-4">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-semibold text-foreground">Progress</p>
-          <p className="text-xs text-primary font-bold">54%</p>
+
+      <div className="mt-5 rounded-lg border border-emerald-400/20 bg-emerald-400/10 p-3">
+        <div className="flex items-center gap-2 text-sm font-medium text-emerald-200">
+          <GitBranch size={15} />
+          Connected back to the project timeline
         </div>
-        <div className="h-2 rounded-full bg-foreground/[0.06] overflow-hidden">
-          <div className="h-full w-[54%] rounded-full bg-primary" />
-        </div>
-        <p className="text-[11px] text-muted-foreground mt-2">13 / 24 tasks completed</p>
-      </div>
-      <div className="rounded-xl border border-border/30 bg-foreground/[0.02] p-4">
-        <p className="text-xs font-semibold text-foreground mb-3">Team Workload</p>
-        {[{ name: 'Utpal', tasks: 8 }, { name: 'Priya', tasks: 5 }].map((m, i) => (
-          <div key={i} className="flex items-center gap-2 mb-2">
-            <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-[9px] font-bold text-primary">
-              {m.name[0]}
-            </div>
-            <span className="text-xs text-muted-foreground flex-1">{m.name}</span>
-            <span className="text-xs text-foreground">{m.tasks} tasks</span>
-          </div>
-        ))}
       </div>
     </div>
   )
@@ -70,52 +92,56 @@ function OverviewVisual() {
 
 export function ProductFlows() {
   const [active, setActive] = useState(0)
-
-  const flows = [
-    { label: 'Projects', icon: FolderKanban, heading: 'All your projects, one place', sub: 'Create workspaces, invite your team, and start tracking progress from day one.', visual: <ProjectsVisual /> },
-    { label: 'Tasks', icon: CheckSquare, heading: 'Kanban that actually works', sub: 'Drag, drop, and ship. See task priority, due dates, and assignees at a glance.', visual: <KanbanPreview /> },
-    { label: 'Overview', icon: BarChart2, heading: 'Know where things stand', sub: 'Progress bars, team workload, overdue alerts — no meeting required.', visual: <OverviewVisual /> },
-  ]
+  const flow = FLOWS[active]
 
   return (
-    <section className="py-28 overflow-hidden">
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-foreground/[0.04] px-3.5 py-1.5 mb-5">
-            <span className="text-xs font-medium text-muted-foreground">Product flows</span>
-          </div>
-          <h2 className="font-display text-4xl lg:text-5xl font-bold text-foreground tracking-tight">See it in action</h2>
+    <section className="landing-noise relative bg-white/[0.015] py-24">
+      <div className="relative mx-auto max-w-6xl px-6">
+        <div className="mb-10 max-w-2xl">
+          <p className="mb-4 text-xs font-semibold uppercase text-cyan-300">
+            Product flow
+          </p>
+          <h2 className="font-display text-4xl font-bold leading-tight tracking-normal text-foreground lg:text-5xl">
+            People understand flows faster than features.
+          </h2>
+          <p className="mt-4 text-base leading-7 text-muted-foreground">
+            TeamPoint connects the three places where small teams usually lose
+            momentum: tasks, discussions, and meetings.
+          </p>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-10">
-          {flows.map((f, i) => (
+        <div className="mb-8 flex flex-wrap gap-2">
+          {FLOWS.map((item, index) => (
             <button
-              key={i}
-              onClick={() => setActive(i)}
+              key={item.label}
+              onClick={() => setActive(index)}
               className={cn(
-                'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-display font-semibold transition-all duration-200',
-                active === i
-                  ? 'bg-primary text-primary-foreground shadow-[0_0_20px_var(--color-primary)]/30'
-                  : 'text-muted-foreground hover:text-foreground border border-border/30 hover:border-border/60',
+                'inline-flex h-10 items-center gap-2 rounded-md border px-4 text-sm font-semibold transition',
+                active === index
+                  ? 'border-primary/40 bg-primary text-primary-foreground'
+                  : 'border-white/10 bg-white/[0.03] text-muted-foreground hover:border-white/20 hover:text-foreground',
               )}
             >
-              <f.icon size={14} />
-              {f.label}
+              <item.icon size={16} />
+              {item.label}
             </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h3 className="font-display text-3xl font-bold text-foreground mb-4">{flows[active].heading}</h3>
-            <p className="text-muted-foreground text-lg leading-relaxed">{flows[active].sub}</p>
+        <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div className="landing-card-hover rounded-lg border border-white/10 bg-[#11151a] p-6">
+            <flow.icon size={26} className={flow.accent} />
+            <h3 className="mt-6 text-3xl font-semibold leading-tight text-foreground">
+              {flow.title}
+            </h3>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">
+              {flow.text}
+            </p>
           </div>
-          <div className="relative">
-            <div className="absolute inset-0 bg-primary/5 rounded-2xl blur-xl -z-10 scale-95" />
-            {flows[active].visual}
-          </div>
+
+          <FlowVisual steps={flow.steps} />
         </div>
       </div>
     </section>
   )
-}
+}
