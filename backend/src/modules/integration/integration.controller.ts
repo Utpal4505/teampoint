@@ -1,16 +1,16 @@
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { env } from '../../config/env.ts'
-import type { IntegrationProvider } from '../../types/integration.types.ts'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { ApiError } from '../../utils/apiError.js'
+import { env } from '../../config/env.js'
+import type { IntegrationProvider } from '../../types/integration.types.js'
 import {
   listIntegrationsService,
   initiateIntegrationService,
   handleCallbackService,
   getIntegrationStatusService,
   disconnectIntegrationService,
-} from './integration.service.ts'
+} from './integration.service.js'
 
 export const listIntegrationsController = asyncHandler(async (req, res) => {
   assertUser(req.user)

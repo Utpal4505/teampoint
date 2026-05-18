@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { createWorkspaceSchema, workspaceIdParamSchema } from './workspace.schema.ts'
+import { validateRequest } from '../../middlewares/validateRequest.js'
+import { createWorkspaceSchema, workspaceIdParamSchema } from './workspace.schema.js'
 import {
   archiveWorkspaceController,
   createWorkspaceController,
@@ -12,12 +12,12 @@ import {
   removeWorkspaceMemberController,
   updateWorkspaceController,
   updateWorkspaceMemberRoleController,
-} from './workspace.controller.ts'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
-import { userIdParamSchema } from '../user/user.schema.ts'
-import { listWorkspaceAssignedTasksController } from '../tasks/task.controller.ts'
-import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.ts'
+} from './workspace.controller.js'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
+import { userIdParamSchema } from '../user/user.schema.js'
+import { listWorkspaceAssignedTasksController } from '../tasks/task.controller.js'
+import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.js'
 
 const router = Router()
 

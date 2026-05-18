@@ -4,7 +4,7 @@ import {
   DISCORD_WEBHOOKS,
   type DiscordAlertColor,
   type DiscordWebhookKey,
-} from '../config/discord.config.ts'
+} from '../config/discord.config.js'
 
 const webhookClients: Record<DiscordWebhookKey, WebhookClient> = {
   alerts: new WebhookClient({ url: DISCORD_WEBHOOKS.alerts }),

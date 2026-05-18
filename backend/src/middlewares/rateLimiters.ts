@@ -1,5 +1,5 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
-import { env } from '../config/env.ts'
+import { env } from '../config/env.js'
 import type { RequestHandler } from 'express'
 
 const skipLimiter: RequestHandler = (_req, _res, next) => next()

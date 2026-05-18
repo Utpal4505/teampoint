@@ -1,18 +1,18 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import type {
   CompleteMilestoneInput,
   CreateMilestoneInput,
   UpdateMilestoneInput,
-} from '../../types/milestone.type.ts'
+} from '../../types/milestone.type.js'
 import {
   completeMilestoneService,
   createMilestoneService,
   getMilestoneService,
   listMilestonesService,
   updateMilestoneService,
-} from './milestone.service.ts'
+} from './milestone.service.js'
 
 
 export const createMilestoneController = asyncHandler(async (req, res) => {

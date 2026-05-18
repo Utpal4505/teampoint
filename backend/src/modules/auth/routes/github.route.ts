@@ -1,17 +1,17 @@
 import { Router } from 'express'
 import passport from 'passport'
-import { asyncHandler } from '../../../utils/asyncHandler.ts'
-import { ApiError } from '../../../utils/apiError.ts'
+import { asyncHandler } from '../../../utils/asyncHandler.js'
+import { ApiError } from '../../../utils/apiError.js'
 import {
   generateAccessAndRefreshTokens,
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
-} from '../../../utils/generateAccessandRefreshToken.ts'
-import { prisma } from '../../../config/db.config.ts'
-import { trackPosthogEvent } from '../../../utils/posthog.ts'
+} from '../../../utils/generateAccessandRefreshToken.js'
+import { prisma } from '../../../config/db.config.js'
+import { trackPosthogEvent } from '../../../utils/posthog.js'
 import bcrypt from 'bcrypt'
-import { env } from '../../../config/env.ts'
-import { assertUser } from '../../../utils/assertUser.ts'
+import { env } from '../../../config/env.js'
+import { assertUser } from '../../../utils/assertUser.js'
 
 const router = Router()
 

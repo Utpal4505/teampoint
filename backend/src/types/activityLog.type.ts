@@ -1,4 +1,4 @@
-import type { ActivityAction, ActivityEntityType } from "../generated/prisma/enums.ts"
+import type { ActivityAction, ActivityEntityType } from "../generated/prisma/enums.js"
 
 export type CreateActivityInput = {
   entityType: ActivityEntityType

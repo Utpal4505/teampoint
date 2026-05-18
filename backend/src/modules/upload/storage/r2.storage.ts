@@ -6,8 +6,8 @@ import {
 } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import crypto from 'crypto'
-import { env } from '../../../config/env.ts'
-import type { StorageUploadResult, UploadRequest } from '../../../types/upload.types.ts'
+import { env } from '../../../config/env.js'
+import type { StorageUploadResult, UploadRequest } from '../../../types/upload.types.js'
 
 const r2 = new S3Client({
   region: 'auto',

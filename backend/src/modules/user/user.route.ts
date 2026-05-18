@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
 import {
   avatarCompleteController,
   deleteUserController,
@@ -7,10 +7,10 @@ import {
   loggedOutController,
   onboardingController,
   updateUserController,
-} from './user.controller.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { updateUserSchema, userOnboardingSchema } from './user.schema.ts'
-import { AvatarCompleteSchema } from '../upload/upload.schema.ts'
+} from './user.controller.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
+import { updateUserSchema, userOnboardingSchema } from './user.schema.js'
+import { AvatarCompleteSchema } from '../upload/upload.schema.js'
 
 const router = Router()
 

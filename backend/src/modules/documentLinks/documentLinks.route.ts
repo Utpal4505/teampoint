@@ -1,18 +1,18 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 
 import {
   CreateDocumentLinkSchema,
   DocumentEntityTypeSchema,
   idParam,
-} from './documentLinks.schema.ts'
+} from './documentLinks.schema.js'
 
 import {
   createDocumentLinkController,
   listEntityDocumentLinksController,
   unlinkDocumentController,
-} from './documentLinks.controller.ts'
+} from './documentLinks.controller.js'
 
 const router = Router()
 

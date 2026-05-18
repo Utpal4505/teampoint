@@ -1,13 +1,13 @@
-import type { DocumentEntityType } from '../../generated/prisma/enums.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import type { DocumentEntityType } from '../../generated/prisma/enums.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   createDocumentLinkService,
   listDocumentLinksService,
   listEntityDocumentLinksService,
   unlinkDocumentService,
-} from './documentLinks.service.ts'
+} from './documentLinks.service.js'
 
 export const createDocumentLinkController = asyncHandler(async (req, res) => {
   assertUser(req.user)

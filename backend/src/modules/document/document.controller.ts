@@ -1,10 +1,10 @@
 import type {
   CreateDocumentInput,
   UpdateDocumentInput,
-} from '../../types/document.type.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+} from '../../types/document.type.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   createDocumentService,
   deleteDocumentService,
@@ -12,7 +12,7 @@ import {
   listDocumentsService,
   updateDocumentService,
   getDocumentDownloadUrlService,
-} from './document.service.ts'
+} from './document.service.js'
 
 export const createDocumentController = asyncHandler(async (req, res) => {
   assertUser(req.user)

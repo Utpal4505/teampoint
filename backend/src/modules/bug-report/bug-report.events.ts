@@ -1,8 +1,8 @@
-import { prisma } from '../../config/db.config.ts'
-import { sendDiscordAlert } from '../../services/discord.service.ts'
-import { eventBus } from '../../utils/eventBus.ts'
-import { extractPath } from './ai/prompts.ts'
-import { processBugAIReport, processBugReport } from './bug-report.processor.ts'
+import { prisma } from '../../config/db.config.js'
+import { sendDiscordAlert } from '../../services/discord.service.js'
+import { eventBus } from '../../utils/eventBus.js'
+import { extractPath } from './ai/prompts.js'
+import { processBugAIReport, processBugReport } from './bug-report.processor.js'
 
 export const registerBugReportEvents = () => {
   eventBus.on('BUG_REPORT_CREATED', async (bugReportId: number, userId: number) => {

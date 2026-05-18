@@ -1,13 +1,13 @@
 import type { RequestHandler } from 'express'
-import { prisma } from '../config/db.config.ts'
+import { prisma } from '../config/db.config.js'
 import type {
   WorkspacePermissionMap,
   WorkspacePermissionOverride,
-} from '../types/workspace.types.ts'
-import { ApiError } from '../utils/apiError.ts'
-import { assertUser } from '../utils/assertUser.ts'
-import { asyncHandler } from '../utils/asyncHandler.ts'
-import { resolveWorkspacePermission } from '../utils/resolveWorkspacePermission.ts'
+} from '../types/workspace.types.js'
+import { ApiError } from '../utils/apiError.js'
+import { assertUser } from '../utils/assertUser.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { resolveWorkspacePermission } from '../utils/resolveWorkspacePermission.js'
 
 export const requireWorkspacePermission = (
   permission: keyof WorkspacePermissionMap,

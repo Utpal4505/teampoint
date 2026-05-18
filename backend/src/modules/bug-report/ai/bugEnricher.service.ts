@@ -1,11 +1,11 @@
-import { callAI } from '../../../services/openai.service.ts'
-import { BugAIEnrichmentSchema, type BugAIEnrichment } from '../../../types/ai.types.ts'
+import { callAI } from '../../../services/openai.service.js'
+import { BugAIEnrichmentSchema, type BugAIEnrichment } from '../../../types/ai.types.js'
 import {
   BUG_FEW_SHOT_EXAMPLES,
   BUG_SYSTEM_PROMPT,
   buildBugUserPrompt,
   type BugInput,
-} from './prompts.ts'
+} from './prompts.js'
 
 export const enrichBugWithAI = async (bug: BugInput): Promise<BugAIEnrichment> => {
   return callAI({

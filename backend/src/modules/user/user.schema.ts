@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { sanitizeText } from '../../utils/sanitize.ts'
+import { sanitizeText } from '../../utils/sanitize.js'
 
 export const userOnboardingSchema = z.object({
   workspaceName: z

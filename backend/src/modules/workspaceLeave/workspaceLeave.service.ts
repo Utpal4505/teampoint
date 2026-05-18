@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma, WorkspaceRole } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma, WorkspaceRole } from '../../generated/prisma/client.js'
 import type {
   CreateLeaveRequestDTO,
   CreateLeaveRequestInput,
@@ -10,10 +10,10 @@ import type {
   UpdateLeaveRequestDTO,
   UpdateLeaveRequestInput,
   LeaveRequestListItemDTO,
-} from '../../types/workspaceLeave.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { assertWorkspaceMember } from '../../utils/assertWorkspaceMember.ts'
+} from '../../types/workspaceLeave.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { assertWorkspaceMember } from '../../utils/assertWorkspaceMember.js'
 
 export const createLeaveRequestService = async (
   input: CreateLeaveRequestInput,

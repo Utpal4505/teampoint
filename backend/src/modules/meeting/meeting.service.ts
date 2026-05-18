@@ -1,12 +1,12 @@
-import { prisma } from '../../config/db.config.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
+import { prisma } from '../../config/db.config.js'
+import { ApiError } from '../../utils/apiError.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
 import {
   createGoogleMeetEvent,
   updateGoogleMeetEvent,
   cancelGoogleMeetEvent,
-} from './google-calendar.helper.ts'
+} from './google-calendar.helper.js'
 import type {
   CreateMeetingResponse,
   ListMeetingsResponse,
@@ -24,7 +24,7 @@ import type {
   CreateMeetingServiceInput,
   ListMeetingsServiceQuery,
   ListWorkspaceMeetingsQuery,
-} from '../../types/meeting.type.ts'
+} from '../../types/meeting.type.js'
 
 export const createMeetingService = async (
   input: CreateMeetingServiceInput,

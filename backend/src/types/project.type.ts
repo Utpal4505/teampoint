@@ -1,5 +1,5 @@
-import type { ProjectStatus, WorkspaceRole } from '../generated/prisma/enums.ts'
-import type { PROJECT_ROLE_PERMISSIONS } from '../modules/project/project.permissions.ts'
+import type { ProjectStatus, WorkspaceRole } from '../generated/prisma/enums.js'
+import type { PROJECT_ROLE_PERMISSIONS } from '../modules/project/project.permissions.js'
 
 export type CreateProjectInput = {
   workspaceId: number

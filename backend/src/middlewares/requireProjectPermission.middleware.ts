@@ -2,12 +2,12 @@ import type { RequestHandler } from 'express'
 import type {
   ProjectPermissionMap,
   ProjectPermissionOverride,
-} from '../types/project.type.ts'
-import { assertUser } from '../utils/assertUser.ts'
-import { asyncHandler } from '../utils/asyncHandler.ts'
-import { ApiError } from '../utils/apiError.ts'
-import { prisma } from '../config/db.config.ts'
-import { resolveProjectPermission } from '../utils/resolveProjectPermission.ts'
+} from '../types/project.type.js'
+import { assertUser } from '../utils/assertUser.js'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/apiError.js'
+import { prisma } from '../config/db.config.js'
+import { resolveProjectPermission } from '../utils/resolveProjectPermission.js'
 
 export const requireProjectPermission = (
   permission: keyof ProjectPermissionMap,

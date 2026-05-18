@@ -1,5 +1,5 @@
 import type z from 'zod'
-import type { CreateDocumentSchema } from '../modules/document/document.schema.ts'
+import type { CreateDocumentSchema } from '../modules/document/document.schema.js'
 
 export type CreateDocumentInput = z.infer<typeof CreateDocumentSchema>
 

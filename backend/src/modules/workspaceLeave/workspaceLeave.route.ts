@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 
 import {
   CreateLeaveRequestSchema,
   UpdateLeaveRequestSchema,
   ReviewLeaveRequestSchema,
-} from './workspaceLeave.schema.ts'
+} from './workspaceLeave.schema.js'
 
 import {
   createLeaveRequestController,
@@ -14,9 +14,9 @@ import {
   getLeaveRequestController,
   updateLeaveRequestController,
   reviewLeaveRequestController,
-} from './workspaceLeave.controller.ts'
-import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
-import { idParam } from '../documentLinks/documentLinks.schema.ts'
+} from './workspaceLeave.controller.js'
+import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
+import { idParam } from '../documentLinks/documentLinks.schema.js'
 
 const router = Router({ mergeParams: true })
 

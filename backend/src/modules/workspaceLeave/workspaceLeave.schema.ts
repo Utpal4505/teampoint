@@ -1,5 +1,5 @@
 import z from 'zod'
-import { idParam } from '../documentLinks/documentLinks.schema.ts'
+import { idParam } from '../documentLinks/documentLinks.schema.js'
 
 export const LeaveRequestStatusSchema = z.enum([
   'PENDING',

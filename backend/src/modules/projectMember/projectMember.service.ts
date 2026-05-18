@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db.config.ts'
-import { WorkspaceMemberStatus, WorkspaceRole } from '../../generated/prisma/enums.ts'
+import { prisma } from '../../config/db.config.js'
+import { WorkspaceMemberStatus, WorkspaceRole } from '../../generated/prisma/enums.js'
 import type {
   AddProjectMemberDTO,
   AddProjectMemberInput,
@@ -8,10 +8,10 @@ import type {
   SelfLeaveProjectMemberDTo,
   UpdateProjectMemberRoleDTO,
   UpdateProjectMemberRoleInput,
-} from '../../types/projectMember.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { PROJECT_ROLE_PERMISSIONS } from '../project/project.permissions.ts'
+} from '../../types/projectMember.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { PROJECT_ROLE_PERMISSIONS } from '../project/project.permissions.js'
 
 export const addProjectMemberService = async (
   input: AddProjectMemberInput,

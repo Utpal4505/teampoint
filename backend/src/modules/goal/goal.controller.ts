@@ -1,12 +1,12 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import type {
   CompleteGoalInput,
   CreateGoalInput,
   DeleteGoalInput,
   UpdateGoalInput,
-} from '../../types/goal.type.ts'
+} from '../../types/goal.type.js'
 import {
   completeGoalService,
   createGoalService,
@@ -14,7 +14,7 @@ import {
   getGoalService,
   listGoalsService,
   updateGoalService,
-} from './goal.service.ts'
+} from './goal.service.js'
 
 export const createGoalController = asyncHandler(async (req, res) => {
   assertUser(req.user)

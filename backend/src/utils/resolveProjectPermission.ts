@@ -1,8 +1,8 @@
-import { PROJECT_ROLE_PERMISSIONS } from '../modules/project/project.permissions.ts'
+import { PROJECT_ROLE_PERMISSIONS } from '../modules/project/project.permissions.js'
 import type {
   ProjectPermissionMap,
   ProjectPermissionOverride,
-} from '../types/project.type.ts'
+} from '../types/project.type.js'
 
 export function resolveProjectPermission(
   role: keyof typeof PROJECT_ROLE_PERMISSIONS,

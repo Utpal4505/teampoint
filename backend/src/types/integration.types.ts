@@ -10,7 +10,7 @@ import type {
   ListIntegrationsResponseSchema,
   IntegrationDisconnectResponseSchema,
   ProviderParamSchema,
-} from '../modules/integration/integration.schema.ts'
+} from '../modules/integration/integration.schema.js'
 
 export type IntegrationProvider = z.infer<typeof IntegrationProviderSchema>
 export type IntegrationStatus = z.infer<typeof IntegrationStatusSchema>

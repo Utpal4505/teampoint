@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
-import { ApiError } from './apiError.ts'
-import { env } from '../config/env.ts'
+import { ApiError } from './apiError.js'
+import { env } from '../config/env.js'
 import { type CookieOptions } from 'express'
 
 export const accessTokenCookieOptions: CookieOptions = {

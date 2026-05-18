@@ -1,6 +1,6 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
-import type { ProjectStatus } from '../../generated/prisma/enums.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma } from '../../generated/prisma/client.js'
+import type { ProjectStatus } from '../../generated/prisma/enums.js'
 import type {
   CreateProjectDTO,
   CreateProjectInput,
@@ -9,10 +9,10 @@ import type {
   ListAllWorkspaceProjectDTO,
   updateProjectDTO,
   UpdateProjectInput,
-} from '../../types/project.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import { PROJECT_ROLE_PERMISSIONS } from './project.permissions.ts'
+} from '../../types/project.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import { PROJECT_ROLE_PERMISSIONS } from './project.permissions.js'
 
 export const createProjectService = async (
   input: CreateProjectInput,

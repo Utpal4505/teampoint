@@ -1,20 +1,20 @@
-import type { CreateMessageInput } from '../../types/message.type.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import type { CreateMessageInput } from '../../types/message.type.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   createMessageSchema,
   discussionIdParamSchema,
   messageIdParamSchema,
   projectIdParamSchema,
   updateMessageSchema,
-} from './message.schema.ts'
+} from './message.schema.js'
 import {
   createMessageService,
   deleteMessageService,
   listMessagesService,
   updateMessageService,
-} from './message.service.ts'
+} from './message.service.js'
 
 export const listMessagesController = asyncHandler(async (req, res) => {
   assertUser(req.user)

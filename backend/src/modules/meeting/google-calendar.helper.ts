@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { getValidAccessTokenService } from '../integration/integration.service.ts'
-import { ApiError } from '../../utils/apiError.ts'
+import { getValidAccessTokenService } from '../integration/integration.service.js'
+import { ApiError } from '../../utils/apiError.js'
 import crypto from 'crypto'
 
 

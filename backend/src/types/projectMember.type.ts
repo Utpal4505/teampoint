@@ -1,4 +1,4 @@
-import type { WorkspaceMemberStatus, WorkspaceRole } from '../generated/prisma/enums.ts'
+import type { WorkspaceMemberStatus, WorkspaceRole } from '../generated/prisma/enums.js'
 
 export type AddProjectMemberInput = {
   userId: number

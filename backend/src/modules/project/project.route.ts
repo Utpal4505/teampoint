@@ -1,19 +1,19 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
+import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
 import {
   createProjectSchema,
   projectIdParamSchema,
   updateProjectSchema,
-} from './project.schema.ts'
+} from './project.schema.js'
 import {
   createProjectController,
   deleteProjectController,
   getProjectByIdController,
   updateProjectController,
-} from './project.controller.ts'
-import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
+} from './project.controller.js'
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.js'
 
 const router = Router()
 

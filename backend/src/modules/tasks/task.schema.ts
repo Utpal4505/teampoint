@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { sanitizeText } from '../../utils/sanitize.ts'
-import { Priority, TaskStatus, TaskType } from '../../generated/prisma/enums.ts'
+import { sanitizeText } from '../../utils/sanitize.js'
+import { Priority, TaskStatus, TaskType } from '../../generated/prisma/enums.js'
 
 export const TaskTypeEnum = z.nativeEnum(TaskType)
 export const TaskStatusEnum = z.nativeEnum(TaskStatus)

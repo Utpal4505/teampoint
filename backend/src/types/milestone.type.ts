@@ -1,4 +1,4 @@
-import type { GoalStatus } from '../generated/prisma/enums.ts'
+import type { GoalStatus } from '../generated/prisma/enums.js'
 
 export type CreateMilestoneInput = {
   projectId: number

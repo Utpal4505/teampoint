@@ -1,14 +1,14 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   createDiscussionSchema,
   discussionIdParamSchema,
   listDiscussionsQuerySchema,
   projectIdParamSchema,
   updateDiscussionSchema,
-} from './discussion.schema.ts'
+} from './discussion.schema.js'
 import {
   createDiscussionController,
   getDiscussionByIdController,
@@ -17,7 +17,7 @@ import {
   deleteDiscussionController,
   reopenDiscussionController,
   updateDiscussionController,
-} from './discussion.controller.ts'
+} from './discussion.controller.js'
 
 const router = Router({ mergeParams: true })
 

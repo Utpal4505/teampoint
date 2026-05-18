@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { MessageType } from '../../generated/prisma/enums.ts'
-import { sanitizeText } from '../../utils/sanitize.ts'
+import { MessageType } from '../../generated/prisma/enums.js'
+import { sanitizeText } from '../../utils/sanitize.js'
 
 export const projectIdParamSchema = z.object({
   projectId: z.coerce.number().int().positive(),

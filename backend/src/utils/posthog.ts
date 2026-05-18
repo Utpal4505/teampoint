@@ -1,5 +1,5 @@
 import { PostHog } from 'posthog-node'
-import { env } from '../config/env.ts'
+import { env } from '../config/env.js'
 
 export const posthog = new PostHog(env.POSTHOG_PROJECT_TOKEN, {
   host: 'https://us.i.posthog.com',

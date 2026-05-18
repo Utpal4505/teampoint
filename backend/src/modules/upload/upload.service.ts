@@ -1,14 +1,14 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 import type {
   UploadCompleteRequestDTO,
   UploadRequest,
   UploadResponse,
-} from '../../types/upload.types.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import storage from './storage/index.ts'
+} from '../../types/upload.types.js'
+import { ApiError } from '../../utils/apiError.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import storage from './storage/index.js'
 
 export const uploadRequestService = async (
   input: UploadRequest,

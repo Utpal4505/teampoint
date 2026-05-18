@@ -1,13 +1,13 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   addProjectMemberSchema,
   exitProjectSchema,
   projectIdAndUserIdParamSchema,
   projectIdParamSchema,
   updateProjectMemberSchema,
-} from './projectMember.schema.ts'
+} from './projectMember.schema.js'
 import {
   addProjectMemberService,
   canManageProjectMembersService,
@@ -15,10 +15,10 @@ import {
   removeProjectMemberService,
   selfExitProjectService,
   updateProjectMemberService,
-} from './projectMember.service.ts'
-import type { UpdateProjectMemberRoleInput } from '../../types/projectMember.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import type { WorkspaceMemberStatus } from '../../generated/prisma/enums.ts'
+} from './projectMember.service.js'
+import type { UpdateProjectMemberRoleInput } from '../../types/projectMember.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import type { WorkspaceMemberStatus } from '../../generated/prisma/enums.js'
 
 export const addProjectMemberController = asyncHandler(async (req, res) => {
   assertUser(req.user)

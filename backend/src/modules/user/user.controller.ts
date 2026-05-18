@@ -1,22 +1,22 @@
-import { prisma } from '../../config/db.config.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { prisma } from '../../config/db.config.js'
+import { ApiError } from '../../utils/apiError.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
-} from '../../utils/generateAccessandRefreshToken.ts'
-import { revokeTokens } from '../../utils/refreshTokenHandler.ts'
-import { AvatarCompleteSchema } from '../upload/upload.schema.ts'
-import { createWorkspaceService } from '../workspace/workspace.service.ts'
-import { createSampleProject } from '../project/sample/sample.service.ts'
+} from '../../utils/generateAccessandRefreshToken.js'
+import { revokeTokens } from '../../utils/refreshTokenHandler.js'
+import { AvatarCompleteSchema } from '../upload/upload.schema.js'
+import { createWorkspaceService } from '../workspace/workspace.service.js'
+import { createSampleProject } from '../project/sample/sample.service.js'
 import {
   avatarCompleteService,
   deleteUserService,
   getCurrentUserService,
   updateUserService,
-} from './user.service.ts'
+} from './user.service.js'
 
 export const getCurrentUserController = asyncHandler(async (req, res) => {
   assertUser(req.user)

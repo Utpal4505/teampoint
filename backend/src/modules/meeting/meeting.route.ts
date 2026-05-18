@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   CreateMeetingSchema,
   UpdateMeetingSchema,
@@ -10,7 +10,7 @@ import {
   GetParticipantsQuerySchema,
   ManageParticipantsSchema,
   CompleteMeetingSchema,
-} from './meeting.schema.ts'
+} from './meeting.schema.js'
 import {
   createMeetingController,
   listMeetingsController,
@@ -21,7 +21,7 @@ import {
   manageParticipantsController,
   completeMeetingController,
   cancelMeetingController,
-} from './meeting.controller.ts'
+} from './meeting.controller.js'
 
 const router = Router({ mergeParams: true })
 

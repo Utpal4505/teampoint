@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { asyncHandler } from '../utils/asyncHandler.ts'
-import { ApiError } from '../utils/apiError.ts'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/apiError.js'
 
 export const validateRequest = <T extends z.ZodType>(
   schema: T,

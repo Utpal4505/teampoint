@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 import type {
   CompleteMilestoneDTO,
   CompleteMilestoneInput,
@@ -9,10 +9,10 @@ import type {
   ListMilestonesDTO,
   UpdateMilestoneDTO,
   UpdateMilestoneInput,
-} from '../../types/milestone.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
+} from '../../types/milestone.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
 
 export const createMilestoneService = async (
   input: CreateMilestoneInput,

@@ -1,16 +1,16 @@
-import { prisma } from '../../config/db.config.ts'
-import type { DocumentEntityType, Prisma } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import type { DocumentEntityType, Prisma } from '../../generated/prisma/client.js'
 import type {
   CreateDocumentLinkInput,
   CreateDocumentLinkResponse,
   ListDocumentLinksResponse,
   ListEntityDocumentLinksResponse,
   UnlinkDocumentResponse,
-} from '../../types/documentLink.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
+} from '../../types/documentLink.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.js'
 
 const validateEntityAndProject = async (
   tx: Prisma.TransactionClient,

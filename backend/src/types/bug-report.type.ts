@@ -5,7 +5,7 @@ import type {
   SeverityLevelEnum,
   updateBugReportStatusSchema,
   updateBugReportSeveritySchema,
-} from '../modules/bug-report/bug-report.schema.ts'
+} from '../modules/bug-report/bug-report.schema.js'
 
 export type BugReportStatus = z.infer<typeof BugReportStatusEnum>
 export type SeverityLevel = z.infer<typeof SeverityLevelEnum>

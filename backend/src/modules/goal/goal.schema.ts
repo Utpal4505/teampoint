@@ -1,9 +1,9 @@
 import z from 'zod'
-import { GoalStatus } from '../../generated/prisma/enums.ts'
+import { GoalStatus } from '../../generated/prisma/enums.js'
 
 export const idParam = z.number().int().positive().transform(Number)
 
-export const GoalStatusSchema = z.enum(GoalStatus)
+export const GoalStatusSchema = z.nativeEnum(GoalStatus)
 
 export const CreateGoalSchema = z.object({
   projectId: idParam,

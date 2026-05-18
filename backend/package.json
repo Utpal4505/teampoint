@@ -16,10 +16,10 @@
     "lint:fix": "npx eslint . --fix",
     "format:check": "prettier . --check",
     "format:fix": "prettier . --fix",
-    "dev": "cross-env NODE_ENV=development tsx watch src/index.ts",
-    "start": "cross-env NODE_ENV=production node dist/index.js",
-    "dist": "npx tsc",
-    "seed": "cross-env NODE_ENV=development tsx src/seed.ts",
+    "dev": "cross-env NODE_ENV=development node --env-file=.env tsx watch src/index.ts",
+    "start": "cross-env NODE_ENV=production node --env-file=.env dist/index.js",
+    "build": "npx tsc",
+    "seed": "cross-env NODE_ENV=development node --env-file=.env tsx src/seed.ts",
     "prepare": "husky"
   },
   "lint-staged": {

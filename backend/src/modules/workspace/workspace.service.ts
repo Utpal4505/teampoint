@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db.config.ts'
-import type { WorkspaceRole } from '../../generated/prisma/enums.ts'
+import { prisma } from '../../config/db.config.js'
+import type { WorkspaceRole } from '../../generated/prisma/enums.js'
 import type {
   ArchiveWorkspaceDTO,
   CreateWorkspaceInput,
@@ -11,12 +11,12 @@ import type {
   updateWorkspaceDTO,
   UpdateWorkspaceInput,
   WorkspaceDTO,
-} from '../../types/workspace.types.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import { createActivityLog } from '../activityLog/activityLog.service.ts'
-import { ROLE_PERMISSIONS } from './workspace.permissions.ts'
+} from '../../types/workspace.types.js'
+import { ApiError } from '../../utils/apiError.js'
+import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import { createActivityLog } from '../activityLog/activityLog.service.js'
+import { ROLE_PERMISSIONS } from './workspace.permissions.js'
 
 export const createWorkspaceService = async (
   input: CreateWorkspaceInput,

@@ -1,4 +1,4 @@
-import { prisma } from '../../../config/db.config.ts'
+import { prisma } from '../../../config/db.config.js'
 
 type CreateSampleProjectInput = {
   userId: number

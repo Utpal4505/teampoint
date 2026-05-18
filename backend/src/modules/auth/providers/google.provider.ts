@@ -1,8 +1,8 @@
 import passport, { type Profile } from 'passport'
 import { Strategy as GoogleStrategy, type VerifyCallback } from 'passport-google-oauth20'
-import { env } from '../../../config/env.ts'
-import { ApiError } from '../../../utils/apiError.ts'
-import { authService } from '../auth.service.ts'
+import { env } from '../../../config/env.js'
+import { ApiError } from '../../../utils/apiError.js'
+import { authService } from '../auth.service.js'
 
 passport.use(
   new GoogleStrategy(

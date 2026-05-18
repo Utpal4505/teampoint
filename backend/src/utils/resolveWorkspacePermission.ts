@@ -1,8 +1,8 @@
-import { ROLE_PERMISSIONS } from '../modules/workspace/workspace.permissions.ts'
+import { ROLE_PERMISSIONS } from '../modules/workspace/workspace.permissions.js'
 import type {
   WorkspacePermissionMap,
   WorkspacePermissionOverride,
-} from '../types/workspace.types.ts'
+} from '../types/workspace.types.js'
 
 export function resolveWorkspacePermission(
   role: keyof typeof ROLE_PERMISSIONS,

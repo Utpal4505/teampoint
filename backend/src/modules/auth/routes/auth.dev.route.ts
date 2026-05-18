@@ -1,9 +1,9 @@
 import { Router } from 'express'
-import { asyncHandler } from '../../../utils/asyncHandler.ts'
-import { prisma } from '../../../config/db.config.ts'
-import { generateAccessAndRefreshTokens } from '../../../utils/generateAccessandRefreshToken.ts'
-import { ApiError } from '../../../utils/apiError.ts'
-import { env } from '../../../config/env.ts'
+import { asyncHandler } from '../../../utils/asyncHandler.js'
+import { prisma } from '../../../config/db.config.js'
+import { generateAccessAndRefreshTokens } from '../../../utils/generateAccessandRefreshToken.js'
+import { ApiError } from '../../../utils/apiError.js'
+import { env } from '../../../config/env.js'
 
 const router = Router()
 

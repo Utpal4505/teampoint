@@ -1,17 +1,17 @@
 import type {
   ListDiscussionsQuery,
   UpdateDiscussionInput,
-} from '../../types/discussion.type.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+} from '../../types/discussion.type.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   createDiscussionSchema,
   listDiscussionsQuerySchema,
   projectDiscussionParamsSchema,
   projectIdParamSchema,
   updateDiscussionSchema,
-} from './discussion.schema.ts'
+} from './discussion.schema.js'
 import {
   closeDiscussionService,
   createDiscussionService,
@@ -20,7 +20,7 @@ import {
   listDiscussionsService,
   reopenDiscussionService,
   updateDiscussionService,
-} from './discussion.service.ts'
+} from './discussion.service.js'
 
 export const createDiscussionController = asyncHandler(async (req, res) => {
   assertUser(req.user)

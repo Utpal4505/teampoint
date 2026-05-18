@@ -23,7 +23,7 @@ import type {
   CompleteMeetingResponseSchema,
   CancelMeetingSchema,
   CancelMeetingResponseSchema,
-} from '../modules/meeting/meeting.schema.ts'
+} from '../modules/meeting/meeting.schema.js'
 
 export type MeetingStatus = z.infer<typeof MeetingStatusSchema>
 export type MeetingRole = z.infer<typeof MeetingRoleSchema>

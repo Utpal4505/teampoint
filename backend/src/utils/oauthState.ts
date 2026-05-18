@@ -1,5 +1,5 @@
-import { ApiError } from './apiError.ts'
-import type { OAuthState } from '../types/integration.types.ts'
+import { ApiError } from './apiError.js'
+import type { OAuthState } from '../types/integration.types.js'
 
 export function encodeState(state: OAuthState): string {
   return Buffer.from(JSON.stringify(state)).toString('base64url')

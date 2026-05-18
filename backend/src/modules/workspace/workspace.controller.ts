@@ -1,9 +1,9 @@
-import type { ProjectStatus } from '../../generated/prisma/enums.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.ts'
-import { listAllWorkspaceProjectService } from '../project/project.service.ts'
+import type { ProjectStatus } from '../../generated/prisma/enums.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.js'
+import { listAllWorkspaceProjectService } from '../project/project.service.js'
 import {
   archiveWorkspaceService,
   createWorkspaceService,
@@ -14,7 +14,7 @@ import {
   removeWorkspaceMemberService,
   updateWorkspaceMemberRoleService,
   updateWorkspaceService,
-} from './workspace.service.ts'
+} from './workspace.service.js'
 
 export const createWorkspaceController = asyncHandler(async (req, res) => {
   assertUser(req.user)

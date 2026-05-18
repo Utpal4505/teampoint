@@ -1,13 +1,13 @@
 import { Router } from 'express'
 import multer from 'multer'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { UploadRequestSchema } from './upload.schema.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
+import { UploadRequestSchema } from './upload.schema.js'
 import {
   uploadCompleteController,
   uploadRequestController,
   directUploadController,
-} from './upload.controller.ts'
+} from './upload.controller.js'
 
 const router = Router()
 const upload = multer({

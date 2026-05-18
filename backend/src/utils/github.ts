@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest'
-import type { CreateBugReport } from '../types/bug-report.type.ts'
-import { env } from '../config/env.ts'
-import type { BugAIEnrichment } from '../types/ai.types.ts'
+import type { CreateBugReport } from '../types/bug-report.type.js'
+import { env } from '../config/env.js'
+import type { BugAIEnrichment } from '../types/ai.types.js'
 
 const severityEmoji: Record<string, string> = {
   LOW: '🟢',

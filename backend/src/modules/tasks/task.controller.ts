@@ -1,7 +1,7 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import type { TaskStatus, TaskType } from '../../generated/prisma/enums.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import type { TaskStatus, TaskType } from '../../generated/prisma/enums.js'
 import {
   cancelTaskService,
   changeTaskStatusService,
@@ -10,9 +10,9 @@ import {
   listTasksService,
   listWorkspaceAssignedTasksService,
   updateTaskService,
-} from './task.service.ts'
-import { listTasksQuerySchema, taskIdParamSchema } from './task.schema.ts'
-import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
+} from './task.service.js'
+import { listTasksQuerySchema, taskIdParamSchema } from './task.schema.js'
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.js'
 
 export const createTaskController = asyncHandler(async (req, res) => {
   assertUser(req.user)

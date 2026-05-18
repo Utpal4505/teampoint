@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { DiscussionStatus, DiscussionType } from '../../generated/prisma/enums.ts'
-import { sanitizeText } from '../../utils/sanitize.ts'
+import { DiscussionStatus, DiscussionType } from '../../generated/prisma/enums.js'
+import { sanitizeText } from '../../utils/sanitize.js'
 
 export const DiscussionStatusEnum = z.nativeEnum(DiscussionStatus)
 export const DiscussionTypeEnum = z.nativeEnum(DiscussionType)

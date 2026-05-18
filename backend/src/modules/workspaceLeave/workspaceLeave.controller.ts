@@ -1,19 +1,19 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import type {
   CreateLeaveRequestInput,
   UpdateLeaveRequestInput,
   ReviewLeaveRequestInput,
-} from '../../types/workspaceLeave.type.ts'
+} from '../../types/workspaceLeave.type.js'
 import {
   createLeaveRequestService,
   listLeaveRequestsService,
   getLeaveRequestService,
   updateLeaveRequestService,
   reviewLeaveRequestService,
-} from './workspaceLeave.service.ts'
-import { ApiError } from '../../utils/apiError.ts'
+} from './workspaceLeave.service.js'
+import { ApiError } from '../../utils/apiError.js'
 
 export const createLeaveRequestController = asyncHandler(async (req, res) => {
   assertUser(req.user)

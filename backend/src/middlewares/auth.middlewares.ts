@@ -1,11 +1,11 @@
 import type { Request } from 'express'
-import { asyncHandler } from '../utils/asyncHandler.ts'
-import { ApiError } from '../utils/apiError.ts'
+import { asyncHandler } from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/apiError.js'
 import jwt from 'jsonwebtoken'
-import { env } from '../config/env.ts'
-import { prisma } from '../config/db.config.ts'
-import { assertUser } from '../utils/assertUser.ts'
-import type { jwtPayload, RequestUser } from '../types/types.ts'
+import { env } from '../config/env.js'
+import { prisma } from '../config/db.config.js'
+import { assertUser } from '../utils/assertUser.js'
+import type { jwtPayload, RequestUser } from '../types/types.js'
 
 const extractToken = (req: Request): string | null => {
   const cookieToken = req.cookies?.accessToken

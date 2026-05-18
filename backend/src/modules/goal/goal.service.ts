@@ -1,5 +1,5 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 import type {
   CompleteGoalDTO,
   CompleteGoalInput,
@@ -11,10 +11,10 @@ import type {
   ListGoalsDTO,
   UpdateGoalDTO,
   UpdateGoalInput,
-} from '../../types/goal.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
+} from '../../types/goal.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
 
 export const createGoalService = async (
   input: CreateGoalInput,

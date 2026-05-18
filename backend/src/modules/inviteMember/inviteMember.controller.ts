@@ -1,6 +1,6 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   revokeInviteService,
   acceptInviteService,
@@ -8,7 +8,7 @@ import {
   listAllInvitesService,
   sendInviteService,
   validateInviteService,
-} from './inviteMember.service.ts'
+} from './inviteMember.service.js'
 import type {
   SendInviteInput,
   GetInviteInput,
@@ -16,7 +16,7 @@ import type {
   RevokeInviteInput,
   AcceptInviteInput,
   ValidateInviteInput,
-} from '../../types/inviteMember.type.ts'
+} from '../../types/inviteMember.type.js'
 
 export const sendInviteController = asyncHandler(async (req, res) => {
   assertUser(req.user)

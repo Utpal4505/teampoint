@@ -1,14 +1,14 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { FeedbackTypeEnum, FeedbackStatusEnum } from './feedback.schema.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { FeedbackTypeEnum, FeedbackStatusEnum } from './feedback.schema.js'
 import {
   createFeedbackService,
   getFeedbackByIdService,
   listFeedbackService,
   updateFeedbackStatusService,
   deleteFeedbackService,
-} from './feedback.service.ts'
+} from './feedback.service.js'
 
 export const createFeedbackController = asyncHandler(async (req, res) => {
   const feedback = await createFeedbackService(req.body, req.user?.id)

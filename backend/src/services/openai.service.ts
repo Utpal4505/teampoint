@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { openai, AI_MODELS, type AIModelKey } from '../config/ai.config.ts'
+import { openai, AI_MODELS, type AIModelKey } from '../config/ai.config.js'
 
 export type AICallOptions<T extends z.ZodTypeAny> = {
   modelKey: AIModelKey

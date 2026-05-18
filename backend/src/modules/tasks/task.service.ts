@@ -1,6 +1,6 @@
-import { prisma } from '../../config/db.config.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
-import type { TaskStatus, TaskType } from '../../generated/prisma/enums.ts'
+import { prisma } from '../../config/db.config.js'
+import type { Prisma } from '../../generated/prisma/client.js'
+import type { TaskStatus, TaskType } from '../../generated/prisma/enums.js'
 import type {
   ChangeTaskStatusDTO,
   ChangeTaskStatusInput,
@@ -11,12 +11,12 @@ import type {
   ListTaskDTO,
   UpdateTaskDTO,
   UpdateTaskInput,
-} from '../../types/task.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
-import { assertTaskPermission } from './task.permission.ts'
+} from '../../types/task.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.js'
+import { assertTaskPermission } from './task.permission.js'
 
 export const createTaskService = async (
   input: CreateTaskInput,

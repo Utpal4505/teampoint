@@ -1,5 +1,5 @@
-import type { RequestUser } from '../types/types.ts'
-import { ApiError } from './apiError.ts'
+import type { RequestUser } from '../types/types.js'
+import { ApiError } from './apiError.js'
 
 export function assertUser(
   user: RequestUser | null | undefined,

@@ -2,12 +2,12 @@ import type z from 'zod'
 import type {
   DiscussionStatus,
   DiscussionType,
-} from '../generated/prisma/enums.ts'
+} from '../generated/prisma/enums.js'
 import type {
   createDiscussionSchema,
   listDiscussionsQuerySchema,
   updateDiscussionSchema,
-} from '../modules/discussion/discussion.schema.ts'
+} from '../modules/discussion/discussion.schema.js'
 
 export type CreateDiscussionInput = z.infer<typeof createDiscussionSchema> & {
   projectId: number

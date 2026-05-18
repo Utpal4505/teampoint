@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
-import { ApiError } from '../utils/apiError.ts'
-import { logger } from '../utils/logger.ts'
+import { ApiError } from '../utils/apiError.js'
+import { logger } from '../utils/logger.js'
 
 export const errorHandler = (
   err: unknown,

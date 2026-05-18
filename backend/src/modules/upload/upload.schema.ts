@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { sanitizeText } from '../../utils/sanitize.ts'
-import { AvatarContentType, DocumentContentType } from '../../types/upload.types.ts'
+import { sanitizeText } from '../../utils/sanitize.js'
+import { AvatarContentType, DocumentContentType } from '../../types/upload.types.js'
 
 export const UploadRequestSchema = z.object({
   category: z.enum(['AVATAR', 'DOCUMENT', 'BUG_ATTACHMENT'] as const),

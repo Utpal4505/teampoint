@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 
 import {
   ProviderParamSchema,
   OAuthCallbackQuerySchema,
-} from './integration.schema.ts'
+} from './integration.schema.js'
 
 import {
   listIntegrationsController,
@@ -13,7 +13,7 @@ import {
   handleCallbackController,
   getIntegrationStatusController,
   disconnectIntegrationController,
-} from './integration.controller.ts'
+} from './integration.controller.js'
 
 const router = Router()
 

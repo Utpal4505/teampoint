@@ -1,11 +1,11 @@
-import { prisma } from '../../config/db.config.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
+import { prisma } from '../../config/db.config.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
 import type {
   CreateFeedback,
   UpdateFeedbackStatus,
   FeedbackType,
   FeedbackStatus,
-} from '../../types/feedback.type.ts'
+} from '../../types/feedback.type.js'
 
 const feedbackInclude = {
   submitter: {

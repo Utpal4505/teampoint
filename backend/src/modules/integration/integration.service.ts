@@ -1,5 +1,5 @@
-import { GoogleProvider } from './providers/google.provider.ts'
-import type { IntegrationProviderAdapter } from '../../types/integration.types.ts'
+import { GoogleProvider } from './providers/google.provider.js'
+import type { IntegrationProviderAdapter } from '../../types/integration.types.js'
 import type {
   IntegrationProvider,
   IntegrationStatus,
@@ -11,10 +11,10 @@ import type {
   ListIntegrationsResponse,
   IntegrationDisconnectResponse,
   ValidAccessToken,
-} from '../../types/integration.types.ts'
-import { prisma } from '../../config/db.config.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { decodeState } from '../../utils/oauthState.ts'
+} from '../../types/integration.types.js'
+import { prisma } from '../../config/db.config.js'
+import { ApiError } from '../../utils/apiError.js'
+import { decodeState } from '../../utils/oauthState.js'
 
 const providers: Record<IntegrationProvider, IntegrationProviderAdapter> = {
   GOOGLE: new GoogleProvider(),

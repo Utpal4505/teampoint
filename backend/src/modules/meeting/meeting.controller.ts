@@ -1,6 +1,6 @@
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
 import type {
   CreateMeetingServiceInput,
   ListMeetingsServiceQuery,
@@ -10,7 +10,7 @@ import type {
   CancelMeetingInput,
   GetParticipantsQuery,
   UpdateMeetingInput,
-} from '../../types/meeting.type.ts'
+} from '../../types/meeting.type.js'
 import {
   createMeetingService,
   listMeetingsService,
@@ -21,7 +21,7 @@ import {
   completeMeetingService,
   cancelMeetingService,
   listWorkspaceMeetingsService,
-} from './meeting.service.ts'
+} from './meeting.service.js'
 
 export const createMeetingController = asyncHandler(async (req, res) => {
   assertUser(req.user)

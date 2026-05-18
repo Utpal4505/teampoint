@@ -1,4 +1,4 @@
-import { prisma } from '../../config/db.config.ts'
+import { prisma } from '../../config/db.config.js'
 import type {
   CreateDocumentDTO,
   CreateDocumentInput,
@@ -8,12 +8,12 @@ import type {
   ListDocumentItem,
   UpdateDocumentInput,
   UpdateDocumentResponseDTO,
-} from '../../types/document.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
+} from '../../types/document.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.js'
 
 export const createDocumentService = async (
   input: CreateDocumentInput,
@@ -383,7 +383,7 @@ export const getDocumentDownloadUrlService = async (
 
   await assertProjectMember(document.projectId, userId)
 
-  const { default: storage } = await import('../../modules/upload/storage/index.ts')
+  const { default: storage } = await import('../../modules/upload/storage/index.js')
 
   const result = await storage.generateSignedDownloadUrl(document.upload.fileKey, 3600)
 

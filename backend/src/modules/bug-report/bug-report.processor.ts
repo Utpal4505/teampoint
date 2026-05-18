@@ -1,12 +1,12 @@
-import { prisma } from '../../config/db.config.ts'
-import type { DiscordAlertColor } from '../../config/discord.config.ts'
-import type { SeverityLevel } from '../../generated/prisma/enums.ts'
-import { sendDiscordAlert } from '../../services/discord.service.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { eventBus } from '../../utils/eventBus.ts'
-import { createGithubIssue, severityScoreBar } from '../../utils/github.ts'
-import { enrichBugWithAI } from './ai/bugEnricher.service.ts'
-import { extractPath } from './ai/prompts.ts'
+import { prisma } from '../../config/db.config.js'
+import type { DiscordAlertColor } from '../../config/discord.config.js'
+import type { SeverityLevel } from '../../generated/prisma/enums.js'
+import { sendDiscordAlert } from '../../services/discord.service.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { eventBus } from '../../utils/eventBus.js'
+import { createGithubIssue, severityScoreBar } from '../../utils/github.js'
+import { enrichBugWithAI } from './ai/bugEnricher.service.js'
+import { extractPath } from './ai/prompts.js'
 
 export const processBugReport = async (bugReportId: number, userId: number) => {
   const bug = await prisma.bugReport.findUnique({

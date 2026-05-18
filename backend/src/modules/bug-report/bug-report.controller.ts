@@ -1,6 +1,6 @@
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { createBugReportService } from './bug-report.service.ts'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { createBugReportService } from './bug-report.service.js'
 
 export const createBugReportController = asyncHandler(async (req, res) => {
 

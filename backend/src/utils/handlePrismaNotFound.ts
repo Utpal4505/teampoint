@@ -1,5 +1,5 @@
-import { Prisma } from '../generated/prisma/client.ts'
-import { ApiError } from './apiError.ts'
+import { Prisma } from '../generated/prisma/client.js'
+import { ApiError } from './apiError.js'
 
 export async function handlePrismaNotFound<T>(
   prsimaOps: Promise<T>,

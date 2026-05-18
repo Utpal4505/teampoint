@@ -1,4 +1,4 @@
-import type { InviteStatus, WorkspaceRole } from '../generated/prisma/enums.ts'
+import type { InviteStatus, WorkspaceRole } from '../generated/prisma/enums.js'
 
 export type InviteEmailTemplateInput = {
   invitedByName: string

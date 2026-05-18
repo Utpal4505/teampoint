@@ -1,8 +1,8 @@
 import type {
   IntegrationProviderAdapter,
   IntegrationProvider,
-} from '../../types/integration.types.ts'
-import { GoogleProvider } from './providers/google.provider.ts'
+} from '../../types/integration.types.js'
+import { GoogleProvider } from './providers/google.provider.js'
 
 const providerRegistry: Record<IntegrationProvider, IntegrationProviderAdapter> = {
   GOOGLE: new GoogleProvider(),

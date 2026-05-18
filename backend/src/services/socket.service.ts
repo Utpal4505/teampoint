@@ -1,10 +1,10 @@
 import type { Server as HttpServer } from 'node:http'
 import jwt from 'jsonwebtoken'
 import { Server, Socket } from 'socket.io'
-import { prisma } from '../config/db.config.ts'
-import { env } from '../config/env.ts'
-import type { jwtPayload, RequestUser } from '../types/types.ts'
-import { assertProjectMember } from '../utils/assertProjectMember.ts'
+import { prisma } from '../config/db.config.js'
+import { env } from '../config/env.js'
+import type { jwtPayload, RequestUser } from '../types/types.js'
+import { assertProjectMember } from '../utils/assertProjectMember.js'
 
 type SocketAuthPayload = {
   token?: string

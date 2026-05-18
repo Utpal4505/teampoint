@@ -1,4 +1,4 @@
-import type { InviteEmailTemplateInput } from '../../types/inviteMember.type.ts'
+import type { InviteEmailTemplateInput } from '../../types/inviteMember.type.js'
 
 export function generateInviteEmailTemplate({
   workspaceName,

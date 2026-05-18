@@ -1,17 +1,17 @@
-import type { UpdateProjectInput } from '../../types/project.type.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
+import type { UpdateProjectInput } from '../../types/project.type.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   projectIdParamSchema,
   updateProjectSchema,
-} from './project.schema.ts'
+} from './project.schema.js'
 import {
   createProjectService,
   deleteProjectService,
   getProjectByIdService,
   updateProjectService,
-} from './project.service.ts'
+} from './project.service.js'
 
 export const createProjectController = asyncHandler(async (req, res) => {
   assertUser(req.user)

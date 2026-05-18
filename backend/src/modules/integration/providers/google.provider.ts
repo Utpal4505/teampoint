@@ -1,12 +1,12 @@
 import { OAuth2Client } from 'google-auth-library'
-import { BaseProvider } from './base.provider.ts'
+import { BaseProvider } from './base.provider.js'
 import type {
   OAuthState,
   ProviderTokens,
   BaseProviderProfile,
   RefreshedTokens,
-} from '../../../types/integration.types.ts'
-import { env } from '../../../config/env.ts'
+} from '../../../types/integration.types.js'
+import { env } from '../../../config/env.js'
 
 export class GoogleProvider extends BaseProvider {
   readonly provider = 'GOOGLE' as const

@@ -1,4 +1,4 @@
-import { prisma } from '../../config/db.config.ts'
+import { prisma } from '../../config/db.config.js'
 import type {
   SendInviteInput,
   SendInviteDTO,
@@ -12,16 +12,16 @@ import type {
   AcceptInviteDTO,
   ValidateInviteInput,
   ValidateInviteDTO,
-} from '../../types/inviteMember.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
+} from '../../types/inviteMember.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
 import { v4 as uuid } from 'uuid'
 import bcrypt from 'bcrypt'
-import { env } from '../../config/env.ts'
-import { ROLE_PERMISSIONS } from '../workspace/workspace.permissions.ts'
-import { generateInviteEmailTemplate } from './inviteMember.email.template.ts'
-import { sendEmail } from '../../utils/sendEmail.ts'
-import { withRetry } from '../../utils/retry.ts'
+import { env } from '../../config/env.js'
+import { ROLE_PERMISSIONS } from '../workspace/workspace.permissions.js'
+import { generateInviteEmailTemplate } from './inviteMember.email.template.js'
+import { sendEmail } from '../../utils/sendEmail.js'
+import { withRetry } from '../../utils/retry.js'
 
 const buildInviteLink = (token: string, tokenId: number) =>
   `${env.CLIENT_URL}/invite/${tokenId}/${token}`

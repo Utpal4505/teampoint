@@ -1,6 +1,6 @@
-import { prisma } from '../../config/db.config.ts'
-import { DiscussionStatus, DiscussionType } from '../../generated/prisma/enums.ts'
-import type { Prisma } from '../../generated/prisma/client.ts'
+import { prisma } from '../../config/db.config.js'
+import { DiscussionStatus, DiscussionType } from '../../generated/prisma/enums.js'
+import type { Prisma } from '../../generated/prisma/client.js'
 import type {
   CloseDiscussionDTO,
   CreateDiscussionDTO,
@@ -12,18 +12,18 @@ import type {
   ReopenDiscussionDTO,
   UpdateDiscussionDTO,
   UpdateDiscussionInput,
-} from '../../types/discussion.type.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import { assertProjectMember } from '../../utils/assertProjectMember.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
-import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.ts'
-import { resolveProjectPermission } from '../../utils/resolveProjectPermission.ts'
+} from '../../types/discussion.type.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import { assertProjectMember } from '../../utils/assertProjectMember.js'
+import { ensureExists } from '../../utils/ensureExists.js'
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.js'
+import { resolveProjectPermission } from '../../utils/resolveProjectPermission.js'
 import type {
   ProjectPermissionMap,
   ProjectPermissionOverride,
-} from '../../types/project.type.ts'
-import { emitToDiscussionRoom, emitToProjectRoom } from '../../services/socket.service.ts'
+} from '../../types/project.type.js'
+import { emitToDiscussionRoom, emitToProjectRoom } from '../../services/socket.service.js'
 
 const discussionSelect = {
   id: true,

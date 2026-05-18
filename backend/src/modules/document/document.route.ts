@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   CreateDocumentSchema,
   documentIdParamSchema,
   UpdateDocumentSchema,
-} from './document.schema.ts'
+} from './document.schema.js'
 import {
   createDocumentController,
   deleteDocumentController,
@@ -13,10 +13,10 @@ import {
   listDocumentsController,
   updateDocumentController,
   getDocumentDownloadUrlController,
-} from './document.controller.ts'
-import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
-import { projectIdParamSchema } from '../project/project.schema.ts'
-import { listDocumentLinksController } from '../documentLinks/documentLinks.controller.ts'
+} from './document.controller.js'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
+import { projectIdParamSchema } from '../project/project.schema.js'
+import { listDocumentLinksController } from '../documentLinks/documentLinks.controller.js'
 
 const router = Router({ mergeParams: true })
 

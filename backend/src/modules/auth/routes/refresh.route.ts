@@ -1,13 +1,13 @@
 import { Router } from 'express'
-import { asyncHandler } from '../../../utils/asyncHandler.ts'
-import { ApiError } from '../../../utils/apiError.ts'
-import { handleRefreshToken, revokeTokens } from '../../../utils/refreshTokenHandler.ts'
+import { asyncHandler } from '../../../utils/asyncHandler.js'
+import { ApiError } from '../../../utils/apiError.js'
+import { handleRefreshToken, revokeTokens } from '../../../utils/refreshTokenHandler.js'
 import {
   accessTokenCookieOptions,
   refreshTokenCookieOptions,
-} from '../../../utils/generateAccessandRefreshToken.ts'
-import { assertUser } from '../../../utils/assertUser.ts'
-import { hardAuth } from '../../../middlewares/auth.middlewares.ts'
+} from '../../../utils/generateAccessandRefreshToken.js'
+import { assertUser } from '../../../utils/assertUser.js'
+import { hardAuth } from '../../../middlewares/auth.middlewares.js'
 
 const router = Router()
 

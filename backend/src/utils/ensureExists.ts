@@ -1,4 +1,4 @@
-import { ApiError } from "./apiError.ts";
+import { ApiError } from "./apiError.js";
 
 export function ensureExists<T>(
   value: T | null | undefined,

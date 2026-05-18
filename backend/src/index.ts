@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { createServer } from 'node:http'
-import { app } from './app.ts'
-import { initializeSocketServer } from './services/socket.service.ts'
+import { app } from './app.js'
+import { initializeSocketServer } from './services/socket.service.js'
 
 const PORT = process.env.PORT || 3000
 

@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 
 import {
   CreateGoalSchema,
@@ -8,7 +8,7 @@ import {
   CompleteGoalSchema,
   DeleteGoalSchema,
   idParam,
-} from './goal.schema.ts'
+} from './goal.schema.js'
 
 import {
   createGoalController,
@@ -17,8 +17,8 @@ import {
   updateGoalController,
   completeGoalController,
   deleteGoalController,
-} from './goal.controller.ts'
-import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
+} from './goal.controller.js'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
 
 const router = Router({ mergeParams: true })
 

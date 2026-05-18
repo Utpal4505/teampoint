@@ -1,7 +1,7 @@
-import { prisma } from '../../config/db.config.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
-import type { CreateBugReport } from '../../types/bug-report.type.ts'
-import { eventBus } from '../../utils/eventBus.ts'
+import { prisma } from '../../config/db.config.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
+import type { CreateBugReport } from '../../types/bug-report.type.js'
+import { eventBus } from '../../utils/eventBus.js'
 import crypto from 'crypto'
 
 function generateFingerprint({

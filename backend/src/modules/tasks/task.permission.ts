@@ -1,6 +1,6 @@
-import type { Prisma } from '../../generated/prisma/client.ts'
-import type { TaskType } from '../../generated/prisma/enums.ts'
-import { ApiError } from '../../utils/apiError.ts'
+import type { Prisma } from '../../generated/prisma/client.js'
+import type { TaskType } from '../../generated/prisma/enums.js'
+import { ApiError } from '../../utils/apiError.js'
 
 export type TaskAction = 'VIEW' | 'EDIT' | 'CHANGE_STATUS' | 'CANCEL' | 'CREATE'
 

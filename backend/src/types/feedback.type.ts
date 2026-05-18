@@ -4,7 +4,7 @@ import type {
   FeedbackStatusEnum,
   createFeedbackSchema,
   updateFeedbackStatusSchema,
-} from '../modules/feedback/feedback.schema.ts'
+} from '../modules/feedback/feedback.schema.js'
 
 export type FeedbackType = z.infer<typeof FeedbackTypeEnum>
 export type FeedbackStatus = z.infer<typeof FeedbackStatusEnum>

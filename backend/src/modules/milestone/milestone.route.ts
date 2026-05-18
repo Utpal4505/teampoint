@@ -1,12 +1,12 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 
 import {
   CreateMilestoneSchema,
   UpdateMilestoneSchema,
   CompleteMilestoneSchema,
-} from './milestone.schema.ts'
+} from './milestone.schema.js'
 
 import {
   createMilestoneController,
@@ -14,10 +14,10 @@ import {
   getMilestoneController,
   updateMilestoneController,
   completeMilestoneController,
-} from './milestone.controller.ts'
+} from './milestone.controller.js'
 
-import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
-import { idParam } from '../documentLinks/documentLinks.schema.ts'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
+import { idParam } from '../documentLinks/documentLinks.schema.js'
 
 const router = Router({ mergeParams: true })
 

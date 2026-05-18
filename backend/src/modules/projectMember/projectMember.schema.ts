@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { WorkspaceMemberStatus } from '../../generated/prisma/enums.ts'
+import { WorkspaceMemberStatus } from '../../generated/prisma/enums.js'
 
 export const PROJECT_MEMBER_ROLES = ['OWNER', 'ADMIN', 'MEMBER'] as const
 export type ProjectMemberRole = (typeof PROJECT_MEMBER_ROLES)[number]
@@ -20,7 +20,7 @@ export const addProjectMemberSchema = z.object({
 export const updateProjectMemberSchema = z
   .object({
     role: z.enum(PROJECT_MEMBER_ROLES).optional(),
-    status: z.enum(WorkspaceMemberStatus).optional(),
+    status: z.nativeEnum(WorkspaceMemberStatus).optional(),
   })
   .refine(data => data.role !== undefined || data.status !== undefined, {
     message: 'At least one of role or status must be provided',

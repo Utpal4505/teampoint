@@ -1,10 +1,10 @@
 import crypto from 'crypto'
-import { encodeState } from '../../../utils/oauthState.ts'
+import { encodeState } from '../../../utils/oauthState.js'
 import type {
   IntegrationProviderAdapter,
   IntegrationProvider,
   OAuthState,
-} from '../../../types/integration.types.ts'
+} from '../../../types/integration.types.js'
 
 export abstract class BaseProvider implements IntegrationProviderAdapter {
   abstract readonly provider: IntegrationProvider

@@ -1,6 +1,6 @@
 import { Router } from 'express'
-import { hardAuth } from '../../middlewares/auth.middlewares.ts'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
+import { hardAuth } from '../../middlewares/auth.middlewares.js'
+import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   changeTaskStatusController,
   cancelTaskController,
@@ -8,15 +8,15 @@ import {
   getTaskByIdController,
   listTasksController,
   updateTaskController,
-} from './task.controller.ts'
+} from './task.controller.js'
 import {
   changeTaskStatusSchema,
   createTaskSchema,
   listTasksQuerySchema,
   taskIdParamSchema,
   updateTaskSchema,
-} from './task.schema.ts'
-import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.ts'
+} from './task.schema.js'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
 
 const router = Router({ mergeParams: true })
 

@@ -1,8 +1,8 @@
 import type { Profile } from 'passport'
-import type { OAuthProvider } from '../../generated/prisma/enums.ts'
-import { prisma } from '../../config/db.config.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { trackPosthogEvent } from '../../utils/posthog.ts'
+import type { OAuthProvider } from '../../generated/prisma/enums.js'
+import { prisma } from '../../config/db.config.js'
+import { ApiError } from '../../utils/apiError.js'
+import { trackPosthogEvent } from '../../utils/posthog.js'
 
 export const authService = async (provider: OAuthProvider, profile: Profile) => {
   const email = profile.emails?.[0]?.value

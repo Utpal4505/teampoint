@@ -17,8 +17,8 @@
 
     // Other Outputs
     "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "removeComments": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
@@ -48,8 +48,8 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": false,
+    "emitDeclarationOnly": false
   },
   "exclude": ["prisma.config.ts", "node_modules"],
   "include": ["src", "src/types"]

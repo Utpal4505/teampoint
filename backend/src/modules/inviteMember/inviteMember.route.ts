@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { validateRequest } from '../../middlewares/validateRequest.ts'
-import { workspaceIdParamSchema } from '../workspace/workspace.schema.ts'
-import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.ts'
-import { acceptInviteSchema, inviteIdParamSchema, validateInviteParamSchema } from './inviteMember.schema.ts'
+import { validateRequest } from '../../middlewares/validateRequest.js'
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.js'
+import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
+import { acceptInviteSchema, inviteIdParamSchema, validateInviteParamSchema } from './inviteMember.schema.js'
 import {
   acceptInviteController,
   getSingleInviteController,
@@ -10,7 +10,7 @@ import {
   revokeInviteController,
   sendInviteController,
   validateInviteController,
-} from './inviteMember.controller.ts'
+} from './inviteMember.controller.js'
 
 const router = Router()
 

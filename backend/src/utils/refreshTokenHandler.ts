@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import { ApiError } from './apiError.ts'
-import { prisma } from '../config/db.config.ts'
-import { env } from '../config/env.ts'
-import type { OAuthProvider } from '../generated/prisma/enums.ts'
-import { generateAccessAndRefreshTokens } from './generateAccessandRefreshToken.ts'
+import { ApiError } from './apiError.js'
+import { prisma } from '../config/db.config.js'
+import { env } from '../config/env.js'
+import type { OAuthProvider } from '../generated/prisma/enums.js'
+import { generateAccessAndRefreshTokens } from './generateAccessandRefreshToken.js'
 
 interface TokenPayload {
   id: number

@@ -1,7 +1,7 @@
-import { prisma } from '../config/db.config.ts'
-import type { Prisma } from '../generated/prisma/client.ts'
-import type { WorkspaceRole } from '../generated/prisma/enums.ts'
-import { ApiError } from './apiError.ts'
+import { prisma } from '../config/db.config.js'
+import type { Prisma } from '../generated/prisma/client.js'
+import type { WorkspaceRole } from '../generated/prisma/enums.js'
+import { ApiError } from './apiError.js'
 
 export const assertProjectMember = async (
   projectId: number,

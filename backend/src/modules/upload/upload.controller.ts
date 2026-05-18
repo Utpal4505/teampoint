@@ -1,13 +1,13 @@
-import { ApiError } from '../../utils/apiError.ts'
-import { ApiResponse } from '../../utils/apiResponse.ts'
-import { assertUser } from '../../utils/assertUser.ts'
-import { asyncHandler } from '../../utils/asyncHandler.ts'
-import { UploadRequestSchema } from './upload.schema.ts'
+import { ApiError } from '../../utils/apiError.js'
+import { ApiResponse } from '../../utils/apiResponse.js'
+import { assertUser } from '../../utils/assertUser.js'
+import { asyncHandler } from '../../utils/asyncHandler.js'
+import { UploadRequestSchema } from './upload.schema.js'
 import {
   uploadCompleteService,
   uploadRequestService,
   directUploadService,
-} from './upload.service.ts'
+} from './upload.service.js'
 
 export const uploadRequestController = asyncHandler(async (req, res) => {
   assertUser(req.user)

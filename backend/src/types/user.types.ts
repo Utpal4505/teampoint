@@ -1,4 +1,4 @@
-import type { UserStatus } from '../generated/prisma/enums.ts'
+import type { UserStatus } from '../generated/prisma/enums.js'
 
 export type GetUserDTO = {
   id: number

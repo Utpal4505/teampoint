@@ -1,6 +1,6 @@
-import { env } from '../../../config/env.ts'
-import type { IStorage } from '../../../types/upload.types.ts'
-import { R2Storage } from './r2.storage.ts'
+import { env } from '../../../config/env.js'
+import type { IStorage } from '../../../types/upload.types.js'
+import { R2Storage } from './r2.storage.js'
 
 let storage: IStorage
 

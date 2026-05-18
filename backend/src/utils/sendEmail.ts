@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import { env } from '../config/env.ts'
+import { env } from '../config/env.js'
 
 type SendEmailInput = {
   to: string

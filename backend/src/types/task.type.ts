@@ -1,10 +1,10 @@
 import type z from 'zod'
-import type { Priority, TaskStatus, TaskType } from '../generated/prisma/enums.ts'
+import type { Priority, TaskStatus, TaskType } from '../generated/prisma/enums.js'
 import type {
   changeTaskStatusSchema,
   createTaskSchema,
   updateTaskSchema,
-} from '../modules/tasks/task.schema.ts'
+} from '../modules/tasks/task.schema.js'
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>
 

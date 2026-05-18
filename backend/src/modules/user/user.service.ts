@@ -1,15 +1,15 @@
 import { env } from 'node:process'
-import { prisma } from '../../config/db.config.ts'
+import { prisma } from '../../config/db.config.js'
 import type {
   GetUserDTO,
   UpdateUserDTO,
   UpdateUserInput,
   UserDeletionDTO,
-} from '../../types/user.types.ts'
-import { ApiError } from '../../utils/apiError.ts'
-import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.ts'
-import { uploadCompleteService } from '../upload/upload.service.ts'
-import { ensureExists } from '../../utils/ensureExists.ts'
+} from '../../types/user.types.js'
+import { ApiError } from '../../utils/apiError.js'
+import { handlePrismaNotFound } from '../../utils/handlePrismaNotFound.js'
+import { uploadCompleteService } from '../upload/upload.service.js'
+import { ensureExists } from '../../utils/ensureExists.js'
 
 export const getCurrentUserService = async ({
   userId,
