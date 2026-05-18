@@ -89,7 +89,7 @@ export const softAuth = asyncHandler(async (req, _res, next) => {
   const token = extractToken(req)
 
   if (!token) {
-    req.user = null
+    req.user = undefined
     return next()
   }
 
