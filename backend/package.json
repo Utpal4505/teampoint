@@ -17,7 +17,7 @@
     "format:check": "prettier . --check",
     "format:fix": "prettier . --fix",
     "dev": "cross-env NODE_ENV=development node --env-file=.env tsx watch src/index.ts",
-    "start": "node --env-file=.env.production dist/index.js",
+    "start": "node dist/index.js",
     "build": "prisma generate && npx tsc",
     "seed": "cross-env NODE_ENV=development node --env-file=.env tsx src/seed.ts",
     "prepare": ""
