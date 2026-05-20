@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ActivityAction, ActivityEntityType } from '../../generated/prisma/enums.js'
+import { ActivityAction, ActivityEntityType } from '../../generated/prisma/index.js'
 
 export const createActivitySchema = z.object({
   entityType: z.nativeEnum(ActivityEntityType),

@@ -1,4 +1,4 @@
-import type { ProjectStatus } from '../../generated/prisma/enums.js'
+import type { ProjectStatus } from '../../generated/prisma/index.js'
 import { ApiResponse } from '../../utils/apiResponse.js'
 import { assertUser } from '../../utils/assertUser.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'

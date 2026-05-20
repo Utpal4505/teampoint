@@ -1,5 +1,5 @@
 import type { Profile } from 'passport'
-import type { OAuthProvider } from '../../generated/prisma/enums.js'
+import type { OAuthProvider } from '../../generated/prisma/index.js'
 import { prisma } from '../../config/db.config.js'
 import { ApiError } from '../../utils/apiError.js'
 import { trackPosthogEvent } from '../../utils/posthog.js'

@@ -1,4 +1,4 @@
-import type { DocumentEntityType, DocumentLinkStatus } from '../generated/prisma/enums.js'
+import type { DocumentEntityType, DocumentLinkStatus } from '../generated/prisma/index.js'
 
 export interface CreateDocumentLinkInput {
   documentId: number

@@ -1,6 +1,6 @@
 import { prisma } from '../../config/db.config.js'
 import type { Prisma } from '../../generated/prisma/client.js'
-import type { ProjectStatus } from '../../generated/prisma/enums.js'
+import type { ProjectStatus } from '../../generated/prisma/index.js'
 import type {
   CreateProjectDTO,
   CreateProjectInput,

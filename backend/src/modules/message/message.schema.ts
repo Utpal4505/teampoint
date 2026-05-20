@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { MessageType } from '../../generated/prisma/enums.js'
+import { MessageType } from '../../generated/prisma/index.js'
 import { sanitizeText } from '../../utils/sanitize.js'
 
 export const projectIdParamSchema = z.object({

@@ -1,5 +1,5 @@
 import z from 'zod'
-import { GoalStatus } from '../../generated/prisma/enums.js'
+import { GoalStatus } from '../../generated/prisma/index.js'
 import { idParam } from '../documentLinks/documentLinks.schema.js'
 
 export const MilestoneStatusSchema = z.nativeEnum(GoalStatus)

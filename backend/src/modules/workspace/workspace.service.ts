@@ -1,5 +1,5 @@
 import { prisma } from '../../config/db.config.js'
-import type { WorkspaceRole } from '../../generated/prisma/enums.js'
+import type { WorkspaceRole } from '../../generated/prisma/index.js'
 import type {
   ArchiveWorkspaceDTO,
   CreateWorkspaceInput,

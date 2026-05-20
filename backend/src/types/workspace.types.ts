@@ -3,7 +3,7 @@ import type {
   WorkspaceMemberStatus,
   WorkspaceRole,
   WorkspaceStatus,
-} from '../generated/prisma/enums.js'
+} from '../generated/prisma/index.js'
 import type { ROLE_PERMISSIONS } from '../modules/workspace/workspace.permissions.js'
 
 export type CreateWorkspaceInput = {

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { sanitizeText } from '../../utils/sanitize.js'
-import { ProjectStatus } from '../../generated/prisma/enums.js'
+import { ProjectStatus } from '../../generated/prisma/index.js'
 
 export const createProjectSchema = z.object({
   workspaceId: z.number().int().positive().transform(Number),

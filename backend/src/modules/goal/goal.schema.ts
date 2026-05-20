@@ -1,5 +1,5 @@
 import z from 'zod'
-import { GoalStatus } from '../../generated/prisma/enums.js'
+import { GoalStatus } from '../../generated/prisma/index.js'
 
 export const idParam = z.number().int().positive().transform(Number)
 

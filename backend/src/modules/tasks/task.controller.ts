@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.js'
 import { assertUser } from '../../utils/assertUser.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
-import type { TaskStatus, TaskType } from '../../generated/prisma/enums.js'
+import type { TaskStatus, TaskType } from '../../generated/prisma/index.js'
 import {
   cancelTaskService,
   changeTaskStatusService,

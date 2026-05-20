@@ -1,5 +1,5 @@
 import { prisma } from '../../config/db.config.js'
-import { WorkspaceMemberStatus, WorkspaceRole } from '../../generated/prisma/enums.js'
+import { WorkspaceMemberStatus, WorkspaceRole } from '../../generated/prisma/index.js'
 import type {
   AddProjectMemberDTO,
   AddProjectMemberInput,

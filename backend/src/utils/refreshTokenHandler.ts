@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt'
 import { ApiError } from './apiError.js'
 import { prisma } from '../config/db.config.js'
 import { env } from '../config/env.js'
-import type { OAuthProvider } from '../generated/prisma/enums.js'
+import type { OAuthProvider } from '../generated/prisma/index.js'
 import { generateAccessAndRefreshTokens } from './generateAccessandRefreshToken.js'
 
 interface TokenPayload {

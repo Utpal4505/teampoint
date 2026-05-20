@@ -2,7 +2,7 @@ import type z from 'zod'
 import type {
   DiscussionStatus,
   DiscussionType,
-} from '../generated/prisma/enums.js'
+} from '../generated/prisma/index.js'
 import type {
   createDiscussionSchema,
   listDiscussionsQuerySchema,

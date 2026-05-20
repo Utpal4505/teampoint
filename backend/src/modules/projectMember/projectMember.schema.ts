@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { WorkspaceMemberStatus } from '../../generated/prisma/enums.js'
+import { WorkspaceMemberStatus } from '../../generated/prisma/index.js'
 
 export const PROJECT_MEMBER_ROLES = ['OWNER', 'ADMIN', 'MEMBER'] as const
 export type ProjectMemberRole = (typeof PROJECT_MEMBER_ROLES)[number]

@@ -1,4 +1,4 @@
-import type { LeaveRequestStatus } from '../generated/prisma/enums.js'
+import type { LeaveRequestStatus } from '../generated/prisma/index.js'
 
 export type CreateLeaveRequestInput = {
   workspaceId: number

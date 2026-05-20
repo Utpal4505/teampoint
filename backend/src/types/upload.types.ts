@@ -1,4 +1,4 @@
-import type { UploadCategory } from '../generated/prisma/enums.js'
+import type { UploadCategory } from '../generated/prisma/index.js'
 
 export interface UploadRequest {
   category: UploadCategory

@@ -18,7 +18,7 @@ import {
 } from './projectMember.service.js'
 import type { UpdateProjectMemberRoleInput } from '../../types/projectMember.type.js'
 import { ApiError } from '../../utils/apiError.js'
-import type { WorkspaceMemberStatus } from '../../generated/prisma/enums.js'
+import type { WorkspaceMemberStatus } from '../../generated/prisma/index.js'
 
 export const addProjectMemberController = asyncHandler(async (req, res) => {
   assertUser(req.user)

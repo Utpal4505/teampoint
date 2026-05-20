@@ -1,6 +1,6 @@
 import { prisma } from '../../config/db.config.js'
 import type { DiscordAlertColor } from '../../config/discord.config.js'
-import type { SeverityLevel } from '../../generated/prisma/enums.js'
+import type { SeverityLevel } from '../../generated/prisma/index.js'
 import { sendDiscordAlert } from '../../services/discord.service.js'
 import { ensureExists } from '../../utils/ensureExists.js'
 import { eventBus } from '../../utils/eventBus.js'

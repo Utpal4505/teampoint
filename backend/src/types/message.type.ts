@@ -1,5 +1,5 @@
 import type z from 'zod'
-import type { MessageType } from '../generated/prisma/enums.js'
+import type { MessageType } from '../generated/prisma/index.js'
 import type { createMessageSchema } from '../modules/message/message.schema.js'
 
 export type CreateMessageInput = z.infer<typeof createMessageSchema> & {

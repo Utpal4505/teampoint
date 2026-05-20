@@ -1,5 +1,5 @@
 import type z from 'zod'
-import type { Priority, TaskStatus, TaskType } from '../generated/prisma/enums.js'
+import type { Priority, TaskStatus, TaskType } from '../generated/prisma/index.js'
 import type {
   changeTaskStatusSchema,
   createTaskSchema,
