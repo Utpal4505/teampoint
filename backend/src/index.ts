@@ -1,13 +1,14 @@
-import express from 'express'
-
-const app = express()
+import 'dotenv/config'
+import { createServer } from 'node:http'
+import { app } from './app.js'
+import { initializeSocketServer } from './services/socket.service.js'
 
 const PORT = Number(process.env.PORT) || 3000
 
-app.get('/', (_, res) => {
-  res.send('Server works')
-})
+const server = createServer(app)
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`)
+initializeSocketServer(server)
+
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://localhost:${PORT}`)
 })

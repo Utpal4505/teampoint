@@ -1,0 +1,15 @@
+node_modules
+dist
+src/generated/prisma
+.env
+.env.*
+teampoint-local.json
+.git
+.github
+.husky
+tests
+Dockerfile
+.dockerignore
+*.md
+.eslint*
+.prettier*
