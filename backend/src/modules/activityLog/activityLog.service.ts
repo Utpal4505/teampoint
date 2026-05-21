@@ -1,4 +1,4 @@
-import type { Prisma } from "../../generated/prisma/client.js"
+import type { Prisma } from "../../generated/prisma/index.js"
 import type { CreateActivityInput } from "../../types/activityLog.type.js"
 
 export const createActivityLog = (

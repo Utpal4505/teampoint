@@ -1,6 +1,6 @@
 import { prisma } from '../../config/db.config.js'
 import { DiscussionStatus, DiscussionType } from '../../generated/prisma/index.js'
-import type { Prisma } from '../../generated/prisma/client.js'
+import type { Prisma } from '../../generated/prisma/index.js'
 import type {
   CloseDiscussionDTO,
   CreateDiscussionDTO,

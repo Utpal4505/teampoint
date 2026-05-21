@@ -1,4 +1,4 @@
-import type { Prisma } from '../../generated/prisma/client.js'
+import type { Prisma } from '../../generated/prisma/index.js'
 import type { TaskType } from '../../generated/prisma/index.js'
 import { ApiError } from '../../utils/apiError.js'
 

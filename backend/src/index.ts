@@ -7,8 +7,12 @@ const PORT = Number(process.env.PORT) || 3000
 
 const server = createServer(app)
 
-initializeSocketServer(server)
+console.log("Starting server...")
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://localhost:${PORT}`)
+console.log("Before socket init")
+initializeSocketServer(server)
+console.log("After socket init")
+
+server.listen(PORT, () => {
+  console.log(`RUNNING ON ${PORT}`)
 })

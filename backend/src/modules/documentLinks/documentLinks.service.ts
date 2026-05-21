@@ -1,5 +1,5 @@
 import { prisma } from '../../config/db.config.js'
-import type { DocumentEntityType, Prisma } from '../../generated/prisma/client.js'
+import type { DocumentEntityType, Prisma } from '../../generated/prisma/index.js'
 import type {
   CreateDocumentLinkInput,
   CreateDocumentLinkResponse,
