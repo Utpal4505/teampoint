@@ -1,0 +1,843 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Define all enums
+enum OAuthProvider {
+  GOOGLE
+  GITHUB
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BANNED
+}
+
+enum WorkspaceStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  REVOKED
+}
+
+enum ProjectStatus {
+  ACTIVE
+  ARCHIVED
+  ONHOLD
+  COMPLETED
+  DELETED
+}
+
+enum TaskType {
+  PERSONAL
+  PROJECT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+enum DiscussionStatus {
+  OPEN
+  CLOSED
+}
+
+enum DiscussionType {
+  GENERAL
+  TASK
+}
+
+enum MeetingRole {
+  HOST
+  PARTICIPANT
+}
+
+enum DocumentEntityType {
+  TASK
+  DISCUSSION
+  MILESTONE
+  MEETING
+}
+
+enum GoalStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  ACHIEVED
+  MISSED
+}
+
+enum ActivityEntityType {
+  WORKSPACE
+  WORKSPACE_MEMBER
+  PROJECT
+  PROJECT_MEMBER
+  TASK
+  MEETING
+  DISCUSSION
+  GOAL
+  MILESTONE
+  DOCUMENT
+  COMMENT
+}
+
+enum ActivityAction {
+  CREATED
+  UPDATED
+  REMOVED
+  DELETED
+  COMPLETED
+  COMMENTED
+  ASSIGNED
+  CANCELLED
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+enum WorkspaceMemberStatus {
+  ACTIVE
+  INVITED
+  REMOVED
+  LEFT
+  BLOCKED
+}
+
+enum InviteEmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum DocumentLinkStatus {
+  LINKED
+  UNLINKED
+}
+
+enum UploadCategory {
+  AVATAR
+  DOCUMENT
+  BUG_ATTACHMENT
+}
+
+enum ContextType {
+  USER
+  PROJECT
+}
+
+enum StorageProvider {
+  R2
+}
+
+enum UploadStatus {
+  PENDING
+  UPLOADED
+  FAILED
+  ABORTED
+}
+
+enum IntegrationProvider {
+  GOOGLE
+  GITHUB
+}
+
+enum IntegrationStatus {
+  CONNECTED
+  DISCONNECTED
+  EXPIRED
+  ERROR
+}
+
+enum ActionItemStatus {
+  PENDING
+  CONVERTED
+}
+
+enum MessageType {
+  NORMAL
+  DECISION
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  fullName String @db.VarChar(100)
+  email    String @unique @db.VarChar(150)
+
+  status UserStatus @default(ACTIVE)
+  is_new Boolean
+
+  avatarUploadId Int?    @unique
+  avatarUpload   Upload? @relation(fields: [avatarUploadId], references: [id])
+  avatarUrl      String? @db.VarChar(500)
+
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  authProviders                 AuthProvider[]
+  workspacesCreated             Workspace[]             @relation("WorkspaceCreator")
+  inviterMember                 Invite_Member[]         @relation("WorkspaceInviter")
+  workspaceMember               Workspace_Members[]
+  projectsCreated               Project[]
+  projectMember                 Project_Members[]
+  tasksCreated                  Tasks[]                 @relation("TaskCreatedBy")
+  tasksAssigned                 Tasks[]                 @relation("TaskAssignedTo")
+  meetingsCreated               Meeting[]
+  meetingParticipants           MeetingParticipant[]
+  documentUploader              Document[]
+  messages                      Message[]
+  goalsCreated                  Goal[]
+  milestonesCreated             Milestone[]
+  activityLog                   ActivityLog[]
+  refreshTokens                 RefreshToken[]
+  workSpaceLeaveRequest         WorkspaceLeaveRequest[]
+  workSpaceLeaveRequestReviewer WorkspaceLeaveRequest[] @relation("LeaveReviewer")
+  discussionsCreated            Discussion[]            @relation("DiscussionCreatedBy")
+  integrations                  Integration[]
+  meetingActionItems            MeetingActionItem[]     @relation("MeetingActionAssignedUser")
+  bugReports                    BugReport[]
+  feedbacksSubmitted            Feedback[]              @relation("FeedbackSubmitter")
+  feedbacksReviewed             Feedback[]              @relation("FeedbackReviewer")
+}
+
+model AuthProvider {
+  id             Int           @id @default(autoincrement())
+  provider       OAuthProvider
+  providerUserId String
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  created_at DateTime @default(now())
+
+  @@unique([provider, providerUserId])
+}
+
+model Integration {
+  id String @id @default(cuid())
+
+  userId         Int
+  provider       IntegrationProvider
+  providerUserId String
+
+  status IntegrationStatus @default(DISCONNECTED)
+
+  scopes   String[]
+  metadata Json?
+
+  connectedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token IntegrationToken?
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+}
+
+model IntegrationToken {
+  id String @id @default(cuid())
+
+  integrationId String @unique
+
+  accessToken  String
+  refreshToken String?
+  idToken      String?
+
+  expiresAt DateTime
+
+  tokenType String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+  id          Int             @id @default(autoincrement())
+  name        String          @db.VarChar(150)
+  description String?
+  createdBy   Int
+  status      WorkspaceStatus @default(ACTIVE)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  archivedAt  DateTime?
+
+  creator User @relation("WorkspaceCreator", fields: [createdBy], references: [id])
+
+  inviteWorkspace       Invite_Member[]         @relation("WorkspaceInvites")
+  workspaceMembers      Workspace_Members[]
+  projects              Project[]
+  activityLog           ActivityLog[]
+  workSpaceLeaveRequest WorkspaceLeaveRequest[]
+
+  @@index([name, createdBy])
+}
+
+model Invite_Member {
+  id          Int           @id @default(autoincrement())
+  workspaceId Int
+  email       String        @db.VarChar(150)
+  invitedBy   Int
+  role        WorkspaceRole
+  permissions Json
+  status      InviteStatus  @default(PENDING)
+  token       String        @unique
+
+  createdAt  DateTime  @default(now())
+  expiredAt  DateTime?
+  acceptedAt DateTime?
+
+  emailStatus    InviteEmailStatus @default(PENDING)
+  emailAttempts  Int               @default(0)
+  lastEmailError String?
+
+  inviter   User      @relation("WorkspaceInviter", fields: [invitedBy], references: [id])
+  workspace Workspace @relation("WorkspaceInvites", fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, email])
+}
+
+model Workspace_Members {
+  id          Int @id @default(autoincrement())
+  workspaceId Int
+  userId      Int
+
+  role        WorkspaceRole
+  status      WorkspaceMemberStatus @default(ACTIVE)
+  permissions Json
+  joinedAt    DateTime
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@unique([workspaceId, userId])
+  @@index([workspaceId, userId])
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  workspaceId Int
+  name        String        @db.VarChar(150)
+  description String?
+  status      ProjectStatus @default(ACTIVE)
+
+  createdBy Int
+  creator   User      @relation(fields: [createdBy], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  projectMembers Project_Members[]
+  tasks          Tasks[]
+  meetings       Meeting[]
+  documents      Document[]
+  discussions    Discussion[]
+  goals          Goal[]
+  milestones     Milestone[]
+  activityLog    ActivityLog[]
+  bugReports     BugReport[]
+  feedbacks      Feedback[]        @relation("ProjectFeedbacks")
+
+  @@index([workspaceId, status])
+}
+
+model Project_Members {
+  id          Int                   @id @default(autoincrement())
+  projectId   Int
+  userId      Int
+  role        WorkspaceRole
+  status      WorkspaceMemberStatus @default(ACTIVE)
+  permissions Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  joinedAt  DateTime
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([projectId, userId])
+  @@index([projectId, userId])
+}
+
+model Tasks {
+  id         Int  @id @default(autoincrement())
+  projectId  Int?
+  createdBy  Int
+  assignedTo Int
+
+  title       String     @db.VarChar(200)
+  description String?
+  taskType    TaskType
+  status      TaskStatus @default(TODO)
+  priority    Priority
+  dueDate     DateTime?
+
+  cancelledBy Int?
+  cancelledAt DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  project           Project?           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator           User               @relation("TaskCreatedBy", fields: [createdBy], references: [id])
+  assignee          User               @relation("TaskAssignedTo", fields: [assignedTo], references: [id])
+  meetingActionItem MeetingActionItem?
+
+  @@index([projectId])
+  @@index([assignedTo])
+  @@index([createdBy])
+  @@index([taskType])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Meeting {
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
+
+  title       String        @db.VarChar(255)
+  description String?
+  status      MeetingStatus @default(SCHEDULED)
+
+  startTime DateTime
+  endTime   DateTime
+
+  meetingLink   String  @db.VarChar(500)
+  googleEventId String? @db.VarChar(255)
+  keyDecisions  String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+  cancelledAt DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
+
+  participants MeetingParticipant[]
+  actionItems  MeetingActionItem[]
+
+  @@index([projectId])
+  @@index([status])
+  @@index([createdBy])
+}
+
+model MeetingParticipant {
+  id        Int         @id @default(autoincrement())
+  meetingId Int
+  userId    Int
+  role      MeetingRole
+  joinedAt  DateTime?
+
+  meeting Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@unique([meetingId, userId])
+}
+
+model MeetingActionItem {
+  id        Int @id @default(autoincrement())
+  meetingId Int
+
+  title        String
+  assignedToId Int
+  dueDate      DateTime?
+
+  status ActionItemStatus @default(PENDING)
+
+  convertedTaskId Int?     @unique
+  createdAt       DateTime @default(now())
+
+  meeting       Meeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  assignedTo    User    @relation("MeetingActionAssignedUser", fields: [assignedToId], references: [id])
+  convertedTask Tasks?  @relation(fields: [convertedTaskId], references: [id])
+
+  @@index([meetingId])
+  @@index([assignedToId])
+}
+
+model Document {
+  id         Int @id @default(autoincrement())
+  projectId  Int
+  uploadedBy Int
+
+  title       String  @db.VarChar(255)
+  description String?
+
+  uploadId Int    @unique
+  upload   Upload @relation(fields: [uploadId], references: [id])
+
+  isArchived Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploader User    @relation(fields: [uploadedBy], references: [id])
+
+  links DocumentLink[]
+
+  @@index([projectId, uploadedBy])
+}
+
+model DocumentLink {
+  id         Int @id @default(autoincrement())
+  documentId Int
+
+  entityType DocumentEntityType
+  entityId   Int
+  status     DocumentLinkStatus @default(LINKED)
+
+  createdAt  DateTime  @default(now())
+  unlinkedAt DateTime?
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, entityType, entityId])
+}
+
+model Discussion {
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
+
+  title       String  @db.VarChar(255)
+  description String?
+
+  status   DiscussionStatus @default(OPEN)
+  closedAt DateTime?
+
+  type      DiscussionType
+  contextId Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation("DiscussionCreatedBy", fields: [createdBy], references: [id])
+
+  messages Message[]
+
+  @@index([projectId, createdBy])
+}
+
+model Message {
+  id           Int @id @default(autoincrement())
+  discussionId Int
+  createdBy    Int
+
+  content String
+
+  type MessageType @default(NORMAL)
+
+  parentMessageId Int?
+
+  isDeleted Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  discussion Discussion @relation(fields: [discussionId], references: [id])
+  author     User       @relation(fields: [createdBy], references: [id])
+
+  parent  Message?  @relation("Thread", fields: [parentMessageId], references: [id])
+  replies Message[] @relation("Thread")
+
+  @@index([discussionId])
+  @@index([parentMessageId])
+}
+
+model Goal {
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
+
+  title       String     @db.VarChar(255)
+  description String?
+  targetDate  DateTime?
+  status      GoalStatus @default(NOT_STARTED)
+  isDeleted   Boolean    @default(false)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  achievedAt DateTime?
+  deletedAt  DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
+
+  @@index([projectId])
+}
+
+model Milestone {
+  id        Int @id @default(autoincrement())
+  projectId Int
+  createdBy Int
+
+  title       String     @db.VarChar(255)
+  description String?
+  dueDate     DateTime?
+  status      GoalStatus @default(NOT_STARTED)
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  achievedAt DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  creator User    @relation(fields: [createdBy], references: [id])
+
+  @@index([projectId])
+}
+
+model ActivityLog {
+  id Int @id @default(autoincrement())
+
+  entityType ActivityEntityType
+  entityId   Int
+
+  action  ActivityAction
+  actorId Int
+  content String
+
+  workspaceId Int
+  projectId   Int?
+
+  createdAt DateTime @default(now())
+
+  actor     User      @relation(fields: [actorId], references: [id])
+  workspace Workspace @relation(fields: [workspaceId], references: [id])
+  project   Project?  @relation(fields: [projectId], references: [id])
+
+  @@index([workspaceId, projectId, createdAt, actorId])
+}
+
+model RefreshToken {
+  id     Int @id @default(autoincrement())
+  userId Int
+
+  provider  OAuthProvider
+  tokenHash String
+
+  expiredAt DateTime
+  createdAt DateTime  @default(now())
+  revokedAt DateTime?
+
+  replacedBy Int? @unique
+
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replaced RefreshToken?  @relation("TokenRotation", fields: [replacedBy], references: [id])
+  replaces RefreshToken[] @relation("TokenRotation")
+
+  @@index([userId, tokenHash])
+}
+
+model WorkspaceLeaveRequest {
+  id          Int @id @default(autoincrement())
+  workspaceId Int
+  userId      Int
+
+  status LeaveRequestStatus @default(PENDING)
+  reason String?
+
+  reviewedBy Int?
+  reviewedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id])
+  reviewer  User?     @relation("LeaveReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([workspaceId, userId, status])
+}
+
+model Upload {
+  id       Int    @id @default(autoincrement())
+  fileKey  String @unique
+  fileName String
+
+  category    UploadCategory
+  contextId   Int
+  contextType ContextType?
+  contentType String
+
+  size    Int
+  storage StorageProvider @default(R2)
+  status  UploadStatus    @default(PENDING)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expiresAt DateTime?
+
+  checksum String?
+  retries  Int     @default(0)
+
+  uploadedBy Int
+
+  document Document?
+  avatar   User?
+
+  @@index([category, contextId])
+  @@index([expiresAt])
+  @@index([status])
+}
+
+enum BugReportStatus {
+  PENDING
+  PROCESSING
+  DUPLICATE
+  AI_PROCESSED
+  GITHUB_CREATED
+  FAILED
+  RESOLVED
+  ARCHIVED
+}
+
+enum SeverityLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model BugReport {
+  id         Int  @id @default(autoincrement())
+  reportedBy Int?
+
+  projectId       Int?
+  page            String?
+  title           String  @db.VarChar(255)
+  description     String?
+  consoleLog      String?
+  apiRoute        String?
+  attachments     Json?
+  metadata        Json?
+  stepToReproduce String?
+
+  fingerprint      String          @db.VarChar(255)
+  reportCount      Int             @default(1)
+  status           BugReportStatus @default(PENDING)
+  severityLevel    SeverityLevel?
+  severityScore    Float?
+  aiSummary        String?
+  aiTags           Json?
+  processStartTime DateTime?
+  processEndTime   DateTime?
+  githubIssueUrl   String?
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  resolvedAt DateTime?
+
+  reporter User?    @relation(fields: [reportedBy], references: [id])
+  project  Project? @relation(fields: [projectId], references: [id])
+
+  @@index([status])
+  @@index([fingerprint])
+  @@index([projectId])
+  @@index([severityLevel])
+}
+
+enum FeedbackType {
+  GENERAL
+  UI_UX
+  PERFORMANCE
+  FEATURE_REQUEST
+}
+
+enum FeedbackStatus {
+  NEW
+  REVIEWED
+  IN_PROGRESS
+  RESOLVED
+  ARCHIVED
+}
+
+model Feedback {
+  id Int @id @default(autoincrement())
+
+  submittedBy Int?
+  projectId   Int?
+
+  type   FeedbackType
+  rating Int?         @db.SmallInt
+
+  message  String?
+  problem  String?
+  solution String?
+
+  page      String?
+  confusion String?
+
+  slowArea String?
+
+  status        FeedbackStatus @default(NEW)
+  reviewedAt    DateTime?
+  reviewedBy    Int?
+  internalNotes String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  submitter User?    @relation("FeedbackSubmitter", fields: [submittedBy], references: [id])
+  project   Project? @relation("ProjectFeedbacks", fields: [projectId], references: [id])
+  reviewer  User?    @relation("FeedbackReviewer", fields: [reviewedBy], references: [id])
+
+  @@index([type, status])
+  @@index([projectId])
+  @@index([submittedBy])
+  @@index([createdAt])
+}
