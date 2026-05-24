@@ -12,17 +12,22 @@ export function AuthLogo({
   return (
     <div className="flex flex-col items-center gap-2">
       <Image
-        src="/favicon.png"
+        src="/favicon.svg"
         alt={appName}
         width={48}
         height={48}
-        className="mb-2 object-contain"
+        className="mb-1 object-contain"
         priority
       />
 
-      <h1 className="font-display text-2xl font-bold tracking-tight text-foreground">
-        {appName}
-      </h1>
+      <Image
+        src="/dark-text-teampoint.svg"
+        alt={appName}
+        width={120}
+        height={30}
+        className="object-contain"
+        priority
+      />
 
       <p className="font-body text-sm text-muted-foreground">{tagline}</p>
     </div>

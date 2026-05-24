@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description:
     'TeamPoint helps small teams manage tasks, decisions, and meetings in one focused workspace.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 }
 

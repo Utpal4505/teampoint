@@ -32,7 +32,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
     if (!wsLoading && workspaces && !isInviteContinue) {
       if (workspaces.length === 0) {
-        router.replace('/onboarding/create-workspace')
+        router.replace('/onboarding/step-1')
       }
     }
   }, [user, initialized, wsLoading, workspaces, router, isInviteContinue])

@@ -33,14 +33,8 @@ export function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Target size={16} />
-          </span>
-          <span className="text-base font-bold text-foreground">
-            TeamPoint
-          </span>
+          <img src="/text_img_teampoint.svg" alt="TeamPoint" className="h-8 w-auto" />
         </Link>
-
         <nav className="hidden items-center gap-1 md:flex">
           {LINKS.map(link => (
             <a

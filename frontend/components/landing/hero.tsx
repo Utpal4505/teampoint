@@ -75,9 +75,7 @@ function WorkCard({
         accent,
       )}
     >
-      <p className="text-[13px] font-medium leading-snug text-foreground">
-        {title}
-      </p>
+      <p className="text-[13px] font-medium leading-snug text-foreground">{title}</p>
       <div className="mt-3 flex items-center justify-between gap-3">
         <span className="text-[11px] text-muted-foreground">{meta}</span>
         <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
@@ -96,9 +94,7 @@ export function ProductPreview() {
             <Target size={16} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-foreground">
-              Product Sprint
-            </p>
+            <p className="text-sm font-semibold text-foreground">Product Sprint</p>
             <p className="text-[11px] text-muted-foreground">
               Tasks, decisions, meetings
             </p>
@@ -167,14 +163,12 @@ export function ProductPreview() {
         <div className="border-t border-white/10 bg-white/[0.025] p-4 xl:border-l xl:border-t-0">
           <div className="mb-4 flex items-center gap-2">
             <MessageSquareText size={15} className="text-cyan-300" />
-            <p className="text-sm font-semibold text-foreground">
-              Discussion outcome
-            </p>
+            <p className="text-sm font-semibold text-foreground">Discussion outcome</p>
           </div>
           <div className="rounded-lg border border-white/8 bg-white/[0.04] p-3">
             <p className="text-xs leading-relaxed text-muted-foreground">
-              Keep onboarding simple. Ask for workspace name, invite team, then
-              land on tasks.
+              Keep onboarding simple. Ask for workspace name, invite team, then land on
+              tasks.
             </p>
             <div className="mt-3 flex items-center gap-2 text-[11px] font-medium text-emerald-300">
               <CheckCircle2 size={13} />
@@ -186,9 +180,7 @@ export function ProductPreview() {
 
           <div className="mb-3 flex items-center gap-2">
             <CalendarDays size={15} className="text-amber-300" />
-            <p className="text-sm font-semibold text-foreground">
-              Meeting actions
-            </p>
+            <p className="text-sm font-semibold text-foreground">Meeting actions</p>
           </div>
           <div className="space-y-2">
             {['Assign landing copy', 'Create beta invite flow'].map(action => (
@@ -197,9 +189,7 @@ export function ProductPreview() {
                 className="landing-card-hover flex items-center gap-2 rounded-md border border-white/8 bg-black/10 px-3 py-2"
               >
                 <ClipboardCheck size={13} className="text-primary" />
-                <span className="text-[12px] text-muted-foreground">
-                  {action}
-                </span>
+                <span className="text-[12px] text-muted-foreground">{action}</span>
               </div>
             ))}
           </div>
@@ -222,13 +212,18 @@ export function Hero() {
           </div>
 
           <div className="space-y-5">
-            <h1 className="max-w-[700px] font-display text-5xl font-bold leading-[1.02] tracking-normal text-foreground sm:text-6xl">
-              Stop managing work. Start finishing it.
+            <h1 className="max-w-[600px] font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+              Stop managing work.{' '}
+              <span className="text-foreground font-medium">
+                Start finishing it.
+              </span>
             </h1>
             <p className="max-w-lg text-lg leading-8 text-muted-foreground">
-              TeamPoint helps small startup and dev teams keep tasks,
-              discussions, and meeting action items connected without the
-              clutter of Jira, ClickUp, or endless Notion pages.
+              TeamPoint helps small startup and dev teams keep tasks, discussions, and
+              meeting action items connected without the clutter of{' '}
+              <strong className="text-foreground">Jira</strong>,{' '}
+              <strong className="text-foreground">ClickUp</strong>, or endless Notion
+              pages.
             </p>
           </div>
 
