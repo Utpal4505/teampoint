@@ -1,0 +1,88 @@
+import { z } from 'zod';
+import { sanitizeText } from '../../utils/sanitize.js';
+import { Priority, TaskStatus, TaskType } from '../../generated/prisma/index.js';
+export const TaskTypeEnum = z.nativeEnum(TaskType);
+export const TaskStatusEnum = z.nativeEnum(TaskStatus);
+export const TaskPriorityEnum = z.nativeEnum(Priority);
+const idParam = z.number().int().positive().transform(Number);
+export const createTaskSchema = z
+    .object({
+    taskType: TaskTypeEnum,
+    projectId: z.number().int().positive().optional(),
+    title: z.string().trim().min(2).max(100).transform(sanitizeText),
+    description: z
+        .string()
+        .trim()
+        .min(5)
+        .max(500)
+        .optional()
+        .or(z.literal(''))
+        .transform(v => (v ? sanitizeText(v) : undefined)),
+    assignedTo: idParam,
+    priority: TaskPriorityEnum,
+    dueDate: z.preprocess(arg => (arg ? new Date(arg) : undefined), z.date().optional()),
+})
+    .superRefine((data, ctx) => {
+    if (data.taskType === 'PROJECT' && !data.projectId) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'projectId is required for PROJECT tasks',
+        });
+    }
+    if (data.taskType === 'PERSONAL' && data.projectId) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'projectId must be null for PERSONAL tasks',
+        });
+    }
+});
+export const updateTaskSchema = z.object({
+    title: z
+        .string()
+        .trim()
+        .min(2)
+        .max(100)
+        .optional()
+        .transform(v => (v ? sanitizeText(v) : undefined)),
+    description: z
+        .string()
+        .trim()
+        .min(5)
+        .max(500)
+        .optional()
+        .transform(v => (v ? sanitizeText(v) : undefined)),
+    priority: TaskPriorityEnum.optional(),
+    status: TaskStatusEnum.optional(),
+    assignedTo: idParam,
+    dueDate: z.preprocess(arg => (arg ? new Date(arg) : undefined), z.date().optional()),
+});
+export const changeTaskStatusSchema = z.object({
+    status: TaskStatusEnum.refine(status => ['TODO', 'IN_PROGRESS', 'DONE', 'CANCELLED'].includes(status), {
+        message: 'Invalid status transition',
+    }),
+});
+export const taskIdParamSchema = z.object({
+    taskId: z.coerce.number().int().positive(),
+});
+export const listTasksQuerySchema = z.object({
+    projectId: z.coerce.number().int().positive().optional(),
+    assignedTo: z.coerce.number().int().positive().optional(),
+    status: TaskStatusEnum.optional(),
+    taskType: TaskTypeEnum.optional(),
+});
+export const createPersonalTaskSchema = z.object({
+    taskType: z.literal('PERSONAL'),
+    title: z.string().trim().min(2).max(100).transform(sanitizeText),
+    description: z
+        .string()
+        .trim()
+        .min(5)
+        .max(500)
+        .optional()
+        .or(z.literal(''))
+        .transform(v => (v ? sanitizeText(v) : undefined)),
+    assignedTo: idParam,
+    priority: TaskPriorityEnum,
+    dueDate: z.preprocess(arg => (arg ? new Date(arg) : undefined), z.date().optional()),
+});
+//# sourceMappingURL=task.schema.js.map

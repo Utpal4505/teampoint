@@ -1,0 +1,20 @@
+import { Router } from 'express';
+import { hardAuth } from '../../middlewares/auth.middlewares.js';
+import { validateRequest } from '../../middlewares/validateRequest.js';
+import { CreateMeetingSchema, UpdateMeetingSchema, ListMeetingsQuerySchema, ListWorkspaceMeetingsQuerySchema, MeetingIdParamSchema, GetParticipantsQuerySchema, ManageParticipantsSchema, CompleteMeetingSchema, } from './meeting.schema.js';
+import { createMeetingController, listMeetingsController, listWorkspaceMeetingsController, getMeetingController, updateMeetingController, getParticipantsController, manageParticipantsController, completeMeetingController, cancelMeetingController, } from './meeting.controller.js';
+const router = Router({ mergeParams: true });
+router.use(hardAuth);
+router.get('/', validateRequest(ListMeetingsQuerySchema, 'query'), listMeetingsController);
+router.post('/', validateRequest(CreateMeetingSchema, 'body'), createMeetingController);
+router.get('/:meetingId', validateRequest(MeetingIdParamSchema, 'params'), getMeetingController);
+router.patch('/:meetingId', validateRequest(MeetingIdParamSchema, 'params'), validateRequest(UpdateMeetingSchema, 'body'), updateMeetingController);
+router.get('/:meetingId/participants', validateRequest(MeetingIdParamSchema, 'params'), validateRequest(GetParticipantsQuerySchema, 'query'), getParticipantsController);
+router.patch('/:meetingId/participants', validateRequest(MeetingIdParamSchema, 'params'), validateRequest(ManageParticipantsSchema, 'body'), manageParticipantsController);
+router.post('/:meetingId/complete', validateRequest(MeetingIdParamSchema, 'params'), validateRequest(CompleteMeetingSchema, 'body'), completeMeetingController);
+router.post('/:meetingId/cancel', validateRequest(MeetingIdParamSchema, 'params'), cancelMeetingController);
+export const workspaceMeetingRouter = Router({ mergeParams: true });
+workspaceMeetingRouter.use(hardAuth);
+workspaceMeetingRouter.get('/', validateRequest(ListWorkspaceMeetingsQuerySchema, 'query'), listWorkspaceMeetingsController);
+export default router;
+//# sourceMappingURL=meeting.route.js.map

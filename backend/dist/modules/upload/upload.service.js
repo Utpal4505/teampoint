@@ -1,0 +1,101 @@
+import { prisma } from '../../config/db.config.js';
+import { ApiError } from '../../utils/apiError.js';
+import { assertProjectMember } from '../../utils/assertProjectMember.js';
+import { ensureExists } from '../../utils/ensureExists.js';
+import storage from './storage/index.js';
+export const uploadRequestService = async (input, userId) => {
+    const { category, contentType, contextId, fileName, fileSize } = input;
+    if (category === 'AVATAR') {
+        if (contextId !== userId) {
+            throw new ApiError(403, 'You can only upload your own avatar');
+        }
+    }
+    if (category === 'DOCUMENT') {
+        await assertProjectMember(contextId, userId);
+    }
+    const uploadData = await storage.generateSignedUploadUrl(input);
+    const upload = await prisma.upload.create({
+        data: {
+            category,
+            contextId,
+            fileName,
+            size: fileSize,
+            contentType,
+            fileKey: uploadData.fileKey,
+            status: 'PENDING',
+            uploadedBy: userId,
+            expiresAt: new Date(Date.now() + uploadData.expiresIn * 1000),
+        },
+    });
+    return {
+        uploadId: upload.id,
+        presignedUrl: uploadData.presignedUrl,
+        expiresIn: uploadData.expiresIn,
+        fileKey: uploadData.fileKey,
+    };
+};
+export const uploadCompleteService = async (uploadId, userId, tx) => {
+    const db = tx ?? prisma;
+    const upload = await db.upload.findUnique({
+        where: { id: uploadId },
+    });
+    ensureExists(upload, 'Upload');
+    if (upload.uploadedBy !== userId) {
+        throw new ApiError(403, 'Unauthorized');
+    }
+    if (upload.status !== 'PENDING') {
+        throw new ApiError(400, 'Invalid upload state');
+    }
+    if (upload.expiresAt && upload.expiresAt < new Date()) {
+        throw new ApiError(400, 'Upload expired');
+    }
+    await storage.verifyFileExists(upload.fileKey);
+    const updated = await db.upload.update({
+        where: { id: upload.id },
+        data: { status: 'UPLOADED' },
+    });
+    return {
+        uploadId: updated.id,
+        fileKey: updated.fileKey,
+        category: updated.category,
+        contextId: updated.contextId,
+    };
+};
+export const directUploadService = async (input, fileBuffer, userId) => {
+    const { category, contentType, contextId, fileName, fileSize } = input;
+    if (category === 'AVATAR') {
+        if (contextId !== userId) {
+            throw new ApiError(403, 'You can only upload your own avatar');
+        }
+    }
+    if (category === 'DOCUMENT') {
+        await assertProjectMember(contextId, userId);
+    }
+    const uploadData = await storage.directUploadToR2({
+        category,
+        contextId,
+        fileName,
+        contentType,
+        fileSize,
+    }, fileBuffer);
+    const uploadStatus = category === 'DOCUMENT' ? 'UPLOADED' : 'PENDING';
+    const upload = await prisma.upload.create({
+        data: {
+            category,
+            contextId,
+            fileName,
+            size: fileSize,
+            contentType,
+            fileKey: uploadData.fileKey,
+            status: uploadStatus,
+            uploadedBy: userId,
+        },
+    });
+    return {
+        uploadId: upload.id,
+        fileKey: upload.fileKey,
+        category: upload.category,
+        contextId: upload.contextId,
+    };
+};
+//# sourceMappingURL=upload.service.js.map

@@ -1,0 +1,16 @@
+import { Router } from 'express';
+import { validateRequest } from '../../middlewares/validateRequest.js';
+import { workspaceIdParamSchema } from '../workspace/workspace.schema.js';
+import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js';
+import { acceptInviteSchema, inviteIdParamSchema, validateInviteParamSchema } from './inviteMember.schema.js';
+import { acceptInviteController, getSingleInviteController, listAllInvitesController, revokeInviteController, sendInviteController, validateInviteController, } from './inviteMember.controller.js';
+const router = Router();
+router.post('/:workspaceId/invites', requireWorkspacePermission('canInviteMembers'), sendInviteController);
+router.get('/:workspaceId/invites/:inviteId', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(inviteIdParamSchema, 'params'), requireWorkspacePermission('canViewInvites'), getSingleInviteController);
+router.get('/:workspaceId/invites', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canViewInvites'), listAllInvitesController);
+router.delete('/:workspaceId/invites/:inviteId/revoke', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(inviteIdParamSchema, 'params'), requireWorkspacePermission('canRevokeInviteMembers'), revokeInviteController);
+router.post('/invites/accept', validateRequest(acceptInviteSchema, 'body'), acceptInviteController);
+export const publicInviteRouter = Router();
+publicInviteRouter.get('/invites/validate/:tokenId/:token', validateRequest(validateInviteParamSchema, 'params'), validateInviteController);
+export default router;
+//# sourceMappingURL=inviteMember.route.js.map

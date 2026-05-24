@@ -1,0 +1,67 @@
+import { prisma } from '../../config/db.config.js';
+import { ApiError } from '../../utils/apiError.js';
+import { trackPosthogEvent } from '../../utils/posthog.js';
+export const authService = async (provider, profile) => {
+    const email = profile.emails?.[0]?.value;
+    const avatarUrl = profile.photos?.[0]?.value ?? null;
+    if (!email)
+        throw new ApiError(400, 'OAuth provider did not return an email');
+    const existingAuth = await prisma.authProvider.findUnique({
+        where: {
+            provider_providerUserId: {
+                provider: provider,
+                providerUserId: profile.id,
+            },
+        },
+        include: {
+            user: true,
+        },
+    });
+    if (existingAuth)
+        return existingAuth.user;
+    let user = await prisma.user.findUnique({
+        where: {
+            email: email,
+        },
+        select: {
+            id: true,
+            status: true,
+            email: true,
+            is_new: true,
+        },
+    });
+    if (user?.status === 'INACTIVE') {
+        throw new ApiError(403, 'User account has been deleted');
+    }
+    if (!user) {
+        user = await prisma.user.create({
+            data: {
+                email: email,
+                fullName: profile.displayName,
+                is_new: true,
+                avatarUrl: avatarUrl,
+                status: 'ACTIVE',
+            },
+            select: {
+                id: true,
+                status: true,
+                email: true,
+                avatarUrl: true,
+                is_new: true,
+            },
+        });
+        trackPosthogEvent(user.id, 'user_signed_up', {
+            email: user.email,
+            auth_provider: provider,
+        });
+    }
+    await prisma.authProvider.create({
+        data: {
+            provider: provider,
+            providerUserId: profile.id,
+            userId: user.id,
+        },
+    });
+    return user;
+};
+//# sourceMappingURL=auth.service.js.map

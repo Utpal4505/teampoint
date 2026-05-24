@@ -1,0 +1,58 @@
+import { ApiError } from '../../utils/apiError.js';
+export async function assertTaskPermission(tx, task, userId, action) {
+    const isCreator = task.createdBy === userId;
+    const isAssignee = task.assignedTo === userId;
+    if (task.taskType === 'PERSONAL') {
+        if (!isCreator) {
+            throw new ApiError(403, 'You do not have access to this task');
+        }
+        return;
+    }
+    if (isCreator)
+        return;
+    if (action === 'CHANGE_STATUS' && isAssignee)
+        return;
+    const membership = await tx.project_Members.findFirst({
+        where: {
+            projectId: task.projectId,
+            userId,
+        },
+        select: { role: true },
+    });
+    if (!membership) {
+        const workspaceMembership = await tx.workspace_Members.findFirst({
+            where: {
+                workspace: {
+                    projects: {
+                        some: { id: task.projectId }
+                    }
+                },
+                userId,
+                role: { in: ['OWNER', 'ADMIN'] }
+            }
+        });
+        if (!workspaceMembership) {
+            throw new ApiError(403, 'You do not have access to this task');
+        }
+        return;
+    }
+    const isAdmin = ['OWNER', 'ADMIN'].includes(membership.role);
+    switch (action) {
+        case 'VIEW':
+            return;
+        case 'EDIT':
+            if (isAdmin)
+                return;
+            break;
+        case 'CHANGE_STATUS':
+            if (isAdmin)
+                return;
+            break;
+        case 'CANCEL':
+            if (isAdmin)
+                return;
+            break;
+    }
+    throw new ApiError(403, 'You do not have permission for this action');
+}
+//# sourceMappingURL=task.permission.js.map

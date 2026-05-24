@@ -1,0 +1,47 @@
+import { asyncHandler } from '../../utils/asyncHandler.js';
+import { assertUser } from '../../utils/assertUser.js';
+import { ApiResponse } from '../../utils/apiResponse.js';
+import { ApiError } from '../../utils/apiError.js';
+import { env } from '../../config/env.js';
+import { listIntegrationsService, initiateIntegrationService, handleCallbackService, getIntegrationStatusService, disconnectIntegrationService, } from './integration.service.js';
+export const listIntegrationsController = asyncHandler(async (req, res) => {
+    assertUser(req.user);
+    const result = await listIntegrationsService(req.user.id);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, 'Integrations fetched successfully', result));
+});
+export const initiateIntegrationController = asyncHandler(async (req, res) => {
+    assertUser(req.user);
+    const provider = req.params.provider;
+    const { workspaceId } = req.body;
+    if (!workspaceId) {
+        throw new ApiError(400, 'Workspace ID is required');
+    }
+    const result = await initiateIntegrationService(req.user.id, provider, workspaceId);
+    return res.status(200).json(new ApiResponse(200, 'Authorization URL generated', result));
+});
+export const handleCallbackController = asyncHandler(async (req, res) => {
+    const { code, state } = req.query;
+    if (!code || !state) {
+        throw new ApiError(400, 'Missing authorization code or state');
+    }
+    const result = await handleCallbackService(code, state);
+    const redirectUrl = new URL(`${env.CLIENT_URL}/workspace/${result.workspaceId}/settings/personal`);
+    return res.redirect(redirectUrl.toString());
+});
+export const getIntegrationStatusController = asyncHandler(async (req, res) => {
+    assertUser(req.user);
+    const provider = req.params.provider;
+    const result = await getIntegrationStatusService(req.user.id, provider);
+    return res.status(200).json(new ApiResponse(200, 'Integration status fetched', result));
+});
+export const disconnectIntegrationController = asyncHandler(async (req, res) => {
+    assertUser(req.user);
+    const provider = req.params.provider;
+    const result = await disconnectIntegrationService(req.user.id, provider);
+    return res
+        .status(200)
+        .json(new ApiResponse(200, `${provider} integration disconnected`, result));
+});
+//# sourceMappingURL=integration.controller.js.map

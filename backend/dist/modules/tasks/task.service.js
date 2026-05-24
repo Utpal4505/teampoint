@@ -1,0 +1,553 @@
+import { prisma } from '../../config/db.config.js';
+import { ApiError } from '../../utils/apiError.js';
+import { trackPosthogEvent } from '../../utils/posthog.js';
+import { ensureExists } from '../../utils/ensureExists.js';
+import { getWorkspaceIdFromProject } from '../../utils/getWorkspaceIdFromProject.js';
+import { assertTaskPermission } from './task.permission.js';
+export const createTaskService = async (input, userId) => {
+    const { taskType, projectId, title, description, assignedTo, priority, dueDate } = input;
+    if (taskType === 'PROJECT' && !projectId) {
+        throw new ApiError(400, 'projectId is required for PROJECT tasks');
+    }
+    if (taskType === 'PERSONAL' && projectId) {
+        throw new ApiError(400, 'projectId must be null for PERSONAL tasks');
+    }
+    const task = await prisma.$transaction(async (tx) => {
+        await assertTaskPermission(tx, {
+            taskType,
+            projectId: projectId ?? null,
+            createdBy: userId,
+            assignedTo,
+        }, userId, 'CREATE');
+        const assignedUser = await tx.user.findUnique({
+            where: { id: assignedTo },
+            select: { id: true, fullName: true },
+        });
+        ensureExists(assignedUser, 'Assigned user');
+        if (taskType === 'PROJECT') {
+            const membership = await tx.project_Members.findFirst({
+                where: {
+                    projectId: projectId,
+                    userId: assignedTo,
+                },
+                select: { id: true },
+            });
+            if (!membership) {
+                throw new ApiError(400, 'Assigned user must be a project member');
+            }
+        }
+        const task = await tx.tasks.create({
+            data: {
+                title: title.trim(),
+                description: description ?? null,
+                taskType,
+                projectId: projectId ?? null,
+                createdBy: userId,
+                assignedTo,
+                priority,
+                dueDate: dueDate ?? null,
+                status: 'TODO',
+            },
+            select: {
+                id: true,
+                projectId: true,
+                title: true,
+                status: true,
+                taskType: true,
+                createdAt: true,
+                creator: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+            },
+        });
+        const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx);
+        const activityProjectId = task.taskType === 'PROJECT' ? projectId : null;
+        await tx.activityLog.create({
+            data: {
+                action: 'CREATED',
+                projectId: activityProjectId ?? null,
+                workspaceId,
+                actorId: userId,
+                entityType: 'TASK',
+                entityId: task.id,
+                content: task.taskType === 'PROJECT'
+                    ? `Task "${task.title}" created by ${task.creator.fullName} and assigned to user ${assignedUser.fullName}`
+                    : `Personal task "${task.title}" created`,
+            },
+        });
+        return task;
+    });
+    trackPosthogEvent(userId, 'task_created', {
+        task_id: task.id,
+        project_id: task.projectId,
+        task_type: task.taskType,
+        priority: priority,
+        assigned_to: assignedTo,
+    });
+    return task;
+};
+export const listTasksService = async (userId, filters) => {
+    const { projectId, assignedTo, status, taskType } = filters;
+    const where = {};
+    if (!projectId) {
+        where.taskType = 'PERSONAL';
+        where.createdBy = userId;
+    }
+    else {
+        where.projectId = projectId;
+    }
+    if (assignedTo)
+        where.assignedTo = assignedTo;
+    if (status)
+        where.status = status;
+    else
+        where.status = { not: 'CANCELLED' };
+    if (taskType && projectId) {
+        where.taskType = taskType;
+    }
+    const tasks = await prisma.tasks.findMany({
+        where,
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            priority: true,
+            assignedTo: true,
+            taskType: true,
+            projectId: true,
+            dueDate: true,
+            createdBy: true,
+            assignee: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    avatarUrl: true,
+                },
+            },
+        },
+        orderBy: [{ dueDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
+    });
+    const accessibleTasks = await prisma.$transaction(async (tx) => {
+        const result = [];
+        for (const task of tasks) {
+            try {
+                await assertTaskPermission(tx, {
+                    taskType: task.taskType,
+                    projectId: task.projectId,
+                    createdBy: task.createdBy,
+                    assignedTo: task.assignedTo,
+                }, userId, 'VIEW');
+                result.push(task);
+            }
+            catch {
+                continue;
+            }
+        }
+        return result;
+    });
+    return accessibleTasks.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description ?? null,
+        taskType: task.taskType,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.dueDate,
+        assignedTo: task.assignee
+            ? {
+                id: task.assignee.id,
+                name: task.assignee.fullName,
+                avatarUrl: task.assignee.avatarUrl ?? null,
+            }
+            : null,
+    }));
+};
+export const getTaskByIdService = async (taskId, userId) => {
+    const task = await prisma.tasks.findUnique({
+        where: { id: taskId },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            taskType: true,
+            projectId: true,
+            status: true,
+            priority: true,
+            createdBy: true,
+            assignedTo: true,
+            assignee: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    avatarUrl: true,
+                },
+            },
+            createdAt: true,
+            dueDate: true,
+        },
+    });
+    ensureExists(task, 'Task');
+    await prisma.$transaction(tx => assertTaskPermission(tx, {
+        taskType: task.taskType,
+        projectId: task.projectId,
+        createdBy: task.createdBy,
+        assignedTo: task.assignedTo,
+    }, userId, 'VIEW'));
+    return {
+        ...task,
+        description: task.description ?? undefined,
+    };
+};
+export const updateTaskService = async (taskId, input, userId) => {
+    return await prisma.$transaction(async (tx) => {
+        const task = await tx.tasks.findUnique({
+            where: { id: taskId },
+            select: {
+                id: true,
+                assignedTo: true,
+                createdBy: true,
+                taskType: true,
+                projectId: true,
+                title: true,
+                description: true,
+                creator: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+                assignee: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+            },
+        });
+        ensureExists(task, 'Task');
+        await assertTaskPermission(tx, {
+            taskType: task.taskType,
+            projectId: task.projectId,
+            createdBy: task.createdBy,
+            assignedTo: task.assignedTo,
+        }, userId, 'EDIT');
+        if (input.assignedTo !== undefined && input.assignedTo !== task.assignedTo) {
+            const assignedUser = await tx.user.findUnique({
+                where: { id: input.assignedTo },
+                select: { id: true },
+            });
+            ensureExists(assignedUser, 'Assigned user');
+            if (task.taskType === 'PROJECT') {
+                const projectMember = await tx.project_Members.findFirst({
+                    where: {
+                        projectId: task.projectId,
+                        userId: input.assignedTo,
+                    },
+                    select: { id: true },
+                });
+                if (!projectMember) {
+                    throw new ApiError(400, 'Assigned user must be a project member');
+                }
+            }
+        }
+        const updatedTask = await tx.tasks.update({
+            where: { id: taskId },
+            data: {
+                ...(input.title !== undefined && { title: input.title.trim() }),
+                ...(input.description !== undefined && { description: input.description }),
+                ...(input.priority !== undefined && { priority: input.priority }),
+                ...(input.assignedTo !== undefined && { assignedTo: input.assignedTo }),
+                ...(input.dueDate !== undefined && { dueDate: input.dueDate }),
+            },
+            select: {
+                id: true,
+                title: true,
+                description: true,
+                priority: true,
+                assignedTo: true,
+                dueDate: true,
+                updatedAt: true,
+            },
+        });
+        const activityProjectId = task.taskType === 'PROJECT' ? task.projectId : null;
+        const workspaceId = await getWorkspaceIdFromProject(activityProjectId, userId, tx);
+        await tx.activityLog.create({
+            data: {
+                action: 'UPDATED',
+                projectId: activityProjectId,
+                workspaceId,
+                actorId: userId,
+                entityType: 'TASK',
+                entityId: task.id,
+                content: task.taskType === 'PROJECT'
+                    ? `Task "${task.title}" updated by ${task.creator.fullName} and assigned to ${task.assignee?.fullName ?? 'no one'}`
+                    : `Personal task "${task.title}" updated`,
+            },
+        });
+        if (input.assignedTo !== undefined && input.assignedTo !== task.assignedTo) {
+            trackPosthogEvent(userId, 'task_assigned', {
+                task_id: taskId,
+                assigned_to: input.assignedTo,
+                previous_assignee: task.assignedTo,
+            });
+        }
+        return updatedTask;
+    });
+};
+export const changeTaskStatusService = async (taskId, input, userId) => {
+    return prisma.$transaction(async (tx) => {
+        const task = await tx.tasks.findUnique({
+            where: { id: taskId },
+            select: {
+                id: true,
+                status: true,
+                taskType: true,
+                projectId: true,
+                createdBy: true,
+                assignedTo: true,
+                title: true,
+                assignee: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+                creator: {
+                    select: {
+                        fullName: true,
+                    },
+                },
+            },
+        });
+        ensureExists(task, 'Task');
+        await assertTaskPermission(tx, {
+            taskType: task.taskType,
+            projectId: task.projectId,
+            createdBy: task.createdBy,
+            assignedTo: task.assignedTo,
+        }, userId, 'CHANGE_STATUS');
+        const validTransitions = {
+            TODO: ['IN_PROGRESS'],
+            IN_PROGRESS: ['DONE'],
+            DONE: [],
+            CANCELLED: [],
+        };
+        if (!validTransitions[task.status].includes(input.status)) {
+            throw new ApiError(400, `Cannot transition from ${task.status} to ${input.status}`);
+        }
+        const updatedTask = await tx.tasks.update({
+            where: { id: taskId },
+            data: {
+                status: input.status,
+                completedAt: input.status === 'DONE' ? new Date() : null,
+            },
+            select: {
+                id: true,
+                status: true,
+                updatedAt: true,
+            },
+        });
+        const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx);
+        const activityContent = task.taskType === 'PROJECT'
+            ? `Task "${task.title}" status changed from "${task.status}" to "${input.status}" by ${task.creator.fullName}${task.assignedTo ? `, assigned to ${task.assignee?.fullName ?? 'no one'}` : ''}`
+            : `Personal task "${task.title}" status changed from "${task.status}" to "${input.status}" by ${task.creator.fullName}`;
+        await tx.activityLog.create({
+            data: {
+                action: 'UPDATED',
+                projectId: task.projectId,
+                workspaceId,
+                actorId: userId,
+                entityType: 'TASK',
+                entityId: task.id,
+                content: activityContent,
+            },
+        });
+        if (input.status === 'DONE') {
+            trackPosthogEvent(userId, 'task_completed', {
+                task_id: taskId,
+                project_id: task.projectId,
+            });
+        }
+        return updatedTask;
+    });
+};
+export const cancelTaskService = async (taskId, userId) => {
+    return prisma.$transaction(async (tx) => {
+        const task = await tx.tasks.findUnique({
+            where: { id: taskId },
+            select: {
+                id: true,
+                title: true,
+                status: true,
+                taskType: true,
+                projectId: true,
+                createdBy: true,
+                assignedTo: true,
+                creator: { select: { fullName: true } },
+                assignee: { select: { fullName: true } },
+            },
+        });
+        if (!task) {
+            throw new ApiError(404, 'Task not found');
+        }
+        await assertTaskPermission(tx, {
+            taskType: task.taskType,
+            projectId: task.projectId,
+            createdBy: task.createdBy,
+            assignedTo: task.assignedTo,
+        }, userId, 'CANCEL');
+        if (task.status === 'CANCELLED' || task.status === 'DONE') {
+            throw new ApiError(400, `Cannot cancel a ${task.status.toLowerCase()} task`);
+        }
+        const cancelledTask = await tx.tasks.update({
+            where: { id: taskId },
+            data: {
+                status: 'CANCELLED',
+                cancelledBy: userId,
+                cancelledAt: new Date(),
+            },
+            select: {
+                id: true,
+                status: true,
+                cancelledBy: true,
+                cancelledAt: true,
+            },
+        });
+        const workspaceId = await getWorkspaceIdFromProject(task.projectId, userId, tx);
+        const activityProjectId = task.taskType === 'PROJECT' ? task.projectId : null;
+        await tx.activityLog.create({
+            data: {
+                action: 'CANCELLED',
+                projectId: activityProjectId,
+                workspaceId,
+                actorId: userId,
+                entityType: 'TASK',
+                entityId: task.id,
+                content: task.taskType === 'PROJECT'
+                    ? `Task "${task.title}" was cancelled by ${task.creator.fullName}${task.assignedTo
+                        ? `, assigned to ${task.assignee?.fullName ?? 'no one'}`
+                        : ''}`
+                    : `Personal task "${task.title}" was cancelled by ${task.creator.fullName}`,
+            },
+        });
+        trackPosthogEvent(userId, 'task_cancelled', {
+            task_id: taskId,
+            project_id: task.projectId,
+        });
+        return cancelledTask;
+    });
+};
+export const listWorkspaceAssignedTasksService = async (workspaceId, userId) => {
+    const projectTasks = await prisma.tasks.findMany({
+        where: {
+            assignedTo: userId,
+            status: { not: 'CANCELLED' },
+            project: {
+                workspaceId,
+            },
+        },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            priority: true,
+            taskType: true,
+            dueDate: true,
+            projectId: true,
+            createdBy: true,
+            assignedTo: true,
+            project: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            assignee: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    avatarUrl: true,
+                },
+            },
+        },
+        orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
+    });
+    const personalTasks = await prisma.tasks.findMany({
+        where: {
+            assignedTo: userId,
+            status: { not: 'CANCELLED' },
+            taskType: 'PERSONAL',
+            projectId: null,
+        },
+        select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            priority: true,
+            taskType: true,
+            dueDate: true,
+            projectId: true,
+            createdBy: true,
+            assignedTo: true,
+            project: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            assignee: {
+                select: {
+                    id: true,
+                    fullName: true,
+                    avatarUrl: true,
+                },
+            },
+        },
+        orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
+    });
+    const allTasks = [...projectTasks, ...personalTasks];
+    const accessibleTasks = await prisma.$transaction(async (tx) => {
+        const result = [];
+        for (const task of allTasks) {
+            try {
+                await assertTaskPermission(tx, {
+                    taskType: task.taskType,
+                    projectId: task.projectId,
+                    createdBy: task.createdBy,
+                    assignedTo: task.assignedTo,
+                }, userId, 'VIEW');
+                result.push(task);
+            }
+            catch {
+                continue;
+            }
+        }
+        return result;
+    });
+    const formattedTasks = accessibleTasks.map(task => ({
+        id: task.id,
+        title: task.title,
+        description: task.description ?? null,
+        status: task.status,
+        priority: task.priority,
+        dueDate: task.dueDate,
+        taskType: task.taskType,
+        project: task.project
+            ? {
+                id: task.project.id,
+                name: task.project.name,
+            }
+            : null,
+        assignedTo: task.assignee
+            ? {
+                id: task.assignee.id,
+                name: task.assignee.fullName,
+                avatarUrl: task.assignee.avatarUrl ?? null,
+            }
+            : null,
+    }));
+    return formattedTasks;
+};
+//# sourceMappingURL=task.service.js.map

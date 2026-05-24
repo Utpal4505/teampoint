@@ -1,0 +1,112 @@
+import { prisma } from '../../config/db.config.js';
+import { sendDiscordAlert } from '../../services/discord.service.js';
+import { ensureExists } from '../../utils/ensureExists.js';
+import { eventBus } from '../../utils/eventBus.js';
+import { createGithubIssue, severityScoreBar } from '../../utils/github.js';
+import { enrichBugWithAI } from './ai/bugEnricher.service.js';
+import { extractPath } from './ai/prompts.js';
+export const processBugReport = async (bugReportId, userId) => {
+    const bug = await prisma.bugReport.findUnique({
+        where: {
+            id: bugReportId,
+        },
+    });
+    ensureExists(bug, 'BugReport');
+    try {
+        await prisma.bugReport.update({
+            where: { id: bugReportId },
+            data: { status: 'PROCESSING' },
+        });
+        const aiData = await enrichBugWithAI({
+            title: bug.title,
+            description: bug.description,
+            page: bug.page,
+            apiRoute: bug.apiRoute,
+            consoleLog: bug.consoleLog,
+            stepToReproduce: bug.stepToReproduce,
+            metadata: bug.metadata,
+        });
+        await prisma.bugReport.update({
+            where: { id: bugReportId },
+            data: {
+                severityLevel: aiData.severityLevel,
+                severityScore: aiData.severityScore,
+                aiSummary: aiData.aiSummary,
+                aiTags: aiData.aiTags,
+                status: 'AI_PROCESSED',
+            },
+        });
+        eventBus.emit('BUG_AI_PROCESSED', bugReportId, userId);
+    }
+    catch (error) {
+        console.error(`Failed to process bug report #${bugReportId}:`, error);
+        await prisma.bugReport.update({
+            where: { id: bugReportId },
+            data: { status: 'FAILED', processEndTime: new Date() },
+        });
+    }
+};
+export const processBugAIReport = async (bugReportId, userId) => {
+    const bug = await prisma.bugReport.findUnique({
+        where: {
+            id: bugReportId,
+        },
+    });
+    ensureExists(bug, 'BugReport');
+    try {
+        const issue = await createGithubIssue({
+            title: bug.title,
+            description: bug.description ?? undefined,
+            page: bug.page ?? undefined,
+            apiRoute: bug.apiRoute ?? undefined,
+            consoleLog: bug.consoleLog ?? undefined,
+            severityLevel: bug.severityLevel,
+            metadata: bug.metadata ?? undefined,
+            reportedBy: userId,
+            stepsToReproduce: bug.stepToReproduce ?? undefined,
+        }, bug.reportCount, bug.fingerprint, {
+            severityLevel: bug.severityLevel,
+            severityScore: bug.severityScore ?? 0,
+            aiSummary: bug.aiSummary ?? '',
+            aiTags: bug.aiTags ?? [],
+        });
+        await prisma.bugReport.update({
+            where: { id: bugReportId },
+            data: {
+                status: 'GITHUB_CREATED',
+                githubIssueUrl: issue.html_url,
+                processEndTime: new Date(),
+            },
+        });
+        await sendDiscordAlert({
+            webhookKey: 'alerts',
+            color: bug.severityLevel,
+            title: `🐛 [${bug.severityLevel}] ${bug.title}`,
+            ...(bug.aiSummary || bug.description
+                ? { description: bug.aiSummary ?? bug.description ?? '' }
+                : {}),
+            fields: [
+                {
+                    name: '📊 Score',
+                    value: `\`${severityScoreBar(bug.severityScore ?? 0)}\``,
+                    inline: true,
+                },
+                {
+                    name: '🏷️ Tags',
+                    value: bug.aiTags?.map(t => `\`${t}\``).join(' ') || 'N/A',
+                    inline: true,
+                },
+                { name: '📄 Page', value: extractPath(bug.page), inline: true },
+                { name: '🔗 GitHub', value: `[View Issue](${issue.html_url})`, inline: false },
+            ],
+        });
+    }
+    catch (error) {
+        console.error(`Bug AI enrichment failed #${bugReportId}:`, error);
+        await prisma.bugReport.update({
+            where: { id: bugReportId },
+            data: { status: 'FAILED', processEndTime: new Date() },
+        });
+    }
+};
+//# sourceMappingURL=bug-report.processor.js.map
