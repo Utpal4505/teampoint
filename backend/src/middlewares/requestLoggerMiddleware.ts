@@ -14,6 +14,6 @@ export const requestLoggerMiddleware = (
       query: req.query,
       body: req.body,
     })
-    next()
   }
+  next()
 }

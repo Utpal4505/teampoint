@@ -8,7 +8,7 @@ export const requestLoggerMiddleware = (req, _res, next) => {
             query: req.query,
             body: req.body,
         });
-        next();
     }
+    next();
 };
 //# sourceMappingURL=requestLoggerMiddleware.js.map
