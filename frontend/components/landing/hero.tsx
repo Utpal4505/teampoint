@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 
 const BOARD_TASKS = [
   {
-    status: 'Next',
+    status: 'To Do',
     items: [
       {
         title: 'Finalize beta onboarding',
@@ -32,7 +32,7 @@ const BOARD_TASKS = [
     ],
   },
   {
-    status: 'Doing',
+    status: 'In Progress',
     items: [
       {
         title: 'Convert meeting notes into tasks',
@@ -90,15 +90,15 @@ export function ProductPreview() {
       <div className="h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
       <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Target size={16} />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md">
+            <img src="/favicon.svg" alt="TeamPoint" className="h-5 w-5 object-contain" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Product Sprint</p>
             <p className="text-[11px] text-muted-foreground">
               Tasks, decisions, meetings
             </p>
-          </div>
+          </div>{' '}
         </div>
         <div className="hidden items-center gap-2 sm:flex">
           <span className="rounded-md border border-emerald-400/20 bg-emerald-400/10 px-2 py-1 text-[11px] font-medium text-emerald-300">
@@ -214,9 +214,7 @@ export function Hero() {
           <div className="space-y-5">
             <h1 className="max-w-[600px] font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
               Stop managing work.{' '}
-              <span className="text-foreground font-medium">
-                Start finishing it.
-              </span>
+              <span className="text-foreground font-medium">Start finishing it.</span>
             </h1>
             <p className="max-w-lg text-lg leading-8 text-muted-foreground">
               TeamPoint helps small startup and dev teams keep tasks, discussions, and
