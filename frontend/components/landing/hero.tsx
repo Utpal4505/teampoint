@@ -91,7 +91,7 @@ export function ProductPreview() {
       <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.03] px-4 py-3">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-md">
-            <img src="/favicon.svg" alt="TeamPoint" className="h-5 w-5 object-contain" />
+            <img src="/logo-dot-teampoint.svg" alt="TeamPoint" className="h-7 w-7 object-contain" />
           </div>
           <div>
             <p className="text-sm font-semibold text-foreground">Product Sprint</p>
