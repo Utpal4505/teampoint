@@ -198,15 +198,15 @@
 
   model User {
     id       Int    @id @default(autoincrement())
-    fullName String @db.VarChar(100)
-    email    String @unique @db.VarChar(150)
+    fullName String 
+    email    String @unique @db.VarChar(255)
 
     status UserStatus @default(ACTIVE)
     is_new Boolean
 
     avatarUploadId Int?    @unique
     avatarUpload   Upload? @relation(fields: [avatarUploadId], references: [id])
-    avatarUrl      String? @db.VarChar(500)
+    avatarUrl      String? 
 
     created_at DateTime  @default(now())
     updated_at DateTime  @updatedAt
