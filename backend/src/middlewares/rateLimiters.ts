@@ -1,14 +1,20 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit'
 import { env } from '../config/env.js'
-import type { RequestHandler } from 'express'
+import type { Request, RequestHandler } from 'express'
 
 const skipLimiter: RequestHandler = (_req, _res, next) => next()
+
+const userOrIpKey = (req: Request) => {
+  if (req.user?.id !== undefined) {
+    return `user_${req.user.id}`
+  }
+  return ipKeyGenerator(req.ip ?? '0.0.0.0')
+}
 
 const createLimiter = (options: Parameters<typeof rateLimit>[0]) => {
   if (!env.ENABLE_RATE_LIMIT || process.env.NODE_ENV === 'test') {
     return skipLimiter
   }
-
   return rateLimit(options)
 }
 
@@ -18,6 +24,7 @@ export const globalLimiter = createLimiter({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
 })
 
 export const authLimiter = createLimiter({
@@ -43,6 +50,7 @@ export const uploadLimiter = createLimiter({
   message: 'Too many uploads, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
 })
 
 export const apiLimiter = createLimiter({
@@ -51,13 +59,7 @@ export const apiLimiter = createLimiter({
   message: 'Too many requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: req => {
-    if (req.user?.id !== undefined) {
-      return String(req.user.id)
-    }
-
-    return ipKeyGenerator(req.ip ?? '0.0.0.0')
-  },
+  keyGenerator: userOrIpKey,
 })
 
 export const integrationLimiter = createLimiter({
@@ -66,6 +68,7 @@ export const integrationLimiter = createLimiter({
   message: 'Too many integration requests, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
 })
 
 export const refreshTokenLimiter = createLimiter({
@@ -74,4 +77,5 @@ export const refreshTokenLimiter = createLimiter({
   message: 'Too many token refresh attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
 })
