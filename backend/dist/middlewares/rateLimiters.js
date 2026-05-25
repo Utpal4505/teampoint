@@ -28,6 +28,7 @@ export const authLimiter = createLimiter({
     standardHeaders: true,
     legacyHeaders: false,
     skipSuccessfulRequests: true,
+    keyGenerator: userOrIpKey,
 });
 export const loginLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
@@ -35,6 +36,7 @@ export const loginLimiter = createLimiter({
     message: 'Too many login attempts, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userOrIpKey,
 });
 export const uploadLimiter = createLimiter({
     windowMs: 10 * 60 * 1000,
