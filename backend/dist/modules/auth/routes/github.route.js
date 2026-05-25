@@ -10,39 +10,39 @@ import { env } from '../../../config/env.js';
 import { assertUser } from '../../../utils/assertUser.js';
 const router = Router();
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
-router.get('/github/callback', passport.authenticate('github', {
-    failureRedirect: '/login',
-    session: false,
-}), asyncHandler(async (req, res) => {
+router.get('/github/callback', (req, res, next) => {
+    passport.authenticate('github', { session: false }, (err, user, info) => {
+        if (err || !user) {
+            console.error('GitHub OAuth Error:', err?.message || info);
+            return res.redirect(`${env.CLIENT_URL}/login?error=github_auth_failed`);
+        }
+        req.user = user;
+        next();
+    })(req, res, next);
+}, asyncHandler(async (req, res) => {
     assertUser(req.user);
     const user = req.user;
     if (!user)
         throw new ApiError(401, 'User not authenticated');
     const userId = user?.id;
     await prisma.refreshToken.deleteMany({
-        where: {
-            userId: userId,
-            provider: 'GITHUB',
-        },
+        where: { userId, provider: 'GITHUB' },
     });
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(userId);
     const refreshTokenHash = await bcrypt.hash(refreshToken, 10);
     await prisma.refreshToken.create({
         data: {
-            userId: userId,
+            userId,
             provider: 'GITHUB',
             tokenHash: refreshTokenHash,
             expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         },
     });
-    trackPosthogEvent(userId, 'user_logged_in', {
-        auth_provider: 'GITHUB',
-    });
-    const redirectUrl = `${env.CLIENT_URL}/auth-callback`;
+    trackPosthogEvent(userId, 'user_logged_in', { auth_provider: 'GITHUB' });
     return res
         .cookie('accessToken', accessToken, accessTokenCookieOptions)
         .cookie('refreshToken', refreshToken, refreshTokenCookieOptions)
-        .redirect(redirectUrl);
+        .redirect(`${env.CLIENT_URL}/auth-callback`);
 }));
 export default router;
 //# sourceMappingURL=github.route.js.map

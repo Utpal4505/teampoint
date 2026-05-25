@@ -1,6 +1,12 @@
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import { env } from '../config/env.js';
 const skipLimiter = (_req, _res, next) => next();
+const userOrIpKey = (req) => {
+    if (req.user?.id !== undefined) {
+        return `user_${req.user.id}`;
+    }
+    return ipKeyGenerator(req.ip ?? '0.0.0.0');
+};
 const createLimiter = (options) => {
     if (!env.ENABLE_RATE_LIMIT || process.env.NODE_ENV === 'test') {
         return skipLimiter;
@@ -13,6 +19,7 @@ export const globalLimiter = createLimiter({
     message: 'Too many requests from this IP, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userOrIpKey,
 });
 export const authLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
@@ -35,6 +42,7 @@ export const uploadLimiter = createLimiter({
     message: 'Too many uploads, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userOrIpKey,
 });
 export const apiLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
@@ -42,12 +50,7 @@ export const apiLimiter = createLimiter({
     message: 'Too many requests, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
-    keyGenerator: req => {
-        if (req.user?.id !== undefined) {
-            return String(req.user.id);
-        }
-        return ipKeyGenerator(req.ip ?? '0.0.0.0');
-    },
+    keyGenerator: userOrIpKey,
 });
 export const integrationLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
@@ -55,6 +58,7 @@ export const integrationLimiter = createLimiter({
     message: 'Too many integration requests, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userOrIpKey,
 });
 export const refreshTokenLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,
@@ -62,5 +66,6 @@ export const refreshTokenLimiter = createLimiter({
     message: 'Too many token refresh attempts, please try again later.',
     standardHeaders: true,
     legacyHeaders: false,
+    keyGenerator: userOrIpKey,
 });
 //# sourceMappingURL=rateLimiters.js.map

@@ -282,9 +282,10 @@ export async function createSampleProject(input) {
                 content: 'Not sure about notifications yet, maybe skip for now?',
             },
         });
+        const fileKey = `Sample/${project.id}/Project-brief.pdf`;
         const upload = await tx.upload.create({
             data: {
-                fileKey: 'Sample/Project-brief.pdf',
+                fileKey: fileKey,
                 fileName: 'Project-brief.pdf',
                 category: 'DOCUMENT',
                 contextId: project.id,
