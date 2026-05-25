@@ -34,6 +34,7 @@ export const authLimiter = createLimiter({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: true,
+  keyGenerator: userOrIpKey,
 })
 
 export const loginLimiter = createLimiter({
@@ -42,6 +43,7 @@ export const loginLimiter = createLimiter({
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: userOrIpKey,
 })
 
 export const uploadLimiter = createLimiter({
