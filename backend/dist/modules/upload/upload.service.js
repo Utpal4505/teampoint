@@ -78,7 +78,7 @@ export const directUploadService = async (input, fileBuffer, userId) => {
         contentType,
         fileSize,
     }, fileBuffer);
-    const uploadStatus = category === 'DOCUMENT' ? 'UPLOADED' : 'PENDING';
+    const uploadStatus = category === 'AVATAR' ? 'PENDING' : 'UPLOADED';
     const upload = await prisma.upload.create({
         data: {
             category,

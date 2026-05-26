@@ -1,12 +1,16 @@
 'use client'
 
-import { useRef, useImperativeHandle, forwardRef } from 'react'
+import { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react'
 import { useForm, Controller, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Bug, Upload, AlertTriangle, Loader2, Plus, X } from 'lucide-react'
 import { Label, Input, Textarea, FieldError } from './formElements'
 import MetadataPreview from './metadataPreview'
-import { bugSchema, SEVERITY_CONFIG } from '@/features/feedback/types'
+import {
+  bugSchema,
+  BUG_ATTACHMENT_LIMITS,
+  SEVERITY_CONFIG,
+} from '@/features/feedback/types'
 import type { BugFormData, Severity } from '@/features/feedback/types'
 
 export interface BugFormHandle {
@@ -16,6 +20,45 @@ export interface BugFormHandle {
 interface BugFormProps {
   onSubmit: (data: BugFormData) => Promise<void>
   loading: boolean
+}
+
+function BugImagePreview({
+  file,
+  index,
+  disabled,
+  onRemove,
+}: {
+  file: File
+  index: number
+  disabled: boolean
+  onRemove: (index: number) => void
+}) {
+  const [previewUrl] = useState(() => URL.createObjectURL(file))
+
+  useEffect(() => {
+    return () => URL.revokeObjectURL(previewUrl)
+  }, [previewUrl])
+
+  return (
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-muted/30">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={previewUrl} alt={file.name} className="aspect-video w-full object-cover" />
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        disabled={disabled}
+        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center
+          rounded-md bg-background/90 text-muted-foreground shadow-sm
+          transition-colors hover:text-destructive disabled:cursor-not-allowed disabled:opacity-50"
+        aria-label={`Remove ${file.name}`}
+      >
+        <X size={12} />
+      </button>
+      <div className="truncate border-t border-border bg-background/90 px-2 py-1.5 text-[10px] text-muted-foreground">
+        {file.name}
+      </div>
+    </div>
+  )
 }
 
 const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
@@ -44,7 +87,6 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
   useImperativeHandle(ref, () => ({ reset }))
 
   const severityLevel = useWatch({ control, name: 'severityLevel' })
-  // const attachments = useWatch({ control, name: 'attachments' }) ?? []
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
@@ -99,6 +141,102 @@ const BugForm = forwardRef<BugFormHandle, BugFormProps>(function BugForm(
             </div>
           )}
         />
+      </div>
+
+      {/* Optional images */}
+      <div>
+        <Label>Images</Label>
+        <Controller
+          name="attachments"
+          control={control}
+          render={({ field }) => {
+            const currentFiles = field.value ?? []
+            const hasReachedLimit =
+              currentFiles.length >= BUG_ATTACHMENT_LIMITS.maxFiles
+
+            const addFiles = (fileList: FileList | File[]) => {
+              const incoming = Array.from(fileList).filter(file =>
+                (BUG_ATTACHMENT_LIMITS.acceptedTypes as readonly string[]).includes(
+                  file.type,
+                ),
+              )
+              const filesByKey = new Map(
+                [...currentFiles, ...incoming].map(file => [
+                  `${file.name}-${file.size}-${file.lastModified}`,
+                  file,
+                ]),
+              )
+              field.onChange(
+                Array.from(filesByKey.values()).slice(
+                  0,
+                  BUG_ATTACHMENT_LIMITS.maxFiles,
+                ),
+              )
+            }
+
+            const removeFile = (index: number) => {
+              field.onChange(currentFiles.filter((_, fileIndex) => fileIndex !== index))
+            }
+
+            return (
+              <div className="space-y-3">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept={BUG_ATTACHMENT_LIMITS.acceptedTypes.join(',')}
+                  multiple
+                  className="hidden"
+                  onChange={e => {
+                    if (e.target.files) addFiles(e.target.files)
+                    e.currentTarget.value = ''
+                  }}
+                />
+
+                <button
+                  type="button"
+                  disabled={hasReachedLimit || loading}
+                  onClick={() => fileRef.current?.click()}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={e => {
+                    e.preventDefault()
+                    if (!hasReachedLimit) addFiles(e.dataTransfer.files)
+                  }}
+                  className="flex min-h-24 w-full flex-col items-center justify-center gap-2
+                    rounded-xl border border-dashed border-border bg-muted/25 px-4 py-4
+                    text-center transition-all duration-150
+                    hover:border-ring hover:bg-muted/40
+                    disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-background text-muted-foreground">
+                    <Upload size={15} />
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    Add optional screenshots
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    JPG, PNG, WebP, or GIF. Up to {BUG_ATTACHMENT_LIMITS.maxFiles}{' '}
+                    images, 4MB each.
+                  </span>
+                </button>
+
+                {currentFiles.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {currentFiles.map((file, index) => (
+                      <BugImagePreview
+                        key={`${file.name}-${file.size}-${file.lastModified}`}
+                        file={file}
+                        index={index}
+                        disabled={loading}
+                        onRemove={removeFile}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          }}
+        />
+        <FieldError message={errors.attachments?.message} />
       </div>
 
       {/* Steps to reproduce — improved UI */}

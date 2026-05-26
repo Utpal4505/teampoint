@@ -52,6 +52,13 @@ export enum AvatarContentType {
   GIF = 'image/gif',
 }
 
+export enum BugAttachmentContentType {
+  JPEG = 'image/jpeg',
+  PNG = 'image/png',
+  WEBP = 'image/webp',
+  GIF = 'image/gif',
+}
+
 export enum DocumentContentType {
   PDF = 'application/pdf',
   DOC = 'application/msword',

@@ -5,6 +5,13 @@ export var AvatarContentType;
     AvatarContentType["WEBP"] = "image/webp";
     AvatarContentType["GIF"] = "image/gif";
 })(AvatarContentType || (AvatarContentType = {}));
+export var BugAttachmentContentType;
+(function (BugAttachmentContentType) {
+    BugAttachmentContentType["JPEG"] = "image/jpeg";
+    BugAttachmentContentType["PNG"] = "image/png";
+    BugAttachmentContentType["WEBP"] = "image/webp";
+    BugAttachmentContentType["GIF"] = "image/gif";
+})(BugAttachmentContentType || (BugAttachmentContentType = {}));
 export var DocumentContentType;
 (function (DocumentContentType) {
     DocumentContentType["PDF"] = "application/pdf";

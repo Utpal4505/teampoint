@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type {
   BugReportStatusEnum,
+  BugAttachmentSchema,
   createBugReportSchema,
   SeverityLevelEnum,
   updateBugReportStatusSchema,
@@ -9,6 +10,7 @@ import type {
 
 export type BugReportStatus = z.infer<typeof BugReportStatusEnum>
 export type SeverityLevel = z.infer<typeof SeverityLevelEnum>
+export type BugAttachment = z.infer<typeof BugAttachmentSchema>
 export type CreateBugReport = z.infer<typeof createBugReportSchema>
 export type UpdateBugReportStatus = z.infer<typeof updateBugReportStatusSchema>
 export type UpdateBugReportSeverity = z.infer<typeof updateBugReportSeveritySchema>

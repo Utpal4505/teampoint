@@ -12,6 +12,14 @@ export const BugReportStatusEnum = z.enum([
 
 export const SeverityLevelEnum = z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'])
 
+export const BugAttachmentSchema = z.object({
+  uploadId: z.number().int().positive(),
+  fileKey: z.string().min(1),
+  fileName: z.string().min(1).max(100),
+  contentType: z.enum(['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
+  size: z.number().int().positive().max(4 * 1024 * 1024),
+})
+
 export const createBugReportSchema = z.object({
   projectId: z.number().optional(),
   page: z.string().optional(),
@@ -19,7 +27,7 @@ export const createBugReportSchema = z.object({
   description: z.string().min(1, 'Description is required').optional(),
   consoleLog: z.string().optional(),
   apiRoute: z.string().optional(),
-  attachments: z.any().optional(),
+  attachments: z.array(BugAttachmentSchema).max(3).optional(),
   metadata: z.any().optional(),
   severityLevel: SeverityLevelEnum.optional(),
   stepsToReproduce: z.string().optional(),

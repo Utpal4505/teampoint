@@ -3,7 +3,7 @@ import { MessageSquare } from 'lucide-react'
 
 export function LoginNavbar() {
   return (
-    <nav className="absolute top-0 inset-x-0 z-10 flex items-center justify-end px-6 py-4">
+    <nav className="absolute bottom-4 right-4 z-10 flex items-center justify-end px-6 py-4">
       <Link
         href="/feedback"
         className="flex items-center gap-2 rounded-xl border border-border bg-card/60

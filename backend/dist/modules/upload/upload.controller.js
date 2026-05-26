@@ -32,13 +32,18 @@ export const directUploadController = asyncHandler(async (req, res) => {
     if (!category || !contextId || !fileName || !contentType) {
         throw new ApiError(400, 'Missing required fields: category, contextId, fileName, contentType');
     }
-    const response = await directUploadService({
+    const inputResult = UploadRequestSchema.safeParse({
         category,
         contextId: Number(contextId),
         fileName,
         contentType,
         fileSize: req.file.size,
-    }, req.file.buffer, req.user.id);
+    });
+    if (!inputResult.success) {
+        throw new ApiError(400, inputResult.error.issues[0]?.message || 'Invalid upload data');
+    }
+    const input = inputResult.data;
+    const response = await directUploadService(input, req.file.buffer, req.user.id);
     return res
         .status(201)
         .json(new ApiResponse(201, 'File uploaded successfully', response));

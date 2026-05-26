@@ -3,12 +3,36 @@ import type { Metadata } from '@/lib/feedback-metadata'
 
 // ─── Zod Schemas ──────────────────────────────────────────────────────────────
 
+export const BUG_ATTACHMENT_LIMITS = {
+  maxFiles: 3,
+  maxSize: 4 * 1024 * 1024,
+  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+} as const
+
+const imageFileSchema = z
+  .custom<File>(file => typeof File !== 'undefined' && file instanceof File, {
+    message: 'Please select an image file',
+  })
+  .refine(
+    file =>
+      (BUG_ATTACHMENT_LIMITS.acceptedTypes as readonly string[]).includes(file.type),
+    {
+      message: 'Only JPG, PNG, WebP, or GIF images are supported',
+    },
+  )
+  .refine(file => file.size <= BUG_ATTACHMENT_LIMITS.maxSize, {
+    message: 'Each image must be 4MB or smaller',
+  })
+
 export const bugSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   severityLevel: z.enum(['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']),
   stepsToReproduce: z.string().optional(),
-  attachments: z.array(z.instanceof(File)).optional(),
+  attachments: z
+    .array(imageFileSchema)
+    .max(BUG_ATTACHMENT_LIMITS.maxFiles, 'You can attach up to 3 images')
+    .optional(),
 })
 
 export const feedbackSchema = z.object({
@@ -68,7 +92,14 @@ export const SEVERITY_CONFIG: Record<
     dot: 'bg-red-400',
   },
 }
-// import type { CapturedError } from '@/lib/feedback-consoleError'
+
+export interface BugAttachment {
+  uploadId: number
+  fileKey: string
+  fileName: string
+  contentType: (typeof BUG_ATTACHMENT_LIMITS.acceptedTypes)[number]
+  size: number
+}
 
 export interface BugReportPayload {
   projectId?: number
@@ -77,7 +108,7 @@ export interface BugReportPayload {
   description?: string
   consoleLog?: string
   apiRoute?: string
-  attachments?: File[]
+  attachments?: BugAttachment[]
   metadata?: Metadata
   severityLevel?: Severity
   stepsToReproduce?: string

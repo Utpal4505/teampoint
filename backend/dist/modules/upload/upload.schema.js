@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { sanitizeText } from '../../utils/sanitize.js';
-import { AvatarContentType, DocumentContentType } from '../../types/upload.types.js';
+import { AvatarContentType, BugAttachmentContentType, DocumentContentType, } from '../../types/upload.types.js';
 export const UploadRequestSchema = z.object({
     category: z.enum(['AVATAR', 'DOCUMENT', 'BUG_ATTACHMENT']),
     contextId: z.number().int().positive().transform(Number),
@@ -12,6 +12,7 @@ export const UploadRequestSchema = z.object({
         .transform(sanitizeText),
     contentType: z.union([
         z.nativeEnum(AvatarContentType),
+        z.nativeEnum(BugAttachmentContentType),
         z.nativeEnum(DocumentContentType),
     ]),
     fileSize: z

@@ -53,17 +53,24 @@ export const directUploadController = asyncHandler(async (req, res) => {
     )
   }
 
-  const response = await directUploadService(
-    {
-      category,
-      contextId: Number(contextId),
-      fileName,
-      contentType,
-      fileSize: req.file.size,
-    },
-    req.file.buffer,
-    req.user.id,
-  )
+  const inputResult = UploadRequestSchema.safeParse({
+    category,
+    contextId: Number(contextId),
+    fileName,
+    contentType,
+    fileSize: req.file.size,
+  })
+
+  if (!inputResult.success) {
+    throw new ApiError(
+      400,
+      inputResult.error.issues[0]?.message || 'Invalid upload data',
+    )
+  }
+
+  const input = inputResult.data
+
+  const response = await directUploadService(input, req.file.buffer, req.user.id)
 
   return res
     .status(201)

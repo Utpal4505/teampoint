@@ -3,9 +3,11 @@ import type { BugFormData } from './types'
 import type { FeedbackFormData } from '@/components/feedback/feedbackForm'
 import { collectMetadata } from '@/lib/feedback-metadata'
 import { clearConsoleErrors, getConsoleErrors } from '@/lib/feedback-consoleError'
-import { submitBugReport, submitFeedback } from './api'
+import { submitBugReport, submitFeedback, uploadBugAttachment } from './api'
 import { toast } from 'sonner'
 import { handleApiError } from '@/lib/handle-api-error'
+import { useUserStore } from '@/store/user.store'
+import axios from 'axios'
 
 interface UseBugReportOptions {
   projectId?: number
@@ -17,6 +19,19 @@ export const useBugReport = ({ projectId, onSuccess }: UseBugReportOptions = {})
     mutationFn: async (formData: BugFormData) => {
       const meta = collectMetadata()
       const capturedErrors = getConsoleErrors()
+      const attachments = formData.attachments?.length
+        ? await Promise.all(
+            formData.attachments.map(file => {
+              const contextId = projectId ?? useUserStore.getState().user?.id
+
+              if (!contextId) {
+                throw new Error('Please login before uploading bug images')
+              }
+
+              return uploadBugAttachment(contextId, file)
+            }),
+          )
+        : undefined
 
       return submitBugReport({
         projectId,
@@ -25,6 +40,7 @@ export const useBugReport = ({ projectId, onSuccess }: UseBugReportOptions = {})
         description: formData.description,
         severityLevel: formData.severityLevel,
         stepsToReproduce: formData.stepsToReproduce,
+        attachments,
         metadata: meta,
         consoleLog:
           capturedErrors.length > 0
@@ -46,7 +62,14 @@ export const useBugReport = ({ projectId, onSuccess }: UseBugReportOptions = {})
       })
       onSuccess?.(res.githubIssueUrl)
     },
-    onError: handleApiError,
+    onError: error => {
+      if (error instanceof Error && !axios.isAxiosError(error)) {
+        toast.error(error.message)
+        return
+      }
+
+      handleApiError(error)
+    },
   })
 }
 
