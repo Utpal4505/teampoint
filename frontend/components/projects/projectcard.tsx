@@ -18,6 +18,7 @@ import {
 interface ProjectCardProps {
   project: Project
   onClick: (project: Project) => void
+  tourId?: string
 }
 
 function getInitials(name: string) {
@@ -125,7 +126,7 @@ function ProjectMenu({ onStop }: { onStop: (e: React.MouseEvent) => void }) {
           shadow-[0_12px_40px_oklch(0_0_0/0.5)]
           animate-in fade-in-0 zoom-in-95 duration-150 origin-top-right"
         >
-          {items.map((item, i) => (
+          {items.map(item => (
             <div key={item.label}>
               {item.danger && <div className="mx-2 my-1 h-px bg-border/60" />}
               <button
@@ -152,8 +153,7 @@ function ProjectMenu({ onStop }: { onStop: (e: React.MouseEvent) => void }) {
   )
 }
 
-export default function ProjectCard({ project, onClick }: ProjectCardProps) {
-  console.log("project", project)
+export default function ProjectCard({ project, onClick, tourId }: ProjectCardProps) {
   const cfg = STATUS_CONFIG[project.status] ?? STATUS_CONFIG['ACTIVE']
   const pct =
     project.totalTasks > 0
@@ -165,6 +165,7 @@ export default function ProjectCard({ project, onClick }: ProjectCardProps) {
 
   return (
     <div
+      data-tour={tourId}
       onClick={() => onClick(project)}
       className="group relative flex flex-col rounded-2xl border border-border bg-card
         cursor-pointer transition-all duration-200

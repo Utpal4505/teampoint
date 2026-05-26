@@ -65,7 +65,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip="Projects">
-                <Link href={`/workspace/${activeWorkspaceId}/projects`}>
+                <Link
+                  href={`/workspace/${activeWorkspaceId}/projects`}
+                  data-tour="sidebar-projects"
+                >
                   <FolderKanban />
                   <span>Projects</span>
                 </Link>

@@ -27,7 +27,12 @@ export function NavMain({
         {items.map((item) => (
           <SidebarMenuItem key={item.title}>
             <SidebarMenuButton asChild tooltip={item.title} isActive={item.isActive}>
-              <Link href={item.url}>
+              <Link
+                href={item.url}
+                data-tour={
+                  item.title === 'My Tasks' ? 'sidebar-my-tasks' : undefined
+                }
+              >
                 {item.icon}
                 <span>{item.title}</span>
               </Link>
