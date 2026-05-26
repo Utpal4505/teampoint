@@ -12,7 +12,7 @@ export function AuthLogo({
   return (
     <div className="flex flex-col items-center gap-2">
       <Image
-        src="/favicon.svg"
+        src="/logo-dot-teampoint.svg"
         alt={appName}
         width={48}
         height={48}
