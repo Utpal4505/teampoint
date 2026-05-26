@@ -12,7 +12,10 @@ import {
   OnboardingTextarea,
 } from '@/components/onboarding'
 import { onboardUser } from '@/features/users/api'
+import type { User } from '@/features/users/types'
+import type { ListUserWorkspacesDTO } from '@/features/workspace/types'
 import { handleApiError } from '@/lib/handle-api-error'
+import { useWorkspaceStore } from '@/store/workspace.store'
 import { useQueryClient } from '@tanstack/react-query'
 
 const STEPS = [{ label: 'Workspace' }, { label: 'Invite' }, { label: 'Done' }]
@@ -29,6 +32,7 @@ interface FormErrors {
 export default function OnboardingStep1() {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const setCurrentWorkspace = useWorkspaceStore(state => state.setCurrentWorkspace)
   const [form, setForm] = useState<FormState>({ name: '', description: '' })
   const [errors, setErrors] = useState<FormErrors>({})
   const [loading, setLoading] = useState(false)
@@ -61,13 +65,46 @@ export default function OnboardingStep1() {
         description: form.description,
       })
 
-      queryClient.setQueryData(['workspace', 'detail', res.workspaceId], res)
+      const workspaceId = res.workspaceId
+      const now = new Date()
+      const workspaceName = form.name.trim()
+      const workspaceDescription = form.description.trim() || null
+
+      setCurrentWorkspace(workspaceId)
+
+      queryClient.setQueryData<User | undefined>(['current-user'], user =>
+        user ? { ...user, is_new: false } : user,
+      )
+
+      queryClient.setQueryData<ListUserWorkspacesDTO>(
+        ['workspaces', 'list'],
+        current => {
+          const existing = current ?? []
+
+          if (existing.some(workspace => workspace.id === workspaceId)) {
+            return existing
+          }
+
+          return [
+            ...existing,
+            {
+              id: workspaceId,
+              name: workspaceName,
+              description: workspaceDescription,
+              status: 'ACTIVE',
+              role: 'OWNER',
+              joinedAt: now,
+              createdAt: now,
+            },
+          ]
+        },
+      )
 
       queryClient.invalidateQueries({
-        queryKey: ['user-workspaces'],
+        queryKey: ['workspaces', 'list'],
       })
 
-      router.push(`/onboarding/step-2?workspaceId=${res.workspaceId}`)
+      router.push(`/onboarding/step-2?workspaceId=${workspaceId}`)
     } catch (error) {
       handleApiError(error)
     } finally {

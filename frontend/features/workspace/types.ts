@@ -1,4 +1,4 @@
-export type WorkspaceRole = 'ADMIN' | 'MEMBER'
+export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
 export type WorkspaceStatus = 'ACTIVE' | 'ARCHIVED' | 'DELETED'
 
 export type SendInviteDTO = {

@@ -3,7 +3,10 @@
 import { ReactNode } from 'react'
 import { useParams } from 'next/navigation'
 import { AppSidebar } from '@/components/app-sidebar'
-import { useListUserWorkspaces } from '@/features/workspace/hooks'
+import {
+  useFetchWorkspaceById,
+  useListUserWorkspaces,
+} from '@/features/workspace/hooks'
 import { SidebarProvider } from '@/components/ui/sidebar'
 
 export default function WorkspaceLayout({ children }: { children: ReactNode }) {
@@ -11,8 +14,10 @@ export default function WorkspaceLayout({ children }: { children: ReactNode }) {
   const workspaceId = Number(params.workspaceId)
 
   const { data: workspaces, isLoading } = useListUserWorkspaces()
+  const { data: workspaceDetail, isLoading: isWorkspaceDetailLoading } =
+    useFetchWorkspaceById(workspaceId)
 
-  if (isLoading) {
+  if (isLoading || isWorkspaceDetailLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <p className="text-muted-foreground">Loading workspace...</p>
@@ -22,7 +27,7 @@ export default function WorkspaceLayout({ children }: { children: ReactNode }) {
 
   const workspaceExists = workspaces?.some(ws => ws.id === workspaceId)
 
-  if (!workspaceExists) {
+  if (!workspaceExists && !workspaceDetail) {
     return (
       <div className="flex h-screen items-center justify-center">
         <p className="text-red-500">Workspace not found</p>
