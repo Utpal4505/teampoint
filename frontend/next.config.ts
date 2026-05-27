@@ -21,18 +21,18 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  async rewrites() {           
-    return [
-      {
-        source: '/ingest/static/:path*',
-        destination: 'https://us-assets.i.posthog.com/static/:path*',
-      },
-      {
-        source: '/ingest/:path*',
-        destination: 'https://us.i.posthog.com/:path*',
-      },
-    ]
-  },
+async rewrites() {
+  return [
+    {
+      source: '/api/analytics/static/:path*',
+      destination: 'https://us-assets.i.posthog.com/static/:path*',
+    },
+    {
+      source: '/api/analytics/:path*',
+      destination: 'https://us.i.posthog.com/:path*',
+    },
+  ]
+},
 }
 
 export default nextConfig
