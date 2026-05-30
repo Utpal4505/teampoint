@@ -204,13 +204,6 @@ export function Hero() {
     <section className="relative overflow-hidden pt-16">
       <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-7xl grid-cols-1 items-center gap-12 px-6 py-14 lg:grid-cols-[0.78fr_1.22fr] lg:gap-14 lg:py-16">
         <div className="flex flex-col gap-6">
-          <div className="inline-flex w-fit items-center gap-2 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5">
-            <Sparkles size={13} className="text-emerald-300" />
-            <span className="text-xs font-medium text-emerald-200">
-              Free during early access
-            </span>
-          </div>
-
           <div className="space-y-5">
             <h1 className="max-w-[600px] font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
               Stop managing work.{' '}
