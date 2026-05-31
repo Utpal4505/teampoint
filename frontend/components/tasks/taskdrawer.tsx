@@ -12,6 +12,9 @@ import {
   Check,
   MessageSquare,
   Plus,
+  Edit2,
+  XCircle,
+  Loader2,
 } from 'lucide-react'
 import { PRIORITY_CONFIG, STATUS_CONFIG } from '@/features/tasks/constants'
 import { formatDate, getInitials } from '@/lib/utils'
@@ -21,14 +24,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
 import type { Task, Status } from '@/features/tasks/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   useDiscussionSocketEvents,
   useProjectDiscussions,
 } from '@/features/discussions/hooks'
 import NewDiscussionModal from '@/components/projects/detail/tabs/discussions/new-discussion-modal'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { updateTask } from '@/features/tasks/api'
+import { toast } from 'sonner'
 
 interface TaskDrawerProps {
   task: Task | null
@@ -67,6 +75,61 @@ export default function TaskDrawer({
   workspaceId,
 }: TaskDrawerProps) {
   const [discussionModalOpen, setDiscussionModalOpen] = useState(false)
+  const [isEditingDueDate, setIsEditingDueDate] = useState(false)
+  const [editedDueDate, setEditedDueDate] = useState<Date | undefined>(
+    task?.dueDate ? new Date(task.dueDate) : undefined,
+  )
+  const [calendarOpen, setCalendarOpen] = useState(false)
+  const queryClient = useQueryClient()
+
+  const updateTaskMutation = useMutation({
+    mutationFn: (data: { taskId: number; dueDate: Date | null }) =>
+      updateTask(data.taskId, {
+        dueDate: data.dueDate ?? undefined,
+      }),
+    onSuccess: () => {
+      toast.success('Due date updated successfully')
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      setIsEditingDueDate(false)
+      setCalendarOpen(false)
+    },
+    onError: (error: unknown) => {
+      const message =
+        typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message: string }).message
+          : 'Failed to update due date'
+      toast.error(message)
+    },
+  })
+
+  // Check if date has actually changed
+  const hasDateChanged = useCallback((): boolean => {
+    if (!task) return false
+    const originalDate = task.dueDate ? new Date(task.dueDate).toDateString() : null
+    const newDate = editedDueDate ? editedDueDate.toDateString() : null
+    return originalDate !== newDate
+  }, [task, editedDueDate])
+
+  // Handle keyboard events in edit mode
+  useEffect(() => {
+    if (!isEditingDueDate || !task) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && hasDateChanged()) {
+        updateTaskMutation.mutate({
+          taskId: task.id,
+          dueDate: editedDueDate ?? null,
+        })
+      } else if (e.key === 'Escape') {
+        setIsEditingDueDate(false)
+        setEditedDueDate(task.dueDate ? new Date(task.dueDate) : undefined)
+        setCalendarOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isEditingDueDate, task, hasDateChanged, updateTaskMutation, editedDueDate])
 
   useEffect(() => {
     if (task) {
@@ -238,17 +301,123 @@ export default function TaskDrawer({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between gap-4 px-4 py-3">
+                    <div className="group flex items-center justify-between gap-4 px-4 py-3">
                       <span className="text-[11px] font-medium text-muted-foreground w-20 shrink-0">
                         Due Date
                       </span>
-                      <div className="flex items-center gap-1.5">
-                        <CalendarDays size={12} className="text-muted-foreground shrink-0" />
-                        <span
-                          className={`text-sm ${task.dueDate ? 'text-foreground' : 'text-muted-foreground'}`}
-                        >
-                          {task.dueDate ? formatDate(task.dueDate) : 'No due date'}
-                        </span>
+                      <div className="flex items-center gap-2 justify-end flex-1">
+                        {isEditingDueDate ? (
+                          <div className="flex flex-col gap-3 w-full">
+                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                              <PopoverTrigger>
+                                <button
+                                  className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg
+                                    border border-primary/50 bg-primary/5 text-sm font-medium
+                                    text-foreground hover:bg-primary/10 transition-colors"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <CalendarDays size={14} className="text-primary" />
+                                    <span>
+                                      {editedDueDate
+                                        ? formatDate(
+                                            editedDueDate.toISOString().split('T')[0],
+                                          )
+                                        : 'Select date'}
+                                    </span>
+                                  </div>
+                                  <ChevronDown
+                                    size={12}
+                                    className="text-muted-foreground"
+                                  />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80 p-3 left-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={editedDueDate}
+                                  onSelect={date => {
+                                    setEditedDueDate(date)
+                                  }}
+                                  disabled={date =>
+                                    date < new Date(new Date().setHours(0, 0, 0, 0))
+                                  }
+                                  className="rounded-lg"
+                                />
+                              </PopoverContent>
+                            </Popover>
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => {
+                                  updateTaskMutation.mutate({
+                                    taskId: task.id,
+                                    dueDate: editedDueDate ?? null,
+                                  })
+                                }}
+                                disabled={
+                                  updateTaskMutation.isPending || !hasDateChanged()
+                                }
+                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg
+                                  border border-green-500/50 bg-green-500/8 text-xs font-semibold
+                                  text-green-600 hover:bg-green-500/15 transition-colors
+                                  disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Save due date (Enter)"
+                              >
+                                {updateTaskMutation.isPending ? (
+                                  <Loader2 size={13} className="animate-spin" />
+                                ) : (
+                                  <Check size={13} />
+                                )}
+                                Save
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  setIsEditingDueDate(false)
+                                  setEditedDueDate(
+                                    task.dueDate ? new Date(task.dueDate) : undefined,
+                                  )
+                                  setCalendarOpen(false)
+                                }}
+                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg
+                                  border border-border bg-muted/40 text-xs font-semibold
+                                  text-muted-foreground hover:bg-muted/60 transition-colors"
+                                title="Cancel (Esc)"
+                              >
+                                <XCircle size={13} />
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 justify-end w-full">
+                            <div className="flex items-center gap-1.5">
+                              <CalendarDays
+                                size={13}
+                                className="text-muted-foreground shrink-0"
+                              />
+                              <span
+                                className={`text-sm font-medium ${task.dueDate ? 'text-foreground' : 'text-muted-foreground'}`}
+                              >
+                                {task.dueDate ? formatDate(task.dueDate) : 'No due date'}
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setIsEditingDueDate(true)
+                                setEditedDueDate(
+                                  task.dueDate ? new Date(task.dueDate) : undefined,
+                                )
+                              }}
+                              className="flex items-center gap-1 ml-1 px-2 py-1.5 rounded-md
+                                text-muted-foreground hover:text-foreground hover:bg-accent/50
+                                transition-colors opacity-0 group-hover:opacity-100"
+                              title="Edit due date"
+                            >
+                              <Edit2 size={13} />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -270,7 +439,9 @@ export default function TaskDrawer({
                         ) : (
                           <>
                             <User size={12} className="text-muted-foreground shrink-0" />
-                            <span className="text-sm text-muted-foreground">Personal</span>
+                            <span className="text-sm text-muted-foreground">
+                              Personal
+                            </span>
                           </>
                         )}
                       </div>
@@ -327,7 +498,9 @@ export default function TaskDrawer({
                       </div>
                     ) : linkedDiscussions.length === 0 ? (
                       <div className="rounded-xl border border-dashed border-border/60 bg-muted/10 p-4">
-                        <p className="text-sm text-foreground">No discussions linked yet.</p>
+                        <p className="text-sm text-foreground">
+                          No discussions linked yet.
+                        </p>
                         <p className="mt-1 text-xs text-muted-foreground">
                           Start a discussion for this task and it will appear here.
                         </p>
