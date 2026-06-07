@@ -36,6 +36,7 @@ import feedbackRouter from './modules/feedback/feedback.routes.js';
 import { env } from './config/env.js';
 import { registerBugReportEvents } from './modules/bug-report/bug-report.events.js';
 const app = express();
+app.set('trust proxy', 1);
 app.use(requestIdMiddleware);
 app.use(requestLoggerMiddleware);
 app.use(globalLimiter);

@@ -53,7 +53,7 @@ export const updateTaskSchema = z.object({
         .transform(v => (v ? sanitizeText(v) : undefined)),
     priority: TaskPriorityEnum.optional(),
     status: TaskStatusEnum.optional(),
-    assignedTo: idParam,
+    assignedTo: idParam.optional(),
     dueDate: z.preprocess(arg => (arg ? new Date(arg) : undefined), z.date().optional()),
 });
 export const changeTaskStatusSchema = z.object({
