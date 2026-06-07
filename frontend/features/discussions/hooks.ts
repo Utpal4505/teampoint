@@ -73,7 +73,6 @@ export const useCreateDiscussion = (projectId: number) => {
   return useMutation({
     mutationFn: (input: CreateDiscussionInput) => createDiscussion(projectId, input),
     onSuccess: discussion => {
-      queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
       queryClient.setQueryData(
         discussionKeys.detail(projectId, discussion.id),
         discussion,
