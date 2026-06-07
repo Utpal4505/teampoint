@@ -43,10 +43,7 @@ export const discussionKeys = {
     [...discussionKeys.detail(projectId, discussionId), 'messages'] as const,
 }
 
-export const useProjectDiscussions = (
-  projectId: number,
-  filters?: DiscussionFilters,
-) =>
+export const useProjectDiscussions = (projectId: number, filters?: DiscussionFilters) =>
   useQuery({
     queryKey: discussionKeys.list(projectId, filters),
     queryFn: () => listDiscussions(projectId, filters),
@@ -93,10 +90,7 @@ export const useUpdateDiscussion = (projectId: number, discussionId: number) => 
     mutationFn: (input: UpdateDiscussionInput) =>
       updateDiscussion(projectId, discussionId, input),
     onSuccess: discussion => {
-      queryClient.setQueryData(
-        discussionKeys.detail(projectId, discussionId),
-        discussion,
-      )
+      queryClient.setQueryData(discussionKeys.detail(projectId, discussionId), discussion)
       queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
     },
     onError: handleApiError,
@@ -108,10 +102,12 @@ export const useCloseDiscussion = (projectId: number, discussionId: number) => {
 
   return useMutation({
     mutationFn: () => closeDiscussion(projectId, discussionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: discussionKeys.detail(projectId, discussionId),
-      })
+    onSuccess: data => {
+      queryClient.setQueryData<Discussion>(
+        discussionKeys.detail(projectId, discussionId),
+        old =>
+          old ? { ...old, status: data.status, closedAt: data.closedAt } : undefined,
+      )
       queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
     },
     onError: handleApiError,
@@ -123,10 +119,19 @@ export const useReopenDiscussion = (projectId: number, discussionId: number) => 
 
   return useMutation({
     mutationFn: () => reopenDiscussion(projectId, discussionId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: discussionKeys.detail(projectId, discussionId),
-      })
+    onSuccess: data => {
+      queryClient.setQueryData<Discussion>(
+        discussionKeys.detail(projectId, discussionId),
+        old =>
+          old
+            ? {
+                ...old,
+                status: data.status,
+                closedAt: data.closedAt,
+                updatedAt: data.updatedAt,
+              }
+            : undefined,
+      )
       queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
     },
     onError: handleApiError,
@@ -160,12 +165,9 @@ export const useCreateMessage = (projectId: number, discussionId: number) => {
     onSuccess: message => {
       queryClient.setQueryData<Message[]>(
         discussionKeys.messages(projectId, discussionId),
-        old => (old?.some(item => item.id === message.id) ? old : [...(old ?? []), message]),
+        old =>
+          old?.some(item => item.id === message.id) ? old : [...(old ?? []), message],
       )
-      queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
-      queryClient.invalidateQueries({
-        queryKey: discussionKeys.detail(projectId, discussionId),
-      })
     },
     onError: handleApiError,
   })
@@ -202,16 +204,12 @@ export const useDeleteMessage = (projectId: number, discussionId: number) => {
         discussionKeys.messages(projectId, discussionId),
         old => old?.filter(message => message.id !== deleted.id),
       )
-      queryClient.invalidateQueries({ queryKey: discussionKeys.lists(projectId) })
     },
     onError: handleApiError,
   })
 }
 
-export const useDiscussionSocketEvents = (
-  projectId: number,
-  discussionId?: number,
-) => {
+export const useDiscussionSocketEvents = (projectId: number, discussionId?: number) => {
   const queryClient = useQueryClient()
   const socket = useSocket({ projectId, discussionId })
 

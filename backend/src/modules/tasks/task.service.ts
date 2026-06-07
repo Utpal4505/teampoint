@@ -429,15 +429,8 @@ export const changeTaskStatusService = async (
       'CHANGE_STATUS',
     )
 
-    const validTransitions: Record<TaskStatus, TaskStatus[]> = {
-      TODO: ['IN_PROGRESS'],
-      IN_PROGRESS: ['DONE'],
-      DONE: [],
-      CANCELLED: [],
-    }
-
-    if (!validTransitions[task.status].includes(input.status)) {
-      throw new ApiError(400, `Cannot transition from ${task.status} to ${input.status}`)
+    if (task.status === input.status) {
+      throw new ApiError(400, `Task is already in ${task.status} status`)
     }
 
     const updatedTask = await tx.tasks.update({
