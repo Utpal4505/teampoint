@@ -10,6 +10,8 @@ const webhookClients: Record<DiscordWebhookKey, WebhookClient> = {
   alerts: new WebhookClient({ url: DISCORD_WEBHOOKS.alerts }),
 }
 
+//test
+
 type DiscordField = {
   name: string
   value: string
