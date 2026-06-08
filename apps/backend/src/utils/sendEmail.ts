@@ -7,6 +7,7 @@ type SendEmailInput = {
   html: string
 }
 
+//trasnporter configuration for sending email using nodemailer and brevo smtp
 const transporter = nodemailer.createTransport({
   host: env.EMAIL_HOST,
   port: Number(env.EMAIL_PORT),
