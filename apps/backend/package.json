@@ -1,5 +1,5 @@
 {
-  "name": "teampoint",
+  "name": "@teampoint/backend",
   "version": "0.1.0",
   "description": "Backend for Teampoint project management tool",
   "license": "UNLICENSED",
@@ -18,7 +18,7 @@
     "format:fix": "prettier . --fix",
     "dev": "cross-env NODE_ENV=development tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "build": "npx tsc && cp -r src/generated/prisma dist/generated/prisma",
+    "build": "npx tsc && node -e \"require('fs').mkdirSync('dist/generated/prisma', {recursive:true})\" && npx cpx \"src/generated/prisma/**\" dist/generated/prisma",
     "seed": "cross-env NODE_ENV=development node --env-file=.env tsx src/seed.ts",
     "prepare": ""
   },
@@ -96,6 +96,7 @@
     "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
+    "cpx2": "^9.0.0",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",

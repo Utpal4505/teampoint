@@ -46,12 +46,15 @@ const PopoverTrigger = React.forwardRef<
   if (!context) throw new Error('PopoverTrigger must be used within Popover')
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
-      onClick: (e: React.MouseEvent) => {
-        context.setOpen(!context.open)
-        children.props.onClick?.(e)
+    return React.cloneElement(
+      children as React.ReactElement<{ onClick?: (e: React.MouseEvent) => void }>,
+      {
+        onClick: (e: React.MouseEvent) => {
+          context.setOpen(!context.open)
+          ;(children.props as { onClick?: (e: React.MouseEvent) => void }).onClick?.(e)
+        },
       },
-    })
+    )
   }
 
   return (
