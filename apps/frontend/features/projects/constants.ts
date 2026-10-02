@@ -127,7 +127,7 @@ export const STATUS_CONFIG: Record<
     dot: 'bg-blue-400',
     barColor: 'bg-blue-500',
   },
-  DELETED: {
+  ARCHIVED: {
     label: 'Archived',
     color: 'text-muted-foreground',
     bg: 'bg-muted/40',
@@ -135,13 +135,13 @@ export const STATUS_CONFIG: Record<
     dot: 'bg-muted-foreground',
     barColor: 'bg-muted-foreground',
   },
-  INACTIVE: {
-    label: 'Inactive',
-    color: 'text-destructive',
-    bg: 'bg-destructive/10',
-    border: 'border-destructive/20',
-    dot: 'bg-destructive',
-    barColor: 'bg-destructive',
+  DELETED: {
+    label: 'Deleted',
+    color: 'text-muted-foreground',
+    bg: 'bg-muted/40',
+    border: 'border-border',
+    dot: 'bg-muted-foreground',
+    barColor: 'bg-muted-foreground',
   },
 }
 

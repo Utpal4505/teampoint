@@ -2,6 +2,7 @@ import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { revokeInviteService, acceptInviteService, getSingleInviteService, listAllInvitesService, sendInviteService, validateInviteService, } from './inviteMember.service.js';
+import { listInvitesQuerySchema } from './inviteMember.schema.js';
 export const sendInviteController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const { workspaceId } = req.params;
@@ -26,8 +27,11 @@ export const getSingleInviteController = asyncHandler(async (req, res) => {
 export const listAllInvitesController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const { workspaceId } = req.params;
+    const parsed = listInvitesQuerySchema.parse(req.query);
     const result = await listAllInvitesService({
         workspaceId: Number(workspaceId),
+        page: parsed.page,
+        limit: parsed.limit,
     });
     return res.status(200).json(new ApiResponse(200, 'Invites listed', result));
 });

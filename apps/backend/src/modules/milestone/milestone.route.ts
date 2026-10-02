@@ -6,6 +6,7 @@ import {
   CreateMilestoneSchema,
   UpdateMilestoneSchema,
   CompleteMilestoneSchema,
+  ListMilestonesQuerySchema,
 } from './milestone.schema.js'
 
 import {
@@ -33,6 +34,7 @@ router.post(
 router.get(
   '/',
   validateRequest(idParam, 'params'),
+  validateRequest(ListMilestonesQuerySchema, 'query'),
   requireProjectPermission('canViewMilestones'),
   listMilestonesController,
 )

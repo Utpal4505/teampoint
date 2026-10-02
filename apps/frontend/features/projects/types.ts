@@ -1,4 +1,5 @@
-export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED'
+import type { ProjectStatus } from '@teampoint/shared-types'
+export type { ProjectStatus }
 export type ViewMode = 'card' | 'list'
 
 export interface ProjectMember {

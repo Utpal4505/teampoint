@@ -14,6 +14,7 @@ import {
   uploadLimiter,
   apiLimiter,
   integrationLimiter,
+  publicEndpointLimiter,
 } from './middlewares/rateLimiters.js'
 import googleAuthRouter from './modules/auth/routes/google.route.js'
 import githubAuthRouter from './modules/auth/routes/github.route.js'
@@ -75,8 +76,8 @@ app.use('/api/v1/auth', authLimiter, refreshAuthRouter)
 app.use('/api/v1/auth', authLimiter, devAuthRouter)
 
 app.use('/api/v1/integrations', integrationLimiter, integrationRouter)
-app.use('/api/v1/bug-reports', bugReportRouter)
-app.use('/api/v1/feedback', feedbackRouter)
+app.use('/api/v1/bug-reports', publicEndpointLimiter, bugReportRouter)
+app.use('/api/v1/feedback', publicEndpointLimiter, feedbackRouter)
 
 app.use('/api/v1/workspaces', publicInviteRouter)
 

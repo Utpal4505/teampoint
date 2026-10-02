@@ -90,6 +90,9 @@ export const createTaskService = async (input, userId) => {
 };
 export const listTasksService = async (userId, filters) => {
     const { projectId, assignedTo, status, taskType } = filters;
+    const page = Math.max(1, filters.page ?? 1);
+    const limit = Math.min(Math.max(1, filters.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const where = {};
     if (!projectId) {
         where.taskType = 'PERSONAL';
@@ -106,6 +109,14 @@ export const listTasksService = async (userId, filters) => {
         where.status = { not: 'CANCELLED' };
     if (taskType && projectId) {
         where.taskType = taskType;
+    }
+    if (projectId) {
+        await prisma.$transaction(tx => assertTaskPermission(tx, {
+            taskType: 'PROJECT',
+            projectId: projectId,
+            createdBy: -1,
+            assignedTo: -1,
+        }, userId, 'VIEW'));
     }
     const tasks = await prisma.tasks.findMany({
         where,
@@ -128,26 +139,11 @@ export const listTasksService = async (userId, filters) => {
                 },
             },
         },
+        skip,
+        take: limit,
         orderBy: [{ dueDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
     });
-    const accessibleTasks = await prisma.$transaction(async (tx) => {
-        const result = [];
-        for (const task of tasks) {
-            try {
-                await assertTaskPermission(tx, {
-                    taskType: task.taskType,
-                    projectId: task.projectId,
-                    createdBy: task.createdBy,
-                    assignedTo: task.assignedTo,
-                }, userId, 'VIEW');
-                result.push(task);
-            }
-            catch {
-                continue;
-            }
-        }
-        return result;
-    });
+    const accessibleTasks = tasks;
     return accessibleTasks.map(task => ({
         id: task.id,
         title: task.title,
@@ -431,7 +427,10 @@ export const cancelTaskService = async (taskId, userId) => {
         return cancelledTask;
     });
 };
-export const listWorkspaceAssignedTasksService = async (workspaceId, userId) => {
+export const listWorkspaceAssignedTasksService = async (workspaceId, userId, page = 1, limit = 20) => {
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const skip = (safePage - 1) * safeLimit;
     const projectTasks = await prisma.tasks.findMany({
         where: {
             assignedTo: userId,
@@ -465,11 +464,14 @@ export const listWorkspaceAssignedTasksService = async (workspaceId, userId) => 
                 },
             },
         },
+        skip,
+        take: safeLimit,
         orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
     });
     const personalTasks = await prisma.tasks.findMany({
         where: {
             assignedTo: userId,
+            createdBy: userId,
             status: { not: 'CANCELLED' },
             taskType: 'PERSONAL',
             projectId: null,
@@ -499,27 +501,12 @@ export const listWorkspaceAssignedTasksService = async (workspaceId, userId) => 
                 },
             },
         },
+        skip,
+        take: safeLimit,
         orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
     });
     const allTasks = [...projectTasks, ...personalTasks];
-    const accessibleTasks = await prisma.$transaction(async (tx) => {
-        const result = [];
-        for (const task of allTasks) {
-            try {
-                await assertTaskPermission(tx, {
-                    taskType: task.taskType,
-                    projectId: task.projectId,
-                    createdBy: task.createdBy,
-                    assignedTo: task.assignedTo,
-                }, userId, 'VIEW');
-                result.push(task);
-            }
-            catch {
-                continue;
-            }
-        }
-        return result;
-    });
+    const accessibleTasks = allTasks;
     const formattedTasks = accessibleTasks.map(task => ({
         id: task.id,
         title: task.title,

@@ -8,6 +8,10 @@ import {
   listEntityDocumentLinksService,
   unlinkDocumentService,
 } from './documentLinks.service.js'
+import {
+  ListDocumentLinksQuerySchema,
+  ListEntityDocumentLinksQuerySchema,
+} from './documentLinks.schema.js'
 
 export const createDocumentLinkController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -25,8 +29,12 @@ export const listDocumentLinksController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const documentId = Number(req.params.documentId)
+  const parsed = ListDocumentLinksQuerySchema.parse(req.query)
 
-  const result = await listDocumentLinksService(documentId)
+  const result = await listDocumentLinksService(documentId, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
   return res
     .status(200)
@@ -38,10 +46,15 @@ export const listEntityDocumentLinksController = asyncHandler(async (req, res) =
 
   const entityType = req.params.entityType
   const entityId = Number(req.params.entityId)
+  const parsed = ListEntityDocumentLinksQuerySchema.parse(req.query)
 
   const result = await listEntityDocumentLinksService(
     entityType as DocumentEntityType,
     entityId,
+    {
+      page: parsed.page,
+      limit: parsed.limit,
+    },
   )
 
   return res

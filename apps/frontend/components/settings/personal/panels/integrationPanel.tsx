@@ -54,7 +54,7 @@ interface IntegrationConfig {
   color: string
 }
 
-const INTEGRATION_CONFIG: Record<IntegrationProvider, IntegrationConfig> = {
+const INTEGRATION_CONFIG: Record<'GOOGLE', IntegrationConfig> = {
   GOOGLE: {
     provider: 'GOOGLE',
     name: 'Google',

@@ -7,6 +7,7 @@ import {
   UpdateGoalSchema,
   CompleteGoalSchema,
   DeleteGoalSchema,
+  ListGoalsQuerySchema,
   idParam,
 } from './goal.schema.js'
 
@@ -34,6 +35,7 @@ router.post(
 router.get(
   '/',
   validateRequest(idParam, 'params'),
+  validateRequest(ListGoalsQuerySchema, 'query'),
   requireProjectPermission('canViewGoals'),
   listGoalsController,
 )

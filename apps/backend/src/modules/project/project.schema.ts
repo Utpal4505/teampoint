@@ -56,4 +56,6 @@ export const listAllWorkspaceProjectQuerySchema = z.object({
   status: z.nativeEnum(ProjectStatus).optional(),
   search: z.string().trim().optional(),
   createdBy: z.coerce.number().positive().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 })

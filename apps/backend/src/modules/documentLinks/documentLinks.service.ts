@@ -129,7 +129,12 @@ export const createDocumentLinkService = async (
 
 export const listDocumentLinksService = async (
   documentId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListDocumentLinksResponse> => {
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const links = await prisma.documentLink.findMany({
     where: {
       documentId,
@@ -141,6 +146,9 @@ export const listDocumentLinksService = async (
       entityId: true,
       createdAt: true,
     },
+    skip,
+    take: limit,
+    orderBy: { createdAt: 'desc' },
   })
 
   return {
@@ -151,13 +159,21 @@ export const listDocumentLinksService = async (
 export const listEntityDocumentLinksService = async (
   entityType: DocumentEntityType,
   entityId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListEntityDocumentLinksResponse> => {
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const links = await prisma.documentLink.findMany({
     where: {
       entityType,
       entityId,
       status: 'LINKED',
     },
+    skip,
+    take: limit,
+    orderBy: { createdAt: 'desc' },
   })
 
   return {

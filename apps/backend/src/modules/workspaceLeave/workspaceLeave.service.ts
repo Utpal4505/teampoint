@@ -40,13 +40,20 @@ export const createLeaveRequestService = async (
 export const listLeaveRequestsService = async (
   workspaceId: number,
   userId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListLeaveRequestsDTO> => {
   await assertWorkspaceMember(workspaceId, userId)
 
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const leaveRequests = await prisma.workspaceLeaveRequest.findMany({
     where: {
-      id: workspaceId,
+      workspaceId,
     },
+    skip,
+    take: limit,
     orderBy: { createdAt: 'desc' },
     select: {
       id: true,
@@ -116,7 +123,7 @@ export const reviewLeaveRequestService = async (
 
 export const updateLeaveRequestService = async (
   input: UpdateLeaveRequestInput,
-  user: { id: number; role: WorkspaceRole},
+  user: { id: number; role: WorkspaceRole },
 ): Promise<UpdateLeaveRequestDTO> => {
   const { requestId, reason, status } = input
 
@@ -127,7 +134,7 @@ export const updateLeaveRequestService = async (
 
     ensureExists(leaveRequest, 'LeaveRequest')
 
-    await assertWorkspaceMember(leaveRequest.workspaceId, user.id, tx);
+    await assertWorkspaceMember(leaveRequest.workspaceId, user.id, tx)
 
     if (user.role === 'MEMBER') {
       if (leaveRequest.userId !== user.id) {

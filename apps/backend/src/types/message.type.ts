@@ -23,7 +23,15 @@ export type MessageItem = {
   }
 }
 
-export type ListMessageDTO = MessageItem[]
+export type ListMessageDTO = {
+  items: MessageItem[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
 
 export type CreateMessageDTO = MessageItem
 

@@ -19,6 +19,10 @@ export const updateProjectMemberSchema = z
     .refine(data => data.role !== undefined || data.status !== undefined, {
     message: 'At least one of role or status must be provided',
 });
+export const listProjectMembersQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 export const exitProjectSchema = z.object({
     userId: idParam.optional(),
 });

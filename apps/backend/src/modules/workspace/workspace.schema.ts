@@ -24,3 +24,13 @@ export const createWorkspaceSchema = z.object({
 export const workspaceIdParamSchema = z.object({
   workspaceId: z.coerce.number().int().positive().transform(Number),
 })
+
+export const listWorkspaceMembersQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
+export const listUserWorkspacesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})

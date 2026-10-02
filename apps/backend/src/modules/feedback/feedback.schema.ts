@@ -63,3 +63,11 @@ export const updateFeedbackStatusSchema = z.object({
   status: FeedbackStatusEnum,
   internalNotes: z.string().optional(),
 })
+
+export const listFeedbackQuerySchema = z.object({
+  projectId: z.coerce.number().int().positive().optional(),
+  type: FeedbackTypeEnum.optional(),
+  status: FeedbackStatusEnum.optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})

@@ -2,6 +2,7 @@ import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { createDocumentService, deleteDocumentService, getSingleDocumentByIdService, listDocumentsService, updateDocumentService, getDocumentDownloadUrlService, } from './document.service.js';
+import { listDocumentsQuerySchema } from './document.schema.js';
 export const createDocumentController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const userId = req.user.id;
@@ -14,7 +15,11 @@ export const listDocumentsController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const userId = req.user.id;
     const projectId = Number(req.params.projectId);
-    const documents = await listDocumentsService(projectId, userId);
+    const parsed = listDocumentsQuerySchema.parse(req.query);
+    const documents = await listDocumentsService(projectId, userId, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Documents fetched successfully', documents));

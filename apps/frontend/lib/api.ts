@@ -22,7 +22,7 @@ api.interceptors.response.use(
       originalRequest.url?.includes('/auth/refresh')
 
     if (isAuthRoute) return Promise.reject(error)
-    if (!originalRequest.authFlag) return Promise.reject(error)
+    if (originalRequest.authFlag === false) return Promise.reject(error)
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true

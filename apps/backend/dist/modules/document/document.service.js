@@ -82,8 +82,11 @@ export const createDocumentService = async (input, userId) => {
         return result;
     });
 };
-export const listDocumentsService = async (projectId, userId) => {
+export const listDocumentsService = async (projectId, userId, options = {}) => {
     await assertProjectMember(projectId, userId);
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const documents = await prisma.document.findMany({
         where: {
             projectId,
@@ -120,6 +123,9 @@ export const listDocumentsService = async (projectId, userId) => {
                 },
             },
         },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
     });
     return documents.map(doc => ({
         id: doc.id,

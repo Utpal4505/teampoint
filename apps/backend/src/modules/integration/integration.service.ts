@@ -26,7 +26,12 @@ const getProvider = (provider: IntegrationProvider): IntegrationProviderAdapter 
 
 export const listIntegrationsService = async (
   userId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListIntegrationsResponse> => {
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const integrations = await prisma.integration.findMany({
     where: {
       userId,
@@ -37,6 +42,8 @@ export const listIntegrationsService = async (
       status: true,
       connectedAt: true,
     },
+    skip,
+    take: limit,
     orderBy: { connectedAt: 'desc' },
   })
 

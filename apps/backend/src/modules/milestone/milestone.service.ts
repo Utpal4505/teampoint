@@ -38,12 +38,16 @@ export const createMilestoneService = async (
   })
 }
 
-
 export const listMilestonesService = async (
   projectId: number,
   userId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListMilestonesDTO> => {
   await assertProjectMember(projectId, userId)
+
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
 
   const milestones = await prisma.milestone.findMany({
     where: {
@@ -56,6 +60,8 @@ export const listMilestonesService = async (
       dueDate: true,
       createdAt: true,
     },
+    skip,
+    take: limit,
     orderBy: { createdAt: 'desc' },
   })
 
@@ -63,7 +69,6 @@ export const listMilestonesService = async (
     data: milestones,
   }
 }
-
 
 export const getMilestoneService = async (
   milestoneId: number,
@@ -79,7 +84,6 @@ export const getMilestoneService = async (
 
   return milestone
 }
-
 
 export const updateMilestoneService = async (
   input: UpdateMilestoneInput,

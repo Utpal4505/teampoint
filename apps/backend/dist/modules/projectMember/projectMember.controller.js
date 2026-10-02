@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { addProjectMemberSchema, exitProjectSchema, projectIdAndUserIdParamSchema, projectIdParamSchema, updateProjectMemberSchema, } from './projectMember.schema.js';
+import { addProjectMemberSchema, exitProjectSchema, listProjectMembersQuerySchema, projectIdAndUserIdParamSchema, projectIdParamSchema, updateProjectMemberSchema, } from './projectMember.schema.js';
 import { addProjectMemberService, canManageProjectMembersService, listProjectMembersService, removeProjectMemberService, selfExitProjectService, updateProjectMemberService, } from './projectMember.service.js';
 import { ApiError } from '../../utils/apiError.js';
 export const addProjectMemberController = asyncHandler(async (req, res) => {
@@ -24,7 +24,11 @@ export const addProjectMemberController = asyncHandler(async (req, res) => {
 export const listProjectMembersController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const { projectId } = projectIdParamSchema.parse(req.params);
-    const members = await listProjectMembersService(projectId);
+    const parsed = listProjectMembersQuerySchema.parse(req.query);
+    const members = await listProjectMembersService(projectId, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Project members retrieved successfully', members));

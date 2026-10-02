@@ -86,7 +86,10 @@ export const createDocumentLinkService = async (input, userId) => {
         return link;
     });
 };
-export const listDocumentLinksService = async (documentId) => {
+export const listDocumentLinksService = async (documentId, options = {}) => {
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const links = await prisma.documentLink.findMany({
         where: {
             documentId,
@@ -98,18 +101,27 @@ export const listDocumentLinksService = async (documentId) => {
             entityId: true,
             createdAt: true,
         },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
     });
     return {
         data: links,
     };
 };
-export const listEntityDocumentLinksService = async (entityType, entityId) => {
+export const listEntityDocumentLinksService = async (entityType, entityId, options = {}) => {
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const links = await prisma.documentLink.findMany({
         where: {
             entityType,
             entityId,
             status: 'LINKED',
         },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
     });
     return {
         data: links,

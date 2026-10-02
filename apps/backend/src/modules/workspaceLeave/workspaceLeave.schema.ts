@@ -39,6 +39,11 @@ export const ListLeaveRequestsResponseSchema = z.object({
   hasMore: z.boolean(),
 })
 
+export const ListLeaveRequestsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
 export const GetLeaveRequestResponseSchema = z.object({
   id: idParam,
   workspaceId: idParam,

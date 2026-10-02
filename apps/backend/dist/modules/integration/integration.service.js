@@ -8,7 +8,10 @@ const providers = {
 const getProvider = (provider) => {
     return providers[provider];
 };
-export const listIntegrationsService = async (userId) => {
+export const listIntegrationsService = async (userId, options = {}) => {
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const integrations = await prisma.integration.findMany({
         where: {
             userId,
@@ -19,6 +22,8 @@ export const listIntegrationsService = async (userId) => {
             status: true,
             connectedAt: true,
         },
+        skip,
+        take: limit,
         orderBy: { connectedAt: 'desc' },
     });
     const data = integrations.map(i => ({

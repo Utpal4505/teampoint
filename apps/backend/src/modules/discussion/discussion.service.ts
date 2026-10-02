@@ -190,23 +190,42 @@ export const listDiscussionsService = async (
 ): Promise<ListDiscussionDTO> => {
   await assertProjectMember(projectId, userId)
 
-  const discussions = await prisma.discussion.findMany({
-    where: {
-      projectId,
-      ...(filters.status
-        ? { status: filters.status }
-        : filters.includeClosed
-          ? {}
-          : { status: { not: DiscussionStatus.CLOSED } }),
-      ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
-      ...(filters.type ? { type: filters.type } : {}),
-      ...(filters.contextId ? { contextId: filters.contextId } : {}),
-    },
-    select: discussionSelect,
-    orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
-  })
+  const page = filters.page ?? 1
+  const limit = filters.limit ?? 50
+  const skip = (page - 1) * limit
 
-  return discussions.map(mapDiscussion)
+  const whereClause = {
+    projectId,
+    ...(filters.status
+      ? { status: filters.status }
+      : filters.includeClosed
+        ? {}
+        : { status: { not: DiscussionStatus.CLOSED } }),
+    ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
+    ...(filters.type ? { type: filters.type } : {}),
+    ...(filters.contextId ? { contextId: filters.contextId } : {}),
+  }
+
+  const [discussions, total] = await Promise.all([
+    prisma.discussion.findMany({
+      where: whereClause,
+      select: discussionSelect,
+      skip,
+      take: limit,
+      orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+    }),
+    prisma.discussion.count({ where: whereClause }),
+  ])
+
+  return {
+    items: discussions.map(mapDiscussion),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
 }
 
 export const getDiscussionByIdService = async (

@@ -133,9 +133,14 @@ export const listTasksService = async (
     assignedTo?: number
     status?: TaskStatus
     taskType?: TaskType
+    page?: number
+    limit?: number
   },
 ): Promise<ListTaskDTO> => {
   const { projectId, assignedTo, status, taskType } = filters
+  const page = Math.max(1, filters.page ?? 1)
+  const limit = Math.min(Math.max(1, filters.limit ?? 20), 100)
+  const skip = (page - 1) * limit
 
   const where: Prisma.TasksWhereInput = {}
 
@@ -152,6 +157,22 @@ export const listTasksService = async (
 
   if (taskType && projectId) {
     where.taskType = taskType
+  }
+
+  if (projectId) {
+    await prisma.$transaction(tx =>
+      assertTaskPermission(
+        tx,
+        {
+          taskType: 'PROJECT',
+          projectId: projectId,
+          createdBy: -1, // Bypass creator check
+          assignedTo: -1, // Bypass assignee check
+        },
+        userId,
+        'VIEW',
+      ),
+    )
   }
 
   const tasks = await prisma.tasks.findMany({
@@ -175,31 +196,12 @@ export const listTasksService = async (
         },
       },
     },
+    skip,
+    take: limit,
     orderBy: [{ dueDate: { sort: 'asc', nulls: 'last' } }, { createdAt: 'desc' }],
   })
 
-  const accessibleTasks = await prisma.$transaction(async tx => {
-    const result = []
-    for (const task of tasks) {
-      try {
-        await assertTaskPermission(
-          tx,
-          {
-            taskType: task.taskType,
-            projectId: task.projectId,
-            createdBy: task.createdBy,
-            assignedTo: task.assignedTo,
-          },
-          userId,
-          'VIEW',
-        )
-        result.push(task)
-      } catch {
-        continue
-      }
-    }
-    return result
-  })
+  const accessibleTasks = tasks
 
   return accessibleTasks.map(task => ({
     id: task.id,
@@ -567,7 +569,13 @@ export const cancelTaskService = async (
 export const listWorkspaceAssignedTasksService = async (
   workspaceId: number,
   userId: number,
+  page = 1,
+  limit = 20,
 ): Promise<ListTaskDTO> => {
+  const safePage = Math.max(1, page)
+  const safeLimit = Math.min(Math.max(1, limit), 100)
+  const skip = (safePage - 1) * safeLimit
+
   const projectTasks = await prisma.tasks.findMany({
     where: {
       assignedTo: userId,
@@ -601,12 +609,15 @@ export const listWorkspaceAssignedTasksService = async (
         },
       },
     },
+    skip,
+    take: safeLimit,
     orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
   })
 
   const personalTasks = await prisma.tasks.findMany({
     where: {
       assignedTo: userId,
+      createdBy: userId,
       status: { not: 'CANCELLED' },
       taskType: 'PERSONAL',
       projectId: null,
@@ -636,36 +647,13 @@ export const listWorkspaceAssignedTasksService = async (
         },
       },
     },
+    skip,
+    take: safeLimit,
     orderBy: [{ status: 'asc' }, { dueDate: 'asc' }, { createdAt: 'desc' }],
   })
 
   const allTasks = [...projectTasks, ...personalTasks]
-
-  const accessibleTasks = await prisma.$transaction(async tx => {
-    const result = []
-
-    for (const task of allTasks) {
-      try {
-        await assertTaskPermission(
-          tx,
-          {
-            taskType: task.taskType,
-            projectId: task.projectId,
-            createdBy: task.createdBy,
-            assignedTo: task.assignedTo,
-          },
-          userId,
-          'VIEW',
-        )
-
-        result.push(task)
-      } catch {
-        continue
-      }
-    }
-
-    return result
-  })
+  const accessibleTasks = allTasks
 
   const formattedTasks: ListTaskDTO = accessibleTasks.map(task => ({
     id: task.id,

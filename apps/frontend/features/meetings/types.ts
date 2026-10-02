@@ -1,4 +1,5 @@
-export type MeetingStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELLED'
+import type { MeetingStatus } from '@teampoint/shared-types'
+export type { MeetingStatus }
 
 export interface MeetingListItem {
   id: number

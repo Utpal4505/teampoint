@@ -5,6 +5,7 @@ import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   ProviderParamSchema,
   OAuthCallbackQuerySchema,
+  ListIntegrationsQuerySchema,
 } from './integration.schema.js'
 
 import {
@@ -20,6 +21,7 @@ const router = Router()
 router.get(
   '/',
   hardAuth,
+  validateRequest(ListIntegrationsQuerySchema, 'query'),
   listIntegrationsController,
 )
 

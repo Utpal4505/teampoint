@@ -2,29 +2,28 @@ import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { completeGoalService, createGoalService, deleteGoalService, getGoalService, listGoalsService, updateGoalService, } from './goal.service.js';
+import { ListGoalsQuerySchema } from './goal.schema.js';
 export const createGoalController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const input = req.body;
     const goal = await createGoalService(input, req.user.id);
-    return res
-        .status(201)
-        .json(new ApiResponse(201, 'Goal created successfully', goal));
+    return res.status(201).json(new ApiResponse(201, 'Goal created successfully', goal));
 });
 export const listGoalsController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const projectId = Number(req.params.projectId);
-    const result = await listGoalsService(projectId, req.user.id);
-    return res
-        .status(200)
-        .json(new ApiResponse(200, 'Goals fetched successfully', result));
+    const parsed = ListGoalsQuerySchema.parse(req.query);
+    const result = await listGoalsService(projectId, req.user.id, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
+    return res.status(200).json(new ApiResponse(200, 'Goals fetched successfully', result));
 });
 export const getGoalController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const goalId = Number(req.params.goalId);
     const goal = await getGoalService(goalId, req.user.id);
-    return res
-        .status(200)
-        .json(new ApiResponse(200, 'Goal fetched successfully', goal));
+    return res.status(200).json(new ApiResponse(200, 'Goal fetched successfully', goal));
 });
 export const updateGoalController = asyncHandler(async (req, res) => {
     assertUser(req.user);
@@ -33,9 +32,7 @@ export const updateGoalController = asyncHandler(async (req, res) => {
         ...req.body,
     };
     const updated = await updateGoalService(input, req.user.id);
-    return res
-        .status(200)
-        .json(new ApiResponse(200, 'Goal updated successfully', updated));
+    return res.status(200).json(new ApiResponse(200, 'Goal updated successfully', updated));
 });
 export const completeGoalController = asyncHandler(async (req, res) => {
     assertUser(req.user);
@@ -53,8 +50,6 @@ export const deleteGoalController = asyncHandler(async (req, res) => {
         goalId: Number(req.params.goalId),
     };
     const deleted = await deleteGoalService(input, req.user.id);
-    return res
-        .status(200)
-        .json(new ApiResponse(200, 'Goal deleted successfully', deleted));
+    return res.status(200).json(new ApiResponse(200, 'Goal deleted successfully', deleted));
 });
 //# sourceMappingURL=goal.controller.js.map

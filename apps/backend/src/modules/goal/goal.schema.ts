@@ -26,7 +26,6 @@ export const CreateGoalResponseSchema = z.object({
   updatedAt: z.date(),
 })
 
-
 export const GoalListItemSchema = z.object({
   id: idParam,
   title: z.string(),
@@ -38,7 +37,6 @@ export const GoalListItemSchema = z.object({
 export const ListGoalsResponseSchema = z.object({
   data: z.array(GoalListItemSchema),
 })
-
 
 export const GetGoalResponseSchema = z.object({
   id: idParam,
@@ -57,7 +55,6 @@ export const GetGoalResponseSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 })
-
 
 export const UpdateGoalSchema = z.object({
   goalId: idParam,
@@ -79,7 +76,6 @@ export const UpdateGoalResponseSchema = z.object({
   updatedAt: z.date(),
 })
 
-
 export const CompleteGoalSchema = z.object({
   goalId: idParam,
 })
@@ -90,7 +86,6 @@ export const CompleteGoalResponseSchema = z.object({
   achievedAt: z.date(),
 })
 
-
 export const DeleteGoalSchema = z.object({
   goalId: idParam,
 })
@@ -98,4 +93,9 @@ export const DeleteGoalSchema = z.object({
 export const DeleteGoalResponseSchema = z.object({
   id: idParam,
   deletedAt: z.date(),
+})
+
+export const ListGoalsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 })

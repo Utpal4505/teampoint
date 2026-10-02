@@ -2,6 +2,7 @@ import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { createDocumentLinkService, listDocumentLinksService, listEntityDocumentLinksService, unlinkDocumentService, } from './documentLinks.service.js';
+import { ListDocumentLinksQuerySchema, ListEntityDocumentLinksQuerySchema, } from './documentLinks.schema.js';
 export const createDocumentLinkController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const input = req.body;
@@ -13,7 +14,11 @@ export const createDocumentLinkController = asyncHandler(async (req, res) => {
 export const listDocumentLinksController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const documentId = Number(req.params.documentId);
-    const result = await listDocumentLinksService(documentId);
+    const parsed = ListDocumentLinksQuerySchema.parse(req.query);
+    const result = await listDocumentLinksService(documentId, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Document links fetched successfully', result));
@@ -22,7 +27,11 @@ export const listEntityDocumentLinksController = asyncHandler(async (req, res) =
     assertUser(req.user);
     const entityType = req.params.entityType;
     const entityId = Number(req.params.entityId);
-    const result = await listEntityDocumentLinksService(entityType, entityId);
+    const parsed = ListEntityDocumentLinksQuerySchema.parse(req.query);
+    const result = await listEntityDocumentLinksService(entityType, entityId, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Entity document links fetched successfully', result));

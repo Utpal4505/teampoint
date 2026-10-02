@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { hardAuth } from '../../middlewares/auth.middlewares.js';
 import { validateRequest } from '../../middlewares/validateRequest.js';
-import { CreateGoalSchema, UpdateGoalSchema, CompleteGoalSchema, DeleteGoalSchema, idParam, } from './goal.schema.js';
+import { CreateGoalSchema, UpdateGoalSchema, CompleteGoalSchema, DeleteGoalSchema, ListGoalsQuerySchema, idParam, } from './goal.schema.js';
 import { createGoalController, listGoalsController, getGoalController, updateGoalController, completeGoalController, deleteGoalController, } from './goal.controller.js';
 import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js';
 const router = Router({ mergeParams: true });
 router.use(hardAuth);
 router.post('/', validateRequest(CreateGoalSchema, 'body'), requireProjectPermission('canCreateGoals'), createGoalController);
-router.get('/', validateRequest(idParam, 'params'), requireProjectPermission('canViewGoals'), listGoalsController);
+router.get('/', validateRequest(idParam, 'params'), validateRequest(ListGoalsQuerySchema, 'query'), requireProjectPermission('canViewGoals'), listGoalsController);
 router.get('/:goalId', validateRequest(idParam, 'params'), requireProjectPermission('canViewGoals'), getGoalController);
 router.patch('/:goalId', validateRequest(UpdateGoalSchema, 'body'), requireProjectPermission('canUpdateAnyGoal'), updateGoalController);
 router.post('/:goalId/complete', validateRequest(CompleteGoalSchema, 'params'), requireProjectPermission('canCompleteGoal'), completeGoalController);

@@ -61,4 +61,6 @@ export const listDiscussionsQuerySchema = z.object({
   type: DiscussionTypeEnum.optional(),
   contextId: z.coerce.number().int().positive().optional(),
   includeClosed: z.coerce.boolean().optional(),
+  page: z.coerce.number().int().positive().optional().default(1),
+  limit: z.coerce.number().int().positive().max(100).optional().default(50),
 })

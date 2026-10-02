@@ -17,12 +17,17 @@ export const createLeaveRequestService = async (input, userId) => {
         return leaveRequest;
     });
 };
-export const listLeaveRequestsService = async (workspaceId, userId) => {
+export const listLeaveRequestsService = async (workspaceId, userId, options = {}) => {
     await assertWorkspaceMember(workspaceId, userId);
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const leaveRequests = await prisma.workspaceLeaveRequest.findMany({
         where: {
-            id: workspaceId,
+            workspaceId,
         },
+        skip,
+        take: limit,
         orderBy: { createdAt: 'desc' },
         select: {
             id: true,

@@ -9,6 +9,7 @@ import {
   sendInviteService,
   validateInviteService,
 } from './inviteMember.service.js'
+import { listInvitesQuerySchema } from './inviteMember.schema.js'
 import type {
   SendInviteInput,
   GetInviteInput,
@@ -51,10 +52,13 @@ export const listAllInvitesController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const { workspaceId } = req.params
+  const parsed = listInvitesQuerySchema.parse(req.query)
 
   const result = await listAllInvitesService({
     workspaceId: Number(workspaceId),
-  } as ListInvitesInput)
+    page: parsed.page,
+    limit: parsed.limit,
+  } as ListInvitesInput & { page?: number; limit?: number })
 
   return res.status(200).json(new ApiResponse(200, 'Invites listed', result))
 })
@@ -73,7 +77,6 @@ export const revokeInviteController = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, 'Invite revoked successfully', result))
 })
 
-
 export const validateInviteController = asyncHandler(async (req, res) => {
   const { tokenId, token } = req.params
 
@@ -85,11 +88,10 @@ export const validateInviteController = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, 'Invite is valid', result))
 })
 
-
 export const acceptInviteController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
-  const { token, tokenId } = req.body 
+  const { token, tokenId } = req.body
 
   const result = await acceptInviteService({
     token,

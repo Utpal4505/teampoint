@@ -4,6 +4,7 @@ import { asyncHandler } from '../../utils/asyncHandler.js'
 import {
   addProjectMemberSchema,
   exitProjectSchema,
+  listProjectMembersQuerySchema,
   projectIdAndUserIdParamSchema,
   projectIdParamSchema,
   updateProjectMemberSchema,
@@ -46,8 +47,12 @@ export const listProjectMembersController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const { projectId } = projectIdParamSchema.parse(req.params)
+  const parsed = listProjectMembersQuerySchema.parse(req.query)
 
-  const members = await listProjectMembersService(projectId)
+  const members = await listProjectMembersService(projectId, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
   return res
     .status(200)

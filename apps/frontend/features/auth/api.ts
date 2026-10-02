@@ -1,4 +1,6 @@
-import api from "@/lib/api"
+import api from '@/lib/api'
+
+console.log('API URL:', process.env.NEXT_PUBLIC_API_URL)
 
 export const loginWithGoogle = () => {
   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`
@@ -14,4 +16,4 @@ export const logout = () => {
 
 export const refreshToken = () => {
   return api.post('/auth/refresh')
-  }
+}

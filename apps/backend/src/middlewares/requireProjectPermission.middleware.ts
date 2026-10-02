@@ -38,6 +38,7 @@ export const requireProjectPermission = (
       select: {
         role: true,
         permissions: true,
+        status: true,
       },
     })
 
@@ -46,13 +47,13 @@ export const requireProjectPermission = (
         where: {
           workspace: {
             projects: {
-              some: { id: projectId }
-            }
+              some: { id: projectId },
+            },
           },
           userId: user.id,
           role: { in: ['OWNER', 'ADMIN'] },
-          status: 'ACTIVE'
-        }
+          status: 'ACTIVE',
+        },
       })
 
       if (!workspaceMembership) {
@@ -60,6 +61,10 @@ export const requireProjectPermission = (
       }
 
       return next()
+    }
+
+    if (memebership.status !== 'ACTIVE') {
+      throw new ApiError(403, 'User is not a member of this project')
     }
 
     const overrides = memebership.permissions as ProjectPermissionOverride | null

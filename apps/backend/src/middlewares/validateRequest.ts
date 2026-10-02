@@ -11,8 +11,18 @@ export const validateRequest = <T extends z.ZodType>(
     const { success, data, error } = result
 
     if (!success) {
-      const errors = error?.issues[0]?.message || 'Invalid request data'
-      throw new ApiError(400, errors)
+      const issues = error?.issues ?? []
+      const message =
+        issues.length > 0
+          ? issues
+              .map(issue => {
+                const path = issue.path.length > 0 ? issue.path.join('.') : 'value'
+                return `${path}: ${issue.message}`
+              })
+              .join('; ')
+          : 'Invalid request data'
+
+      throw new ApiError(400, message)
     }
 
     if (target === 'query') {
@@ -22,6 +32,6 @@ export const validateRequest = <T extends z.ZodType>(
     } else {
       req[target] = data
     }
-    
+
     next()
   })

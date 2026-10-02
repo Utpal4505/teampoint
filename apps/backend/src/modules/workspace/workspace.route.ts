@@ -1,6 +1,11 @@
 import { Router } from 'express'
 import { validateRequest } from '../../middlewares/validateRequest.js'
-import { createWorkspaceSchema, workspaceIdParamSchema } from './workspace.schema.js'
+import {
+  createWorkspaceSchema,
+  listUserWorkspacesQuerySchema,
+  listWorkspaceMembersQuerySchema,
+  workspaceIdParamSchema,
+} from './workspace.schema.js'
 import {
   archiveWorkspaceController,
   createWorkspaceController,
@@ -23,7 +28,11 @@ const router = Router()
 
 router.use(hardAuth)
 
-router.get('/user-workspaces', listUserWorkspacesController)
+router.get(
+  '/user-workspaces',
+  validateRequest(listUserWorkspacesQuerySchema, 'query'),
+  listUserWorkspacesController,
+)
 
 router.post(
   '/',
@@ -34,6 +43,7 @@ router.post(
 router.get(
   '/:workspaceId',
   validateRequest(workspaceIdParamSchema, 'params'),
+  requireWorkspacePermission('canViewMembers'),
   getWorkspaceByIdController,
 )
 
@@ -61,6 +71,7 @@ router.delete(
 router.get(
   '/:workspaceId/members',
   validateRequest(workspaceIdParamSchema, 'params'),
+  validateRequest(listWorkspaceMembersQuerySchema, 'query'),
   requireWorkspacePermission('canViewMembers'),
   listAllWorkspaceMembersController,
 )
@@ -85,12 +96,14 @@ router.get(
   '/:workspaceId/projects',
   validateRequest(workspaceIdParamSchema, 'params'),
   validateRequest(listAllWorkspaceProjectQuerySchema, 'query'),
+  requireWorkspacePermission('canViewMembers'),
   listAllWorkspaceProjectController,
 )
 
 router.get(
   '/:workspaceId/my-tasks',
   validateRequest(workspaceIdParamSchema, 'params'),
+  requireWorkspacePermission('canViewMembers'),
   listWorkspaceAssignedTasksController,
 )
 export default router

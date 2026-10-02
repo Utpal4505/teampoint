@@ -70,6 +70,7 @@ export const getWorkspaceByIdService = async (workspaceId) => {
                         },
                     },
                 },
+                take: 20,
             },
             createdAt: true,
         },
@@ -147,25 +148,38 @@ export const deleteWorkspaceService = async ({ workspaceId, }) => {
         },
     }), 'Workspace not found');
 };
-export const listAllWorkspaceMembersService = async ({ workspaceId, }) => {
-    const members = await prisma.workspace_Members.findMany({
-        where: {
-            workspaceId,
-        },
-        select: {
-            role: true,
-            joinedAt: true,
-            user: {
-                select: {
-                    id: true,
-                    fullName: true,
-                    avatarUrl: true,
-                    status: true,
+export const listAllWorkspaceMembersService = async ({ workspaceId, page = 1, limit = 50, }) => {
+    const skip = (page - 1) * limit;
+    const [members, total] = await Promise.all([
+        prisma.workspace_Members.findMany({
+            where: { workspaceId },
+            select: {
+                role: true,
+                joinedAt: true,
+                user: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        avatarUrl: true,
+                        status: true,
+                    },
                 },
             },
+            skip,
+            take: limit,
+            orderBy: { joinedAt: 'asc' },
+        }),
+        prisma.workspace_Members.count({ where: { workspaceId } }),
+    ]);
+    return {
+        members,
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
         },
-    });
-    return members;
+    };
 };
 export const removeWorkspaceMemberService = async ({ workspaceId, targetUserId, actorId, }) => {
     return prisma.$transaction(async (tx) => {
@@ -277,10 +291,13 @@ export const updateWorkspaceMemberRoleService = async ({ workspaceId, actorId, t
         return updatedMember;
     });
 };
-export const listUserWorkspacesService = async ({ userId, }) => {
+export const listUserWorkspacesService = async ({ userId, page = 1, limit = 20, }) => {
     if (!userId) {
         throw new ApiError(400, 'User ID is required');
     }
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const skip = (safePage - 1) * safeLimit;
     const memberships = await prisma.workspace_Members.findMany({
         where: {
             userId,
@@ -303,6 +320,11 @@ export const listUserWorkspacesService = async ({ userId, }) => {
                     createdAt: true,
                 },
             },
+        },
+        skip,
+        take: safeLimit,
+        orderBy: {
+            joinedAt: 'desc',
         },
     });
     if (!memberships || memberships.length === 0) {

@@ -15,6 +15,7 @@ import {
   listGoalsService,
   updateGoalService,
 } from './goal.service.js'
+import { ListGoalsQuerySchema } from './goal.schema.js'
 
 export const createGoalController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -23,21 +24,21 @@ export const createGoalController = asyncHandler(async (req, res) => {
 
   const goal = await createGoalService(input, req.user.id)
 
-  return res
-    .status(201)
-    .json(new ApiResponse(201, 'Goal created successfully', goal))
+  return res.status(201).json(new ApiResponse(201, 'Goal created successfully', goal))
 })
 
 export const listGoalsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const projectId = Number(req.params.projectId)
+  const parsed = ListGoalsQuerySchema.parse(req.query)
 
-  const result = await listGoalsService(projectId, req.user.id)
+  const result = await listGoalsService(projectId, req.user.id, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, 'Goals fetched successfully', result))
+  return res.status(200).json(new ApiResponse(200, 'Goals fetched successfully', result))
 })
 
 export const getGoalController = asyncHandler(async (req, res) => {
@@ -47,9 +48,7 @@ export const getGoalController = asyncHandler(async (req, res) => {
 
   const goal = await getGoalService(goalId, req.user.id)
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, 'Goal fetched successfully', goal))
+  return res.status(200).json(new ApiResponse(200, 'Goal fetched successfully', goal))
 })
 
 export const updateGoalController = asyncHandler(async (req, res) => {
@@ -62,9 +61,7 @@ export const updateGoalController = asyncHandler(async (req, res) => {
 
   const updated = await updateGoalService(input, req.user.id)
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, 'Goal updated successfully', updated))
+  return res.status(200).json(new ApiResponse(200, 'Goal updated successfully', updated))
 })
 
 export const completeGoalController = asyncHandler(async (req, res) => {
@@ -90,7 +87,5 @@ export const deleteGoalController = asyncHandler(async (req, res) => {
 
   const deleted = await deleteGoalService(input, req.user.id)
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, 'Goal deleted successfully', deleted))
+  return res.status(200).json(new ApiResponse(200, 'Goal deleted successfully', deleted))
 })

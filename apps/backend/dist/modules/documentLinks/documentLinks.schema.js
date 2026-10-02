@@ -24,6 +24,10 @@ export const DocumentLinkListItemSchema = z.object({
 export const ListDocumentLinksResponseSchema = z.object({
     data: z.array(DocumentLinkListItemSchema),
 });
+export const ListDocumentLinksQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 export const EntityDocumentLinkListItemSchema = z.object({
     id: idParam,
     documentId: idParam,
@@ -31,6 +35,10 @@ export const EntityDocumentLinkListItemSchema = z.object({
 });
 export const ListEntityDocumentLinksResponseSchema = z.object({
     data: z.array(EntityDocumentLinkListItemSchema),
+});
+export const ListEntityDocumentLinksQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 export const UnlinkDocumentResponseSchema = z.object({
     id: idParam,

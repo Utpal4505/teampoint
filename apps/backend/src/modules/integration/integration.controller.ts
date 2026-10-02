@@ -4,6 +4,7 @@ import { ApiResponse } from '../../utils/apiResponse.js'
 import { ApiError } from '../../utils/apiError.js'
 import { env } from '../../config/env.js'
 import type { IntegrationProvider } from '../../types/integration.types.js'
+import { ListIntegrationsQuerySchema } from './integration.schema.js'
 import {
   listIntegrationsService,
   initiateIntegrationService,
@@ -15,7 +16,12 @@ import {
 export const listIntegrationsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
-  const result = await listIntegrationsService(req.user.id)
+  const parsed = ListIntegrationsQuerySchema.parse(req.query)
+
+  const result = await listIntegrationsService(req.user.id, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
   return res
     .status(200)

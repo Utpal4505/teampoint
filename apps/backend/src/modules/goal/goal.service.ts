@@ -43,8 +43,13 @@ export const createGoalService = async (
 export const listGoalsService = async (
   projectId: number,
   userId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListGoalsDTO> => {
   await assertProjectMember(projectId, userId)
+
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
 
   const goals = await prisma.goal.findMany({
     where: {
@@ -58,6 +63,8 @@ export const listGoalsService = async (
       targetDate: true,
       createdAt: true,
     },
+    skip,
+    take: limit,
     orderBy: { createdAt: 'desc' },
   })
 

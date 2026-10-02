@@ -3,6 +3,7 @@ import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { createLeaveRequestService, listLeaveRequestsService, getLeaveRequestService, updateLeaveRequestService, reviewLeaveRequestService, } from './workspaceLeave.service.js';
 import { ApiError } from '../../utils/apiError.js';
+import { ListLeaveRequestsQuerySchema } from './workspaceLeave.schema.js';
 export const createLeaveRequestController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const input = req.body;
@@ -14,7 +15,11 @@ export const createLeaveRequestController = asyncHandler(async (req, res) => {
 export const listLeaveRequestsController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const workspaceId = Number(req.params.workspaceId);
-    const result = await listLeaveRequestsService(workspaceId, req.user.id);
+    const parsed = ListLeaveRequestsQuerySchema.parse(req.query);
+    const result = await listLeaveRequestsService(workspaceId, req.user.id, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Leave requests fetched successfully', result));

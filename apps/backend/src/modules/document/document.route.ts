@@ -4,6 +4,7 @@ import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   CreateDocumentSchema,
   documentIdParamSchema,
+  listDocumentsQuerySchema,
   UpdateDocumentSchema,
 } from './document.schema.js'
 import {
@@ -38,7 +39,12 @@ router.post(
   createDocumentController,
 )
 
-router.get('/', requireProjectPermission('canViewDocs'), listDocumentsController)
+router.get(
+  '/',
+  validateRequest(listDocumentsQuerySchema, 'query'),
+  requireProjectPermission('canViewDocs'),
+  listDocumentsController,
+)
 
 router.get(
   '/:documentId',
@@ -66,6 +72,7 @@ router.get(
   '/:documentId/document-links',
   requireProjectPermission('canViewDocs'),
   validateRequest(documentIdParamSchema, 'params'),
+  validateRequest(listDocumentsQuerySchema, 'query'),
   listDocumentLinksController,
 )
 

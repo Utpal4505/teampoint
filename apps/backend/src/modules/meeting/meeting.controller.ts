@@ -11,6 +11,7 @@ import type {
   GetParticipantsQuery,
   UpdateMeetingInput,
 } from '../../types/meeting.type.js'
+import { MeetingStatusSchema } from './meeting.schema.js'
 import {
   createMeetingService,
   listMeetingsService,
@@ -41,9 +42,15 @@ export const createMeetingController = asyncHandler(async (req, res) => {
 export const listMeetingsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
+  const parsedStatus = MeetingStatusSchema.safeParse(req.query.status)
+
   const query: ListMeetingsServiceQuery = {
     projectId: Number(req.params.projectId),
-    ...req.query,
+    status: parsedStatus.success ? parsedStatus.data : undefined,
+    from: req.query.from ? new Date(req.query.from as string) : undefined,
+    to: req.query.to ? new Date(req.query.to as string) : undefined,
+    page: Number(req.query.page ?? 1),
+    limit: Number(req.query.limit ?? 20),
   }
 
   const result = await listMeetingsService(query, req.user.id)

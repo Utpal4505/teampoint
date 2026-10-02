@@ -28,8 +28,8 @@ export const addProjectMemberSchema = z.object({
   role: z.enum(PROJECT_MEMBER_ROLES),
 })
 
-// ── Exported payload types ─────────────────────────────────────
-export type ProjectStatus = 'ACTIVE' | 'ONHOLD' | 'COMPLETED' | 'DELETED' | 'INACTIVE'
+import type { ProjectStatus } from '@teampoint/shared-types'
+export type { ProjectStatus }
 export type ProjectRole   = ProjectMemberRole
 
 export interface CreateProjectPayload {

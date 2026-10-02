@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { hardAuth } from '../../middlewares/auth.middlewares.js'
 import { validateRequest } from '../../middlewares/validateRequest.js'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
+import { requireProjectPermission } from '../../middlewares/requireProjectPermission.middleware.js'
 import {
   createProjectSchema,
   projectIdParamSchema,
@@ -29,6 +30,7 @@ router.post(
 router.get(
   '/:projectId',
   validateRequest(projectIdParamSchema, 'params'),
+  requireProjectPermission('canViewMembers'),
   getProjectByIdController,
 )
 

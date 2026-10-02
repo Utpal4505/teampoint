@@ -3,10 +3,15 @@ import { assertUser } from '../../utils/assertUser.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
 import { ApiError } from '../../utils/apiError.js';
 import { env } from '../../config/env.js';
+import { ListIntegrationsQuerySchema } from './integration.schema.js';
 import { listIntegrationsService, initiateIntegrationService, handleCallbackService, getIntegrationStatusService, disconnectIntegrationService, } from './integration.service.js';
 export const listIntegrationsController = asyncHandler(async (req, res) => {
     assertUser(req.user);
-    const result = await listIntegrationsService(req.user.id);
+    const parsed = ListIntegrationsQuerySchema.parse(req.query);
+    const result = await listIntegrationsService(req.user.id, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Integrations fetched successfully', result));

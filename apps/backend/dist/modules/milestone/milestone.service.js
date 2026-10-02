@@ -19,8 +19,11 @@ export const createMilestoneService = async (input, userId) => {
         return milestone;
     });
 };
-export const listMilestonesService = async (projectId, userId) => {
+export const listMilestonesService = async (projectId, userId, options = {}) => {
     await assertProjectMember(projectId, userId);
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const milestones = await prisma.milestone.findMany({
         where: {
             projectId,
@@ -32,6 +35,8 @@ export const listMilestonesService = async (projectId, userId) => {
             dueDate: true,
             createdAt: true,
         },
+        skip,
+        take: limit,
         orderBy: { createdAt: 'desc' },
     });
     return {

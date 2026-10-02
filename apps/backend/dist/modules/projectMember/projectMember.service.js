@@ -107,7 +107,10 @@ export const addProjectMemberService = async (input) => {
         return projectMember;
     });
 };
-export const listProjectMembersService = async (projectId) => {
+export const listProjectMembersService = async (projectId, options = {}) => {
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const project = await prisma.project.findUnique({
         where: { id: projectId },
         select: { id: true, status: true },
@@ -135,6 +138,8 @@ export const listProjectMembersService = async (projectId) => {
                 },
             },
         },
+        skip,
+        take: limit,
         orderBy: {
             joinedAt: 'asc',
         },

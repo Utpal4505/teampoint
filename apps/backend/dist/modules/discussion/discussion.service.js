@@ -129,22 +129,39 @@ export const createDiscussionService = async (input, userId) => {
 };
 export const listDiscussionsService = async (projectId, userId, filters) => {
     await assertProjectMember(projectId, userId);
-    const discussions = await prisma.discussion.findMany({
-        where: {
-            projectId,
-            ...(filters.status
-                ? { status: filters.status }
-                : filters.includeClosed
-                    ? {}
-                    : { status: { not: DiscussionStatus.CLOSED } }),
-            ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
-            ...(filters.type ? { type: filters.type } : {}),
-            ...(filters.contextId ? { contextId: filters.contextId } : {}),
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 50;
+    const skip = (page - 1) * limit;
+    const whereClause = {
+        projectId,
+        ...(filters.status
+            ? { status: filters.status }
+            : filters.includeClosed
+                ? {}
+                : { status: { not: DiscussionStatus.CLOSED } }),
+        ...(filters.createdBy ? { createdBy: filters.createdBy } : {}),
+        ...(filters.type ? { type: filters.type } : {}),
+        ...(filters.contextId ? { contextId: filters.contextId } : {}),
+    };
+    const [discussions, total] = await Promise.all([
+        prisma.discussion.findMany({
+            where: whereClause,
+            select: discussionSelect,
+            skip,
+            take: limit,
+            orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
+        }),
+        prisma.discussion.count({ where: whereClause }),
+    ]);
+    return {
+        items: discussions.map(mapDiscussion),
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
         },
-        select: discussionSelect,
-        orderBy: [{ status: 'asc' }, { updatedAt: 'desc' }],
-    });
-    return discussions.map(mapDiscussion);
+    };
 };
 export const getDiscussionByIdService = async (projectId, discussionId, userId) => {
     await assertProjectMember(projectId, userId);

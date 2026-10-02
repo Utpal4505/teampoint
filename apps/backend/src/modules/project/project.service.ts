@@ -184,9 +184,14 @@ export const listAllWorkspaceProjectService = async (
     status?: ProjectStatus
     search?: string
     createdBy?: number
+    page?: number
+    limit?: number
   } = {},
 ): Promise<ListAllWorkspaceProjectDTO> => {
   const { status, createdBy } = filters
+  const page = Math.max(1, filters.page ?? 1)
+  const limit = Math.min(Math.max(1, filters.limit ?? 20), 100)
+  const skip = (page - 1) * limit
 
   const where: Prisma.ProjectWhereInput = {
     workspaceId,
@@ -214,6 +219,14 @@ export const listAllWorkspaceProjectService = async (
     where.createdBy = createdBy
   }
 
+  if (filters.search) {
+    where.OR = [
+      ...(Array.isArray(where.OR) ? where.OR : []),
+      { name: { contains: filters.search, mode: 'insensitive' } },
+      { description: { contains: filters.search, mode: 'insensitive' } },
+    ]
+  }
+
   const projects = await prisma.project.findMany({
     where,
     select: {
@@ -234,13 +247,18 @@ export const listAllWorkspaceProjectService = async (
           },
         },
       },
-      tasks: {
+      _count: {
         select: {
-          id: true,
-          status: true,
+          tasks: true,
         },
       },
+      tasks: {
+        where: { status: 'DONE' },
+        select: { id: true },
+      },
     },
+    skip,
+    take: limit,
     orderBy: {
       createdAt: 'desc',
     },
@@ -258,7 +276,7 @@ export const listAllWorkspaceProjectService = async (
       name: pm.user.fullName,
       avatarUrl: pm.user.avatarUrl,
     })),
-    totalTasks: project.tasks.length,
-    doneTasks: project.tasks.filter(t => t.status === 'DONE').length,
+    totalTasks: project._count.tasks,
+    doneTasks: project.tasks.length,
   }))
 }

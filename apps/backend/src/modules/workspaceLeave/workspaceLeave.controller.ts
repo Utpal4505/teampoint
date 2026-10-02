@@ -14,6 +14,7 @@ import {
   reviewLeaveRequestService,
 } from './workspaceLeave.service.js'
 import { ApiError } from '../../utils/apiError.js'
+import { ListLeaveRequestsQuerySchema } from './workspaceLeave.schema.js'
 
 export const createLeaveRequestController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -31,8 +32,12 @@ export const listLeaveRequestsController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const workspaceId = Number(req.params.workspaceId)
+  const parsed = ListLeaveRequestsQuerySchema.parse(req.query)
 
-  const result = await listLeaveRequestsService(workspaceId, req.user.id)
+  const result = await listLeaveRequestsService(workspaceId, req.user.id, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
   return res
     .status(200)

@@ -1,9 +1,7 @@
 import React from 'react'
-import { TaskStatus } from '../projects/detail/types'
-
-export type Priority = 'URGENT' | 'HIGH' | 'MEDIUM' | 'LOW'
-export type Status = 'TODO' | 'IN_PROGRESS' | 'DONE' | 'CANCELLED'
-export type TaskType = 'PERSONAL' | 'PROJECT'
+import type { Priority, TaskStatus, TaskType } from '@teampoint/shared-types'
+export type Status = TaskStatus
+export type { Priority, TaskStatus, TaskType }
 export type ViewMode = 'kanban' | 'list'
 
 // API response type

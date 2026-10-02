@@ -5,6 +5,10 @@ import { asyncHandler } from '../../utils/asyncHandler.js'
 import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.js'
 import { listAllWorkspaceProjectService } from '../project/project.service.js'
 import {
+  listUserWorkspacesQuerySchema,
+  listWorkspaceMembersQuerySchema,
+} from './workspace.schema.js'
+import {
   archiveWorkspaceService,
   createWorkspaceService,
   deleteWorkspaceService,
@@ -92,9 +96,12 @@ export const deleteWorkspaceController = asyncHandler(async (req, res) => {
 export const listAllWorkspaceMembersController = asyncHandler(async (req, res) => {
   assertUser(req.user)
   const { workspaceId } = req.params
+  const parsed = listWorkspaceMembersQuerySchema.parse(req.query)
 
   const members = await listAllWorkspaceMembersService({
     workspaceId: Number(workspaceId),
+    page: parsed.page,
+    limit: parsed.limit,
   })
 
   return res
@@ -145,10 +152,14 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
   const filters: {
     status?: ProjectStatus
     createdBy?: number
+    page?: number
+    limit?: number
   } = {}
 
   if (parsed.status !== undefined) filters.status = parsed.status
   if (parsed.createdBy !== undefined) filters.createdBy = parsed.createdBy
+  if (parsed.page !== undefined) filters.page = parsed.page
+  if (parsed.limit !== undefined) filters.limit = parsed.limit
 
   const projects = await listAllWorkspaceProjectService(
     Number(workspaceId),
@@ -164,8 +175,12 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
 export const listUserWorkspacesController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
+  const parsed = listUserWorkspacesQuerySchema.parse(req.query)
+
   const workspaces = await listUserWorkspacesService({
     userId: req.user.id,
+    page: parsed.page,
+    limit: parsed.limit,
   })
 
   return res

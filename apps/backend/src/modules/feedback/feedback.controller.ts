@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.js'
 import { assertUser } from '../../utils/assertUser.js'
 import { asyncHandler } from '../../utils/asyncHandler.js'
-import { FeedbackTypeEnum, FeedbackStatusEnum } from './feedback.schema.js'
+import { listFeedbackQuerySchema } from './feedback.schema.js'
 import {
   createFeedbackService,
   getFeedbackByIdService,
@@ -32,15 +32,16 @@ export const getFeedbackController = asyncHandler(async (req, res) => {
 })
 
 export const listFeedbackController = asyncHandler(async (req, res) => {
-  const { projectId, type, status } = req.query
-
-  const validatedType = type ? FeedbackTypeEnum.parse(type) : undefined
-  const validatedStatus = status ? FeedbackStatusEnum.parse(status) : undefined
+  const parsed = listFeedbackQuerySchema.parse(req.query)
 
   const feedback = await listFeedbackService(
-    projectId ? Number(projectId) : undefined,
-    validatedType,
-    validatedStatus,
+    parsed.projectId,
+    parsed.type,
+    parsed.status,
+    {
+      page: parsed.page,
+      limit: parsed.limit,
+    },
   )
 
   return res

@@ -35,10 +35,11 @@ export const requireWorkspacePermission = (
       select: {
         role: true,
         permissions: true,
+        status: true,
       },
     })
 
-    if (!memebership) {
+    if (!memebership || memebership.status !== 'ACTIVE') {
       throw new ApiError(403, 'User is not a member of this workspace')
     }
 

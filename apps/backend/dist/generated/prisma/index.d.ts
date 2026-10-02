@@ -709,7 +709,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
@@ -1016,8 +1016,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.5.0
-   * Query Engine version: 280c870be64f457428992c43c1f6d557fab6e29e
+   * Prisma Client JS version: 7.8.0
+   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
    */
   export type PrismaVersion = {
     client: string
@@ -25352,7 +25352,6 @@ export namespace Prisma {
     description: string | null
     targetDate: Date | null
     status: $Enums.GoalStatus | null
-    isDeleted: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     achievedAt: Date | null
@@ -25367,7 +25366,6 @@ export namespace Prisma {
     description: string | null
     targetDate: Date | null
     status: $Enums.GoalStatus | null
-    isDeleted: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
     achievedAt: Date | null
@@ -25382,7 +25380,6 @@ export namespace Prisma {
     description: number
     targetDate: number
     status: number
-    isDeleted: number
     createdAt: number
     updatedAt: number
     achievedAt: number
@@ -25411,7 +25408,6 @@ export namespace Prisma {
     description?: true
     targetDate?: true
     status?: true
-    isDeleted?: true
     createdAt?: true
     updatedAt?: true
     achievedAt?: true
@@ -25426,7 +25422,6 @@ export namespace Prisma {
     description?: true
     targetDate?: true
     status?: true
-    isDeleted?: true
     createdAt?: true
     updatedAt?: true
     achievedAt?: true
@@ -25441,7 +25436,6 @@ export namespace Prisma {
     description?: true
     targetDate?: true
     status?: true
-    isDeleted?: true
     createdAt?: true
     updatedAt?: true
     achievedAt?: true
@@ -25543,7 +25537,6 @@ export namespace Prisma {
     description: string | null
     targetDate: Date | null
     status: $Enums.GoalStatus
-    isDeleted: boolean
     createdAt: Date
     updatedAt: Date
     achievedAt: Date | null
@@ -25577,7 +25570,6 @@ export namespace Prisma {
     description?: boolean
     targetDate?: boolean
     status?: boolean
-    isDeleted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     achievedAt?: boolean
@@ -25594,7 +25586,6 @@ export namespace Prisma {
     description?: boolean
     targetDate?: boolean
     status?: boolean
-    isDeleted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     achievedAt?: boolean
@@ -25611,7 +25602,6 @@ export namespace Prisma {
     description?: boolean
     targetDate?: boolean
     status?: boolean
-    isDeleted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     achievedAt?: boolean
@@ -25628,14 +25618,13 @@ export namespace Prisma {
     description?: boolean
     targetDate?: boolean
     status?: boolean
-    isDeleted?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     achievedAt?: boolean
     deletedAt?: boolean
   }
 
-  export type GoalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "createdBy" | "title" | "description" | "targetDate" | "status" | "isDeleted" | "createdAt" | "updatedAt" | "achievedAt" | "deletedAt", ExtArgs["result"]["goal"]>
+  export type GoalOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "createdBy" | "title" | "description" | "targetDate" | "status" | "createdAt" | "updatedAt" | "achievedAt" | "deletedAt", ExtArgs["result"]["goal"]>
   export type GoalInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
     creator?: boolean | UserDefaultArgs<ExtArgs>
@@ -25663,7 +25652,6 @@ export namespace Prisma {
       description: string | null
       targetDate: Date | null
       status: $Enums.GoalStatus
-      isDeleted: boolean
       createdAt: Date
       updatedAt: Date
       achievedAt: Date | null
@@ -26100,7 +26088,6 @@ export namespace Prisma {
     readonly description: FieldRef<"Goal", 'String'>
     readonly targetDate: FieldRef<"Goal", 'DateTime'>
     readonly status: FieldRef<"Goal", 'GoalStatus'>
-    readonly isDeleted: FieldRef<"Goal", 'Boolean'>
     readonly createdAt: FieldRef<"Goal", 'DateTime'>
     readonly updatedAt: FieldRef<"Goal", 'DateTime'>
     readonly achievedAt: FieldRef<"Goal", 'DateTime'>
@@ -35619,7 +35606,6 @@ export namespace Prisma {
     description: 'description',
     targetDate: 'targetDate',
     status: 'status',
-    isDeleted: 'isDeleted',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     achievedAt: 'achievedAt',
@@ -37916,7 +37902,6 @@ export namespace Prisma {
     description?: StringNullableFilter<"Goal"> | string | null
     targetDate?: DateTimeNullableFilter<"Goal"> | Date | string | null
     status?: EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
-    isDeleted?: BoolFilter<"Goal"> | boolean
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
     achievedAt?: DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -37933,7 +37918,6 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     targetDate?: SortOrderInput | SortOrder
     status?: SortOrder
-    isDeleted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     achievedAt?: SortOrderInput | SortOrder
@@ -37953,7 +37937,6 @@ export namespace Prisma {
     description?: StringNullableFilter<"Goal"> | string | null
     targetDate?: DateTimeNullableFilter<"Goal"> | Date | string | null
     status?: EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
-    isDeleted?: BoolFilter<"Goal"> | boolean
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
     achievedAt?: DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -37970,7 +37953,6 @@ export namespace Prisma {
     description?: SortOrderInput | SortOrder
     targetDate?: SortOrderInput | SortOrder
     status?: SortOrder
-    isDeleted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     achievedAt?: SortOrderInput | SortOrder
@@ -37993,7 +37975,6 @@ export namespace Prisma {
     description?: StringNullableWithAggregatesFilter<"Goal"> | string | null
     targetDate?: DateTimeNullableWithAggregatesFilter<"Goal"> | Date | string | null
     status?: EnumGoalStatusWithAggregatesFilter<"Goal"> | $Enums.GoalStatus
-    isDeleted?: BoolWithAggregatesFilter<"Goal"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Goal"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Goal"> | Date | string
     achievedAt?: DateTimeNullableWithAggregatesFilter<"Goal"> | Date | string | null
@@ -40337,7 +40318,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -40354,7 +40334,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -40366,7 +40345,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -40383,7 +40361,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -40398,7 +40375,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -40410,7 +40386,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -40425,7 +40400,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -43022,7 +42996,6 @@ export namespace Prisma {
     description?: SortOrder
     targetDate?: SortOrder
     status?: SortOrder
-    isDeleted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     achievedAt?: SortOrder
@@ -43043,7 +43016,6 @@ export namespace Prisma {
     description?: SortOrder
     targetDate?: SortOrder
     status?: SortOrder
-    isDeleted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     achievedAt?: SortOrder
@@ -43058,7 +43030,6 @@ export namespace Prisma {
     description?: SortOrder
     targetDate?: SortOrder
     status?: SortOrder
-    isDeleted?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     achievedAt?: SortOrder
@@ -47981,7 +47952,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -47996,7 +47966,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -48874,7 +48843,6 @@ export namespace Prisma {
     description?: StringNullableFilter<"Goal"> | string | null
     targetDate?: DateTimeNullableFilter<"Goal"> | Date | string | null
     status?: EnumGoalStatusFilter<"Goal"> | $Enums.GoalStatus
-    isDeleted?: BoolFilter<"Goal"> | boolean
     createdAt?: DateTimeFilter<"Goal"> | Date | string
     updatedAt?: DateTimeFilter<"Goal"> | Date | string
     achievedAt?: DateTimeNullableFilter<"Goal"> | Date | string | null
@@ -50867,7 +50835,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -50882,7 +50849,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -56662,7 +56628,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -57301,7 +57266,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -57316,7 +57280,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -57330,7 +57293,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -58132,7 +58094,6 @@ export namespace Prisma {
     description?: string | null
     targetDate?: Date | string | null
     status?: $Enums.GoalStatus
-    isDeleted?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     achievedAt?: Date | string | null
@@ -58425,7 +58386,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -58440,7 +58400,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -58454,7 +58413,6 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     targetDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: EnumGoalStatusFieldUpdateOperationsInput | $Enums.GoalStatus
-    isDeleted?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     achievedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

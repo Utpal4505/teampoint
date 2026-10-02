@@ -1,7 +1,7 @@
 import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
-import { FeedbackTypeEnum, FeedbackStatusEnum } from './feedback.schema.js';
+import { listFeedbackQuerySchema } from './feedback.schema.js';
 import { createFeedbackService, getFeedbackByIdService, listFeedbackService, updateFeedbackStatusService, deleteFeedbackService, } from './feedback.service.js';
 export const createFeedbackController = asyncHandler(async (req, res) => {
     const feedback = await createFeedbackService(req.body, req.user?.id);
@@ -20,10 +20,11 @@ export const getFeedbackController = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, 'Feedback fetched successfully', feedback));
 });
 export const listFeedbackController = asyncHandler(async (req, res) => {
-    const { projectId, type, status } = req.query;
-    const validatedType = type ? FeedbackTypeEnum.parse(type) : undefined;
-    const validatedStatus = status ? FeedbackStatusEnum.parse(status) : undefined;
-    const feedback = await listFeedbackService(projectId ? Number(projectId) : undefined, validatedType, validatedStatus);
+    const parsed = listFeedbackQuerySchema.parse(req.query);
+    const feedback = await listFeedbackService(parsed.projectId, parsed.type, parsed.status, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Feedback list fetched successfully', feedback));

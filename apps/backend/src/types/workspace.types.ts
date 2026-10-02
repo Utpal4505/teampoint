@@ -69,15 +69,23 @@ export type WorkspacePermissionMap =
 export type WorkspacePermissionOverride = Partial<WorkspacePermissionMap>
 
 export type ListAllWorkspacesMemberDTO = {
-  user: {
-    id: number
-    fullName: string
-    avatarUrl: string | null
-    status: UserStatus
+  members: {
+    user: {
+      id: number
+      fullName: string
+      avatarUrl: string | null
+      status: UserStatus
+    }
+    role: WorkspaceRole
+    joinedAt: Date
+  }[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
   }
-  role: WorkspaceRole
-  joinedAt: Date
-}[]
+}
 
 export type RemoveorUpdateWorkspaceMemberDTO = {
   userId: number

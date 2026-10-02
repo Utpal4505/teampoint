@@ -109,22 +109,44 @@ export const listMessagesService = async (
   projectId: number,
   discussionId: number,
   userId: number,
+  page: number = 1,
+  limit: number = 50,
 ): Promise<ListMessageDTO> => {
   await assertProjectMember(projectId, userId)
   await prisma.$transaction(tx => getDiscussionOrThrow(tx, projectId, discussionId))
 
-  const messages = await prisma.message.findMany({
-    where: {
-      discussionId,
-      isDeleted: false,
-    },
-    select: messageSelect,
-    orderBy: {
-      createdAt: 'asc',
-    },
-  })
+  const skip = (page - 1) * limit
 
-  return messages.map(mapMessage)
+  const [messages, total] = await Promise.all([
+    prisma.message.findMany({
+      where: {
+        discussionId,
+        isDeleted: false,
+      },
+      select: messageSelect,
+      skip,
+      take: limit,
+      orderBy: {
+        createdAt: 'asc',
+      },
+    }),
+    prisma.message.count({
+      where: {
+        discussionId,
+        isDeleted: false,
+      },
+    }),
+  ])
+
+  return {
+    items: messages.map(mapMessage),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
 }
 
 export const createMessageService = async (

@@ -2,7 +2,12 @@ import { Router } from 'express'
 import { validateRequest } from '../../middlewares/validateRequest.js'
 import { workspaceIdParamSchema } from '../workspace/workspace.schema.js'
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js'
-import { acceptInviteSchema, inviteIdParamSchema, validateInviteParamSchema } from './inviteMember.schema.js'
+import {
+  acceptInviteSchema,
+  inviteIdParamSchema,
+  listInvitesQuerySchema,
+  validateInviteParamSchema,
+} from './inviteMember.schema.js'
 import {
   acceptInviteController,
   getSingleInviteController,
@@ -31,6 +36,7 @@ router.get(
 router.get(
   '/:workspaceId/invites',
   validateRequest(workspaceIdParamSchema, 'params'),
+  validateRequest(listInvitesQuerySchema, 'query'),
   requireWorkspacePermission('canViewInvites'),
   listAllInvitesController,
 )

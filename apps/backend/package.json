@@ -7,11 +7,11 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:unit": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js tests/unit",
-    "test:integration": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js tests/integration",
-    "test:watch": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test": "cross-env NODE_ENV=test node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --runInBand",
+    "test:unit": "cross-env NODE_ENV=test node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --runInBand tests/unit",
+    "test:integration": "cross-env NODE_ENV=test node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --runInBand tests/integration",
+    "test:watch": "cross-env NODE_ENV=test node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "cross-env NODE_ENV=test node --experimental-vm-modules ../../node_modules/jest/bin/jest.js --coverage",
     "lint": "npx eslint .",
     "lint:fix": "npx eslint . --fix",
     "format:check": "prettier . --check",
@@ -87,7 +87,8 @@
     "uuid": "^13.0.0",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76",
+    "@teampoint/shared-types": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

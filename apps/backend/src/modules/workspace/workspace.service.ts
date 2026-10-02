@@ -96,7 +96,7 @@ export const getWorkspaceByIdService = async (
             },
           },
         },
-        // TODO: paginate or limit members if workspace grows large
+        take: 20,
       },
       createdAt: true,
     },
@@ -209,28 +209,46 @@ export const deleteWorkspaceService = async ({
 
 export const listAllWorkspaceMembersService = async ({
   workspaceId,
+  page = 1,
+  limit = 50,
 }: {
   workspaceId: number
+  page?: number
+  limit?: number
 }): Promise<ListAllWorkspacesMemberDTO> => {
-  const members = await prisma.workspace_Members.findMany({
-    where: {
-      workspaceId,
-    },
-    select: {
-      role: true,
-      joinedAt: true,
-      user: {
-        select: {
-          id: true,
-          fullName: true,
-          avatarUrl: true,
-          status: true,
+  const skip = (page - 1) * limit
+
+  const [members, total] = await Promise.all([
+    prisma.workspace_Members.findMany({
+      where: { workspaceId },
+      select: {
+        role: true,
+        joinedAt: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            avatarUrl: true,
+            status: true,
+          },
         },
       },
-    },
-  })
+      skip,
+      take: limit,
+      orderBy: { joinedAt: 'asc' },
+    }),
+    prisma.workspace_Members.count({ where: { workspaceId } }),
+  ])
 
-  return members
+  return {
+    members,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  }
 }
 
 export const removeWorkspaceMemberService = async ({
@@ -351,6 +369,7 @@ export const updateWorkspaceMemberRoleService = async ({
       },
       data: {
         role,
+        permissions: ROLE_PERMISSIONS[role],
       },
       select: {
         userId: true,
@@ -375,12 +394,20 @@ export const updateWorkspaceMemberRoleService = async ({
 
 export const listUserWorkspacesService = async ({
   userId,
+  page = 1,
+  limit = 20,
 }: {
   userId: number
+  page?: number
+  limit?: number
 }): Promise<ListUserWorkspacesDTO> => {
   if (!userId) {
     throw new ApiError(400, 'User ID is required')
   }
+
+  const safePage = Math.max(1, page)
+  const safeLimit = Math.min(Math.max(1, limit), 100)
+  const skip = (safePage - 1) * safeLimit
 
   const memberships = await prisma.workspace_Members.findMany({
     where: {
@@ -404,6 +431,11 @@ export const listUserWorkspacesService = async ({
           createdAt: true,
         },
       },
+    },
+    skip,
+    take: safeLimit,
+    orderBy: {
+      joinedAt: 'desc',
     },
   })
 

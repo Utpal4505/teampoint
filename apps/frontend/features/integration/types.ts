@@ -1,6 +1,5 @@
-export type IntegrationProvider = 'GOOGLE'
-
-export type IntegrationStatus = 'CONNECTED' | 'DISCONNECTED' | 'EXPIRED' | 'ERROR'
+import type { IntegrationProvider, IntegrationStatus } from '@teampoint/shared-types'
+export type { IntegrationProvider, IntegrationStatus }
 
 export interface Integration {
   provider: IntegrationProvider

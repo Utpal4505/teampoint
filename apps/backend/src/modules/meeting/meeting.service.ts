@@ -32,50 +32,50 @@ export const createMeetingService = async (
 ): Promise<CreateMeetingResponse> => {
   const { projectId, title, description, startTime, endTime, participants } = input
 
-  return prisma.$transaction(async tx => {
-    await assertProjectMember(projectId, userId, tx)
+  await assertProjectMember(projectId, userId)
 
-    const participantIds = participants.map(p => p.userId)
+  const participantIds = participants.map(p => p.userId)
 
-    const validMembers = await tx.project_Members.findMany({
-      where: {
-        projectId,
-        userId: { in: participantIds },
-      },
-      select: { userId: true },
-    })
+  const validMembers = await prisma.project_Members.findMany({
+    where: {
+      projectId,
+      userId: { in: participantIds },
+    },
+    select: { userId: true },
+  })
 
-    const validMemberIds = new Set(validMembers.map(m => m.userId))
-    const invalidIds = participantIds.filter(id => !validMemberIds.has(id))
+  const validMemberIds = new Set(validMembers.map(m => m.userId))
+  const invalidIds = participantIds.filter(id => !validMemberIds.has(id))
 
-    if (invalidIds.length > 0) {
-      throw new ApiError(
-        400,
-        `Users [${invalidIds.join(', ')}] are not members of this project`,
-      )
-    }
+  if (invalidIds.length > 0) {
+    throw new ApiError(
+      400,
+      `Users [${invalidIds.join(', ')}] are not members of this project`,
+    )
+  }
 
-    const hasHost = participants.some(p => p.role === 'HOST')
-    if (!hasHost) {
-      throw new ApiError(400, 'At least one participant must have HOST role')
-    }
+  const hasHost = participants.some(p => p.role === 'HOST')
+  if (!hasHost) {
+    throw new ApiError(400, 'At least one participant must have HOST role')
+  }
 
-    const users = await tx.user.findMany({
-      where: { id: { in: participantIds } },
-      select: { id: true, email: true },
-    })
+  const users = await prisma.user.findMany({
+    where: { id: { in: participantIds } },
+    select: { id: true, email: true },
+  })
 
-    const attendeeEmails = users.map(u => u.email)
+  const attendeeEmails = users.map(u => u.email)
 
-    const { meetingLink, googleEventId } = await createGoogleMeetEvent(userId, {
-      title,
-      description,
-      startTime,
-      endTime,
-      attendeeEmails,
-    })
+  const { meetingLink, googleEventId } = await createGoogleMeetEvent(userId, {
+    title,
+    description,
+    startTime,
+    endTime,
+    attendeeEmails,
+  })
 
-    const meeting = await tx.meeting.create({
+  const meeting = await prisma.$transaction(async tx => {
+    return tx.meeting.create({
       data: {
         projectId: Number(projectId),
         createdBy: userId,
@@ -83,9 +83,9 @@ export const createMeetingService = async (
         description: description ?? null,
         startTime,
         endTime,
+        status: 'SCHEDULED',
         meetingLink,
         googleEventId,
-        status: 'SCHEDULED',
         participants: {
           create: participants.map(p => ({
             userId: p.userId,
@@ -93,15 +93,21 @@ export const createMeetingService = async (
           })),
         },
       },
+      select: {
+        id: true,
+        status: true,
+        meetingLink: true,
+        createdAt: true,
+      },
     })
-
-    return {
-      id: meeting.id,
-      status: 'SCHEDULED',
-      meetingLink: meeting.meetingLink,
-      createdAt: meeting.createdAt,
-    }
   })
+
+  return {
+    id: meeting.id,
+    status: 'SCHEDULED',
+    meetingLink: meeting.meetingLink,
+    createdAt: meeting.createdAt,
+  }
 }
 
 export const listMeetingsService = async (
@@ -109,6 +115,9 @@ export const listMeetingsService = async (
   userId: number,
 ): Promise<ListMeetingsResponse> => {
   const { projectId, status, from, to } = query
+  const page = Math.max(1, query.page ?? 1)
+  const limit = Math.min(Math.max(1, query.limit ?? 20), 100)
+  const skip = (page - 1) * limit
 
   await assertProjectMember(Number(projectId), userId)
 
@@ -141,6 +150,8 @@ export const listMeetingsService = async (
         },
       },
     },
+    skip,
+    take: limit,
     orderBy: { startTime: 'asc' },
   })
 
@@ -207,7 +218,7 @@ export const updateMeetingService = async (
 ): Promise<UpdateMeetingResponse> => {
   const { meetingId, title, description, startTime, endTime } = input
 
-  return prisma.$transaction(async tx => {
+  const updatedMeeting = await prisma.$transaction(async tx => {
     const meeting = await tx.meeting.findUnique({
       where: { id: meetingId },
     })
@@ -230,24 +241,26 @@ export const updateMeetingService = async (
       },
     })
 
-    if (meeting.googleEventId) {
-      await updateGoogleMeetEvent(meeting.createdBy, {
-        googleEventId: meeting.googleEventId,
-        title,
-        description: description ?? undefined,
-        startTime,
-        endTime,
-      })
-    }
-
-    return {
-      id: updated.id,
-      title: updated.title,
-      startTime: updated.startTime,
-      endTime: updated.endTime,
-      updatedAt: updated.updatedAt,
-    }
+    return { updated, createdBy: meeting.createdBy, googleEventId: meeting.googleEventId }
   })
+
+  if (updatedMeeting.googleEventId) {
+    await updateGoogleMeetEvent(updatedMeeting.createdBy, {
+      googleEventId: updatedMeeting.googleEventId,
+      title,
+      description: description ?? undefined,
+      startTime,
+      endTime,
+    })
+  }
+
+  return {
+    id: updatedMeeting.updated.id,
+    title: updatedMeeting.updated.title,
+    startTime: updatedMeeting.updated.startTime,
+    endTime: updatedMeeting.updated.endTime,
+    updatedAt: updatedMeeting.updated.updatedAt,
+  }
 }
 
 export const getParticipantsService = async (
@@ -411,7 +424,7 @@ export const cancelMeetingService = async (
 ): Promise<CancelMeetingResponse> => {
   const { meetingId } = input
 
-  return prisma.$transaction(async tx => {
+  const cancelledData = await prisma.$transaction(async tx => {
     const meeting = await tx.meeting.findUnique({
       where: { id: meetingId },
     })
@@ -432,16 +445,18 @@ export const cancelMeetingService = async (
       },
     })
 
-    if (meeting.googleEventId) {
-      await cancelGoogleMeetEvent(meeting.createdBy, meeting.googleEventId)
-    }
-
-    return {
-      id: cancelled.id,
-      status: 'CANCELLED',
-      cancelledAt: cancelled.cancelledAt!,
-    }
+    return { cancelled, createdBy: meeting.createdBy, googleEventId: meeting.googleEventId }
   })
+
+  if (cancelledData.googleEventId) {
+    await cancelGoogleMeetEvent(cancelledData.createdBy, cancelledData.googleEventId)
+  }
+
+  return {
+    id: cancelledData.cancelled.id,
+    status: 'CANCELLED',
+    cancelledAt: cancelledData.cancelled.cancelledAt!,
+  }
 }
 
 export const listWorkspaceMeetingsService = async (
@@ -449,6 +464,10 @@ export const listWorkspaceMeetingsService = async (
   userId: number,
   query?: ListWorkspaceMeetingsQuery,
 ): Promise<ListMeetingsResponse> => {
+  const page = Math.max(1, query?.page ?? 1)
+  const limit = Math.min(Math.max(1, query?.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const projects = await prisma.project.findMany({
     where: { workspaceId },
     select: { id: true },
@@ -480,6 +499,8 @@ export const listWorkspaceMeetingsService = async (
       projectId: true,
       _count: { select: { participants: true } },
     },
+    skip,
+    take: limit,
     orderBy: { startTime: 'asc' },
   })
 

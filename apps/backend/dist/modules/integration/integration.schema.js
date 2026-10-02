@@ -30,6 +30,10 @@ export const IntegrationSummarySchema = z.object({
 export const ListIntegrationsResponseSchema = z.object({
     data: z.array(IntegrationSummarySchema),
 });
+export const ListIntegrationsQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 export const IntegrationDisconnectResponseSchema = z.object({
     provider: IntegrationProviderSchema,
     status: z.literal('DISCONNECTED'),

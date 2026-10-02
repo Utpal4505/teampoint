@@ -1,5 +1,5 @@
-export type WorkspaceRole = 'OWNER' | 'ADMIN' | 'MEMBER'
-export type WorkspaceStatus = 'ACTIVE' | 'ARCHIVED' | 'DELETED'
+import type { WorkspaceRole, WorkspaceStatus } from '@teampoint/shared-types'
+export type { WorkspaceRole, WorkspaceStatus }
 
 export type SendInviteDTO = {
   invitedBy: number

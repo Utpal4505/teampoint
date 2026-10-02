@@ -3,6 +3,7 @@ import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.js';
 import { listAllWorkspaceProjectService } from '../project/project.service.js';
+import { listUserWorkspacesQuerySchema, listWorkspaceMembersQuerySchema, } from './workspace.schema.js';
 import { archiveWorkspaceService, createWorkspaceService, deleteWorkspaceService, getWorkspaceByIdService, listAllWorkspaceMembersService, listUserWorkspacesService, removeWorkspaceMemberService, updateWorkspaceMemberRoleService, updateWorkspaceService, } from './workspace.service.js';
 export const createWorkspaceController = asyncHandler(async (req, res) => {
     assertUser(req.user);
@@ -60,8 +61,11 @@ export const deleteWorkspaceController = asyncHandler(async (req, res) => {
 export const listAllWorkspaceMembersController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const { workspaceId } = req.params;
+    const parsed = listWorkspaceMembersQuerySchema.parse(req.query);
     const members = await listAllWorkspaceMembersService({
         workspaceId: Number(workspaceId),
+        page: parsed.page,
+        limit: parsed.limit,
     });
     return res
         .status(200)
@@ -103,6 +107,10 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
         filters.status = parsed.status;
     if (parsed.createdBy !== undefined)
         filters.createdBy = parsed.createdBy;
+    if (parsed.page !== undefined)
+        filters.page = parsed.page;
+    if (parsed.limit !== undefined)
+        filters.limit = parsed.limit;
     const projects = await listAllWorkspaceProjectService(Number(workspaceId), req.user.id, filters);
     return res
         .status(200)
@@ -110,8 +118,11 @@ export const listAllWorkspaceProjectController = asyncHandler(async (req, res) =
 });
 export const listUserWorkspacesController = asyncHandler(async (req, res) => {
     assertUser(req.user);
+    const parsed = listUserWorkspacesQuerySchema.parse(req.query);
     const workspaces = await listUserWorkspacesService({
         userId: req.user.id,
+        page: parsed.page,
+        limit: parsed.limit,
     });
     return res
         .status(200)

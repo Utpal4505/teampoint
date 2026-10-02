@@ -71,4 +71,8 @@ export const DeleteMilestoneResponseSchema = z.object({
     id: idParam,
     deletedAt: z.date(),
 });
+export const ListMilestonesQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 //# sourceMappingURL=milestone.schema.js.map

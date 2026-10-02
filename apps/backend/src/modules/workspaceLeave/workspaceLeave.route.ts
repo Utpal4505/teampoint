@@ -6,6 +6,7 @@ import {
   CreateLeaveRequestSchema,
   UpdateLeaveRequestSchema,
   ReviewLeaveRequestSchema,
+  ListLeaveRequestsQuerySchema,
 } from './workspaceLeave.schema.js'
 
 import {
@@ -31,6 +32,7 @@ router.post(
 
 router.get(
   '/',
+  validateRequest(ListLeaveRequestsQuerySchema, 'query'),
   requireWorkspacePermission('canViewAllLeaveRequests'),
   listLeaveRequestsController,
 )

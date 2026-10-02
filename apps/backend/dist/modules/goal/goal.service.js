@@ -19,8 +19,11 @@ export const createGoalService = async (input, userId) => {
         return goal;
     });
 };
-export const listGoalsService = async (projectId, userId) => {
+export const listGoalsService = async (projectId, userId, options = {}) => {
     await assertProjectMember(projectId, userId);
+    const page = Math.max(1, options.page ?? 1);
+    const limit = Math.min(Math.max(1, options.limit ?? 20), 100);
+    const skip = (page - 1) * limit;
     const goals = await prisma.goal.findMany({
         where: {
             projectId,
@@ -33,6 +36,8 @@ export const listGoalsService = async (projectId, userId) => {
             targetDate: true,
             createdAt: true,
         },
+        skip,
+        take: limit,
         orderBy: { createdAt: 'desc' },
     });
     return {

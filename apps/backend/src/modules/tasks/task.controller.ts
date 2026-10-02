@@ -11,7 +11,11 @@ import {
   listWorkspaceAssignedTasksService,
   updateTaskService,
 } from './task.service.js'
-import { listTasksQuerySchema, taskIdParamSchema } from './task.schema.js'
+import {
+  listTasksQuerySchema,
+  listWorkspaceAssignedTasksQuerySchema,
+  taskIdParamSchema,
+} from './task.schema.js'
 import { workspaceIdParamSchema } from '../workspace/workspace.schema.js'
 
 export const createTaskController = asyncHandler(async (req, res) => {
@@ -34,12 +38,16 @@ export const listTasksController = asyncHandler(async (req, res) => {
     assignedTo?: number
     status?: TaskStatus
     taskType?: TaskType
+    page?: number
+    limit?: number
   } = {}
 
   if (parsed.projectId !== undefined) filters.projectId = parsed.projectId
   if (parsed.assignedTo !== undefined) filters.assignedTo = parsed.assignedTo
   if (parsed.status !== undefined) filters.status = parsed.status as TaskStatus
   if (parsed.taskType !== undefined) filters.taskType = parsed.taskType as TaskType
+  if (parsed.page !== undefined) filters.page = parsed.page
+  if (parsed.limit !== undefined) filters.limit = parsed.limit
 
   const tasks = await listTasksService(req.user.id, filters)
 
@@ -94,8 +102,14 @@ export const listWorkspaceAssignedTasksController = asyncHandler(async (req, res
   assertUser(req.user)
 
   const { workspaceId } = workspaceIdParamSchema.parse(req.params)
+  const parsed = listWorkspaceAssignedTasksQuerySchema.parse(req.query)
 
-  const tasks = await listWorkspaceAssignedTasksService(workspaceId, req.user.id)
+  const tasks = await listWorkspaceAssignedTasksService(
+    workspaceId,
+    req.user.id,
+    parsed.page,
+    parsed.limit,
+  )
 
   return res
     .status(200)

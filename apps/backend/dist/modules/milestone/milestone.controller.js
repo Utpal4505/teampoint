@@ -2,6 +2,7 @@ import { ApiResponse } from '../../utils/apiResponse.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { completeMilestoneService, createMilestoneService, getMilestoneService, listMilestonesService, updateMilestoneService, } from './milestone.service.js';
+import { ListMilestonesQuerySchema } from './milestone.schema.js';
 export const createMilestoneController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const input = req.body;
@@ -13,7 +14,11 @@ export const createMilestoneController = asyncHandler(async (req, res) => {
 export const listMilestonesController = asyncHandler(async (req, res) => {
     assertUser(req.user);
     const projectId = Number(req.params.projectId);
-    const result = await listMilestonesService(projectId, req.user.id);
+    const parsed = ListMilestonesQuerySchema.parse(req.query);
+    const result = await listMilestonesService(projectId, req.user.id, {
+        page: parsed.page,
+        limit: parsed.limit,
+    });
     return res
         .status(200)
         .json(new ApiResponse(200, 'Milestones fetched successfully', result));

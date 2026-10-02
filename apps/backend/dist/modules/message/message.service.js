@@ -69,20 +69,39 @@ const assertDecisionPermission = async (tx, projectId, discussionCreatorId, user
         return;
     await assertProjectPermission(tx, projectId, userId, 'canEditAnyDiscussion');
 };
-export const listMessagesService = async (projectId, discussionId, userId) => {
+export const listMessagesService = async (projectId, discussionId, userId, page = 1, limit = 50) => {
     await assertProjectMember(projectId, userId);
     await prisma.$transaction(tx => getDiscussionOrThrow(tx, projectId, discussionId));
-    const messages = await prisma.message.findMany({
-        where: {
-            discussionId,
-            isDeleted: false,
+    const skip = (page - 1) * limit;
+    const [messages, total] = await Promise.all([
+        prisma.message.findMany({
+            where: {
+                discussionId,
+                isDeleted: false,
+            },
+            select: messageSelect,
+            skip,
+            take: limit,
+            orderBy: {
+                createdAt: 'asc',
+            },
+        }),
+        prisma.message.count({
+            where: {
+                discussionId,
+                isDeleted: false,
+            },
+        }),
+    ]);
+    return {
+        items: messages.map(mapMessage),
+        pagination: {
+            page,
+            limit,
+            total,
+            totalPages: Math.ceil(total / limit),
         },
-        select: messageSelect,
-        orderBy: {
-            createdAt: 'asc',
-        },
-    });
-    return messages.map(mapMessage);
+    };
 };
 export const createMessageService = async (input, userId) => {
     return prisma.$transaction(async (tx) => {

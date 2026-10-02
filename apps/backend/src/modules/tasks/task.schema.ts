@@ -85,6 +85,13 @@ export const listTasksQuerySchema = z.object({
   assignedTo: z.coerce.number().int().positive().optional(),
   status: TaskStatusEnum.optional(),
   taskType: TaskTypeEnum.optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
+
+export const listWorkspaceAssignedTasksQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 })
 
 export const createPersonalTaskSchema = z.object({

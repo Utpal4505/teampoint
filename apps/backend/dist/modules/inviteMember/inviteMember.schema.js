@@ -16,4 +16,8 @@ export const validateInviteParamSchema = z.object({
     tokenId: z.string().regex(/^\d+$/, 'Invalid token ID'),
     token: z.string().trim().min(1, 'Token is required'),
 });
+export const listInvitesQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 //# sourceMappingURL=inviteMember.schema.js.map

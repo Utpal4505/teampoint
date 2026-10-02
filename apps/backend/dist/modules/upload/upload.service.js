@@ -3,8 +3,11 @@ import { ApiError } from '../../utils/apiError.js';
 import { assertProjectMember } from '../../utils/assertProjectMember.js';
 import { ensureExists } from '../../utils/ensureExists.js';
 import storage from './storage/index.js';
+import { normalizeUploadFileName, validateUploadType } from './upload.schema.js';
 export const uploadRequestService = async (input, userId) => {
     const { category, contentType, contextId, fileName, fileSize } = input;
+    const safeFileName = normalizeUploadFileName(fileName);
+    validateUploadType(category, safeFileName, contentType);
     if (category === 'AVATAR') {
         if (contextId !== userId) {
             throw new ApiError(403, 'You can only upload your own avatar');
@@ -13,7 +16,10 @@ export const uploadRequestService = async (input, userId) => {
     if (category === 'DOCUMENT') {
         await assertProjectMember(contextId, userId);
     }
-    const uploadData = await storage.generateSignedUploadUrl(input);
+    const uploadData = await storage.generateSignedUploadUrl({
+        ...input,
+        fileName: safeFileName,
+    });
     const upload = await prisma.upload.create({
         data: {
             category,
@@ -63,6 +69,8 @@ export const uploadCompleteService = async (uploadId, userId, tx) => {
 };
 export const directUploadService = async (input, fileBuffer, userId) => {
     const { category, contentType, contextId, fileName, fileSize } = input;
+    const safeFileName = normalizeUploadFileName(fileName);
+    validateUploadType(category, safeFileName, contentType);
     if (category === 'AVATAR') {
         if (contextId !== userId) {
             throw new ApiError(403, 'You can only upload your own avatar');
@@ -74,7 +82,7 @@ export const directUploadService = async (input, fileBuffer, userId) => {
     const uploadData = await storage.directUploadToR2({
         category,
         contextId,
-        fileName,
+        fileName: safeFileName,
         contentType,
         fileSize,
     }, fileBuffer);

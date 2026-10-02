@@ -74,7 +74,12 @@ export const listFeedbackService = async (
   projectId?: number,
   type?: FeedbackType,
   status?: FeedbackStatus,
+  options: { page?: number; limit?: number } = {},
 ) => {
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   return await prisma.feedback.findMany({
     where: {
       deletedAt: null,
@@ -83,6 +88,8 @@ export const listFeedbackService = async (
       ...(status && { status }),
     },
     include: feedbackInclude,
+    skip,
+    take: limit,
     orderBy: {
       createdAt: 'desc',
     },

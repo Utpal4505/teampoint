@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { validateRequest } from '../../middlewares/validateRequest.js';
-import { createWorkspaceSchema, workspaceIdParamSchema } from './workspace.schema.js';
+import { createWorkspaceSchema, listUserWorkspacesQuerySchema, listWorkspaceMembersQuerySchema, workspaceIdParamSchema, } from './workspace.schema.js';
 import { archiveWorkspaceController, createWorkspaceController, deleteWorkspaceController, getWorkspaceByIdController, listAllWorkspaceMembersController, listAllWorkspaceProjectController, listUserWorkspacesController, removeWorkspaceMemberController, updateWorkspaceController, updateWorkspaceMemberRoleController, } from './workspace.controller.js';
 import { hardAuth } from '../../middlewares/auth.middlewares.js';
 import { requireWorkspacePermission } from '../../middlewares/requireWorkspacePermission.middleware.js';
@@ -9,16 +9,16 @@ import { listWorkspaceAssignedTasksController } from '../tasks/task.controller.j
 import { listAllWorkspaceProjectQuerySchema } from '../project/project.schema.js';
 const router = Router();
 router.use(hardAuth);
-router.get('/user-workspaces', listUserWorkspacesController);
+router.get('/user-workspaces', validateRequest(listUserWorkspacesQuerySchema, 'query'), listUserWorkspacesController);
 router.post('/', validateRequest(createWorkspaceSchema, 'body'), createWorkspaceController);
-router.get('/:workspaceId', validateRequest(workspaceIdParamSchema, 'params'), getWorkspaceByIdController);
+router.get('/:workspaceId', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canViewMembers'), getWorkspaceByIdController);
 router.patch('/:workspaceId', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canEditWorkspace'), updateWorkspaceController);
 router.post('/:workspaceId/archive', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canArchiveWorkspace'), archiveWorkspaceController);
 router.delete('/:workspaceId', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canDeleteWorkspace'), deleteWorkspaceController);
-router.get('/:workspaceId/members', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canViewMembers'), listAllWorkspaceMembersController);
+router.get('/:workspaceId/members', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(listWorkspaceMembersQuerySchema, 'query'), requireWorkspacePermission('canViewMembers'), listAllWorkspaceMembersController);
 router.patch('/:workspaceId/members/:targetUserId', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(userIdParamSchema, 'params'), requireWorkspacePermission('canChangeRoles'), updateWorkspaceMemberRoleController);
 router.delete('/:workspaceId/members/:targetUserId', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(userIdParamSchema, 'params'), requireWorkspacePermission('canRemoveMembers'), removeWorkspaceMemberController);
-router.get('/:workspaceId/projects', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(listAllWorkspaceProjectQuerySchema, 'query'), listAllWorkspaceProjectController);
-router.get('/:workspaceId/my-tasks', validateRequest(workspaceIdParamSchema, 'params'), listWorkspaceAssignedTasksController);
+router.get('/:workspaceId/projects', validateRequest(workspaceIdParamSchema, 'params'), validateRequest(listAllWorkspaceProjectQuerySchema, 'query'), requireWorkspacePermission('canViewMembers'), listAllWorkspaceProjectController);
+router.get('/:workspaceId/my-tasks', validateRequest(workspaceIdParamSchema, 'params'), requireWorkspacePermission('canViewMembers'), listWorkspaceAssignedTasksController);
 export default router;
 //# sourceMappingURL=workspace.route.js.map

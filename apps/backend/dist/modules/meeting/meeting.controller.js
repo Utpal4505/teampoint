@@ -1,6 +1,7 @@
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import { assertUser } from '../../utils/assertUser.js';
 import { ApiResponse } from '../../utils/apiResponse.js';
+import { MeetingStatusSchema } from './meeting.schema.js';
 import { createMeetingService, listMeetingsService, getMeetingService, updateMeetingService, getParticipantsService, manageParticipantsService, completeMeetingService, cancelMeetingService, listWorkspaceMeetingsService, } from './meeting.service.js';
 export const createMeetingController = asyncHandler(async (req, res) => {
     assertUser(req.user);
@@ -15,9 +16,14 @@ export const createMeetingController = asyncHandler(async (req, res) => {
 });
 export const listMeetingsController = asyncHandler(async (req, res) => {
     assertUser(req.user);
+    const parsedStatus = MeetingStatusSchema.safeParse(req.query.status);
     const query = {
         projectId: Number(req.params.projectId),
-        ...req.query,
+        status: parsedStatus.success ? parsedStatus.data : undefined,
+        from: req.query.from ? new Date(req.query.from) : undefined,
+        to: req.query.to ? new Date(req.query.to) : undefined,
+        page: Number(req.query.page ?? 1),
+        limit: Number(req.query.limit ?? 20),
     };
     const result = await listMeetingsService(query, req.user.id);
     return res

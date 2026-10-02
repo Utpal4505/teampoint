@@ -4,7 +4,6 @@ import { idParam } from '../documentLinks/documentLinks.schema.js'
 
 export const MilestoneStatusSchema = z.nativeEnum(GoalStatus)
 
-
 export const CreateMilestoneSchema = z.object({
   projectId: idParam,
   title: z.string().trim().min(1).max(255),
@@ -25,7 +24,6 @@ export const CreateMilestoneResponseSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 })
-
 
 export const MilestoneListItemSchema = z.object({
   id: idParam,
@@ -77,7 +75,6 @@ export const UpdateMilestoneResponseSchema = z.object({
   updatedAt: z.date(),
 })
 
-
 export const CompleteMilestoneSchema = z.object({
   milestoneId: idParam,
 })
@@ -95,4 +92,9 @@ export const DeleteMilestoneSchema = z.object({
 export const DeleteMilestoneResponseSchema = z.object({
   id: idParam,
   deletedAt: z.date(),
+})
+
+export const ListMilestonesQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 })

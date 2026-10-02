@@ -106,6 +106,7 @@ export const addProjectMemberService = async (
           status: WorkspaceMemberStatus.ACTIVE,
           joinedAt: new Date(),
           updatedAt: new Date(),
+          permissions: PROJECT_ROLE_PERMISSIONS[role],
         },
         select: {
           projectId: true,
@@ -141,7 +142,12 @@ export const addProjectMemberService = async (
 
 export const listProjectMembersService = async (
   projectId: number,
+  options: { page?: number; limit?: number } = {},
 ): Promise<ListProjectMemberDTO> => {
+  const page = Math.max(1, options.page ?? 1)
+  const limit = Math.min(Math.max(1, options.limit ?? 20), 100)
+  const skip = (page - 1) * limit
+
   const project = await prisma.project.findUnique({
     where: { id: projectId },
     select: { id: true, status: true },
@@ -172,6 +178,8 @@ export const listProjectMembersService = async (
         },
       },
     },
+    skip,
+    take: limit,
     orderBy: {
       joinedAt: 'asc',
     },
@@ -262,6 +270,10 @@ export const updateProjectMemberService = async (
 
     if (status !== undefined) {
       updateData.status = status
+    }
+
+    if (role !== undefined) {
+      updateData.permissions = PROJECT_ROLE_PERMISSIONS[role]
     }
 
     const updatedMember = await tx.project_Members.update({

@@ -5,6 +5,7 @@ import { validateRequest } from '../../middlewares/validateRequest.js'
 import {
   CreateDocumentLinkSchema,
   DocumentEntityTypeSchema,
+  ListEntityDocumentLinksQuerySchema,
   idParam,
 } from './documentLinks.schema.js'
 
@@ -27,6 +28,7 @@ router.post(
 router.get(
   '/:entityType/:entityId',
   validateRequest(DocumentEntityTypeSchema, 'params'),
+  validateRequest(ListEntityDocumentLinksQuerySchema, 'query'),
   listEntityDocumentLinksController,
 )
 

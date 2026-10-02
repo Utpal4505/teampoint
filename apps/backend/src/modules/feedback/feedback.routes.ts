@@ -1,6 +1,10 @@
 import { Router } from 'express'
 import { validateRequest } from '../../middlewares/validateRequest.js'
-import { createFeedbackSchema, updateFeedbackStatusSchema } from './feedback.schema.js'
+import {
+  createFeedbackSchema,
+  listFeedbackQuerySchema,
+  updateFeedbackStatusSchema,
+} from './feedback.schema.js'
 import {
   createFeedbackController,
   getFeedbackController,
@@ -19,7 +23,7 @@ router.use(softAuth)
 router.post('/', validateRequest(createFeedbackSchema), createFeedbackController)
 
 // List feedback with filters
-router.get('/', listFeedbackController)
+router.get('/', validateRequest(listFeedbackQuerySchema, 'query'), listFeedbackController)
 
 // Get feedback by ID
 router.get('/:id', getFeedbackController)

@@ -13,7 +13,7 @@ import {
   listMilestonesService,
   updateMilestoneService,
 } from './milestone.service.js'
-
+import { ListMilestonesQuerySchema } from './milestone.schema.js'
 
 export const createMilestoneController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -27,19 +27,21 @@ export const createMilestoneController = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, 'Milestone created successfully', milestone))
 })
 
-
 export const listMilestonesController = asyncHandler(async (req, res) => {
   assertUser(req.user)
 
   const projectId = Number(req.params.projectId)
+  const parsed = ListMilestonesQuerySchema.parse(req.query)
 
-  const result = await listMilestonesService(projectId, req.user.id)
+  const result = await listMilestonesService(projectId, req.user.id, {
+    page: parsed.page,
+    limit: parsed.limit,
+  })
 
   return res
     .status(200)
     .json(new ApiResponse(200, 'Milestones fetched successfully', result))
 })
-
 
 export const getMilestoneController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -52,7 +54,6 @@ export const getMilestoneController = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, 'Milestone fetched successfully', milestone))
 })
-
 
 export const updateMilestoneController = asyncHandler(async (req, res) => {
   assertUser(req.user)
@@ -68,7 +69,6 @@ export const updateMilestoneController = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, 'Milestone updated successfully', updated))
 })
-
 
 export const completeMilestoneController = asyncHandler(async (req, res) => {
   assertUser(req.user)

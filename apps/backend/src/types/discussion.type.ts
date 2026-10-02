@@ -44,7 +44,15 @@ export type DiscussionListItem = {
   messageCount: number
 }
 
-export type ListDiscussionDTO = DiscussionListItem[]
+export type ListDiscussionDTO = {
+  items: DiscussionListItem[]
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
 
 export type CreateDiscussionDTO = DiscussionListItem
 

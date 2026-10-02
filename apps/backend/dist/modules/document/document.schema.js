@@ -37,4 +37,8 @@ export const UpdateDocumentSchema = z.object({
 export const documentIdParamSchema = z.object({
     documentId: z.coerce.number().int().positive().transform(Number),
 });
+export const listDocumentsQuerySchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 //# sourceMappingURL=document.schema.js.map

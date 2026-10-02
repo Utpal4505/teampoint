@@ -1,9 +1,6 @@
 import type { NextConfig } from 'next'
 const nextConfig: NextConfig = {
   skipTrailingSlashRedirect: true,
-  env: {
-    NEXT_PUBLIC_API_URL: 'https://teampoint-backend.onrender.com/api/v1',
-  },
   images: {
     remotePatterns: [
       {

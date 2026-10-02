@@ -1,6 +1,5 @@
-export type DiscussionStatus = 'OPEN' | 'CLOSED'
-export type DiscussionType = 'GENERAL' | 'TASK'
-export type MessageType = 'NORMAL' | 'DECISION'
+import type { DiscussionStatus, DiscussionType, MessageType } from '@teampoint/shared-types'
+export type { DiscussionStatus, DiscussionType, MessageType }
 
 export interface DiscussionUser {
   id: number

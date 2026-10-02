@@ -156,7 +156,10 @@ export const getSingleInviteService = async (input) => {
     };
 };
 export const listAllInvitesService = async (input) => {
-    const { workspaceId } = input;
+    const { workspaceId, page = 1, limit = 20 } = input;
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(Math.max(1, limit), 100);
+    const skip = (safePage - 1) * safeLimit;
     const invites = await prisma.invite_Member.findMany({
         where: { workspaceId },
         select: {
@@ -167,6 +170,9 @@ export const listAllInvitesService = async (input) => {
             createdAt: true,
             expiredAt: true,
         },
+        skip,
+        take: safeLimit,
+        orderBy: { createdAt: 'desc' },
     });
     return invites.map(i => ({
         inviteId: i.id,
